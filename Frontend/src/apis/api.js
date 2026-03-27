@@ -1,13 +1,10 @@
-const BASE_URL = 'https://German-Api-project.onrender.com/api';
+const BASE_URL = 'https://german-api-project.onrender.com/api';
 const USER_AGENT = 'TransitFlowAustria/1.0';
 
 async function fetchFromApi(url, retries = 3) {
     for (let attempt = 1; attempt <= retries; attempt++){
         try{
-            const response = await fetch(url, {
-                headers: {
-                    'User-Agent': USER_AGENT
-                }
+            const response = await fetch(url);
             })
             if (response.status === 429) {
                 await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); 
