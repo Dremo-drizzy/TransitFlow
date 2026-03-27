@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'http://localhost:5000/api';const BASE_URL = 'https://German-Api-project.onrender.com/api';
 const USER_AGENT = 'TransitFlowAustria/1.0';
 
 async function fetchFromApi(url, retries = 3) {
