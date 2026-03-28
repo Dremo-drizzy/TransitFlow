@@ -5,7 +5,6 @@ async function fetchFromApi(url, retries = 3) {
     for (let attempt = 1; attempt <= retries; attempt++){
         try{
             const response = await fetch(url);
-            })
             if (response.status === 429) {
                 await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); 
                 continue; 
