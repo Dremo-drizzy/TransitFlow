@@ -5,7 +5,7 @@ import '../css/TransNavbar.css';
 
 export default function TransNavbar() {
   return (
-    <Navbar expand="lg" className="navbar-custom bg-black fixed-top">
+    <Navbar expand="lg" className="navbar-custom bg-black px-3 fixed-top">
       <Container fluid>
         <Navbar.Brand as={Link} to="/" className="brand-logo">
           <span className="brand-icon">🚆</span>
