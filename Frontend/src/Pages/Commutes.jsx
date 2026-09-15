@@ -79,7 +79,7 @@ export default function Commutes() {
           </Card>
         ) : (
           <Row className="g-3">
-            {commutes.map((commute, i) => (
+            {commutes.map((commute) => (
               <Col xs={12} md={6} lg={4} key={commute.id}>
                 <CommuteCard
                   commute={commute}
