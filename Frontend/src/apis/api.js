@@ -1,4 +1,4 @@
-const BASE_URL = 'https://german-api-project.onrender.com/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 const USER_AGENT = 'TransitFlowAustria/1.0';
 
 async function fetchFromApi(url, retries = 3) {

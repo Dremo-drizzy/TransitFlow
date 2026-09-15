@@ -1,4 +1,4 @@
-import { Card, Button, Badge } from 'react-bootstrap';
+import { Card, Button } from 'react-bootstrap';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import '../css/CommuteCard.css';

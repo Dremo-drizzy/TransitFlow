@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import TransNavbar from './Components/TransNavbar';

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Container, Button, Spinner, Badge } from 'react-bootstrap';
+import { Container, Button, Spinner } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useJourneys } from '../hooks/useJourneys';

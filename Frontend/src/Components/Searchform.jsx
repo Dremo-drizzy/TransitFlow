@@ -5,8 +5,8 @@ import '../css/SearchForm.css';
 export default function SearchForm({
   fromQuery, setFromQuery,
   toQuery,   setToQuery,
-  selectedFrom, setSelectedFrom,
-  selectedTo,   setSelectedTo,
+  setSelectedFrom,
+  setSelectedTo,
   showFrom, setShowFrom,
   showTo,   setShowTo,
   departure, setDeparture,
