@@ -233,6 +233,12 @@ Then finish it:
      about a minute" banner. Put this in a useServerWake hook; render the banner in
      App.jsx. Keep it plain for now, Stage 3 will style it.
 
+Note: the Backend "test" script is currently a no-op that exits 0 (Stage 1 wired
+the CI job ahead of this stage having real tests, so it wouldn't just turn CI red
+again). That means the backend CI job has been passing vacuously — replacing this
+placeholder with the real vitest suite below is part of closing that out, not
+optional polish.
+
 Verify: from Backend/, npm install && npm test. Then start the server and show me:
   curl -s localhost:5000/health
   curl -s -o /dev/null -w "%{http_code}\n" localhost:5000/api/foo        # expect 404
@@ -258,11 +264,19 @@ The look: a mechanical split-flap departure board. Near-black housing, amber
 monospace readouts, phosphor green for live/on-time, hard edges, almost no border
 radius, no soft shadows. Think Frankfurt Hbf in 1985, not a SaaS dashboard.
 
-1. Fonts. In Frontend/index.html add preconnect + a Google Fonts link for
+1. Set up the component testing stack FIRST — Stage 1 deferred this and Stage 3
+   is where it comes due. Install jsdom, @testing-library/react and
+   @testing-library/jest-dom as devDependencies, configure vitest with
+   environment: 'jsdom' and a setup file, and prove it works by backfilling the
+   two tests Stage 1 deferred: useDebounce (fake timers — it debounces, and it
+   cancels on unmount) and ErrorBoundary (it catches a throwing child and
+   renders the fallback). Only then start on the design system.
+
+2. Fonts. In Frontend/index.html add preconnect + a Google Fonts link for
    IBM Plex Mono (400, 600, 700) and Inter (400, 600, 800). Every real fallback stack
    ends in monospace / system-ui respectively.
 
-2. Create Frontend/src/css/theme.css — the single source of truth for the palette.
+3. Create Frontend/src/css/theme.css — the single source of truth for the palette.
    Set data-bs-theme="dark" on <html> in index.html, then override Bootstrap 5.3's
    own custom properties inside [data-bs-theme="dark"] so that react-bootstrap
    components inherit the theme instead of fighting it. This is the whole trick of
@@ -291,7 +305,7 @@ radius, no soft shadows. Think Frankfurt Hbf in 1985, not a SaaS dashboard.
    Import theme.css FIRST in main.jsx, before bootstrap's own CSS, and confirm
    the cascade order actually works — check in the browser, do not assume.
 
-3. Build Frontend/src/Components/SplitFlap.jsx + src/css/SplitFlap.css.
+4. Build Frontend/src/Components/SplitFlap.jsx + src/css/SplitFlap.css.
 
    API:  <SplitFlap value="20:18" length={5} tone="amber" />
    tone is one of amber | green | red | muted.
@@ -314,7 +328,7 @@ radius, no soft shadows. Think Frankfurt Hbf in 1985, not a SaaS dashboard.
    Write SplitFlap.test.jsx: renders the right number of cells, pads short values,
    truncates long ones, and marks only changed indices as flipping.
 
-4. Restyle the shell only:
+5. Restyle the shell only:
    - TransNavbar: full-width black bar, thin --tf-edge bottom border, brand in
      IBM Plex Mono with wide letter-spacing, active NavLink marked with a 2px amber
      underline rather than a colour change.
@@ -325,7 +339,7 @@ radius, no soft shadows. Think Frankfurt Hbf in 1985, not a SaaS dashboard.
      scanline overlay at under 3% opacity. Subtle. If you can see individual lines at
      100% zoom it is too strong.
 
-5. Build a temporary /styleguide route rendering the palette, both fonts, and
+6. Build a temporary /styleguide route rendering the palette, both fonts, and
    SplitFlap in all four tones with a button that changes the value so the flip can
    be inspected. Delete this route at the end of Stage 4.
 
