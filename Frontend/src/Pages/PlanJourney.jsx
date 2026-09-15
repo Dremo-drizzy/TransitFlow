@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Container, Button, Spinner } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -7,46 +7,46 @@ import SearchForm from '../Components/Searchform';
 import JourneyCard from '../Components/JourneyCard';
 import '../css/PlanJourney.css';
 
+// searchParams.get() already URL-decodes — a second decodeURIComponent() is
+// a double decode that throws URIError on a stray '%' in a station name.
+function stationFromParams(searchParams, idKey, nameKey) {
+  const id = searchParams.get(idKey);
+  if (!id) return null;
+  return { id, name: searchParams.get(nameKey) || '' };
+}
+
 export default function PlanJourney() {
+  // App.jsx keys this component by location.search, so navigating to /plan
+  // with new query params (e.g. from Commutes or QuickSearch) remounts it —
+  // these lazy initializers re-run instead of needing an effect + setState
+  // to re-sync stale state.
   const [searchParams] = useSearchParams();
 
-  const [fromQuery, setFromQuery] = useState('');
-  const [toQuery,   setToQuery]   = useState('');
-  const [selectedFrom, setSelectedFrom] = useState(null);
-  const [selectedTo,   setSelectedTo]   = useState(null);
+  const [selectedFrom, setSelectedFrom] = useState(() => stationFromParams(searchParams, 'from', 'fromName'));
+  const [selectedTo,   setSelectedTo]   = useState(() => stationFromParams(searchParams, 'to', 'toName'));
+  const [fromQuery, setFromQuery] = useState(() => selectedFrom?.name || '');
+  const [toQuery,   setToQuery]   = useState(() => selectedTo?.name || '');
   const [showFrom, setShowFrom] = useState(false);
   const [showTo,   setShowTo]   = useState(false);
-  const [departure, setDeparture] = useState(new Date().toISOString());
-  const [searchTriggered, setSearchTriggered] = useState(0);
-
-  useEffect(() => {
-    const from     = searchParams.get('from');
-    const to       = searchParams.get('to');
-    const fromName = searchParams.get('fromName');
-    const toName   = searchParams.get('toName');
-
-    if (from && to) {
-      setSelectedFrom({ id: from, name: decodeURIComponent(fromName || '') });
-      setSelectedTo({ id: to, name: decodeURIComponent(toName || '') });
-      setFromQuery(decodeURIComponent(fromName || ''));
-      setToQuery(decodeURIComponent(toName || ''));
-      setSearchTriggered(1);
-    }
-  }, []);
+  const [departure, setDeparture] = useState(() => new Date().toISOString());
+  const [searchTriggered, setSearchTriggered] = useState(() => (selectedFrom && selectedTo) ? 1 : 0);
 
   const params = {
-    from: selectedFrom?.id || fromQuery,
-    to:   selectedTo?.id   || toQuery,
+    // Gate strictly on a selected station's id — falling back to raw typed
+    // text meant every keystroke (once both boxes had text) sent a
+    // half-typed ?from=be&to=mu upstream and 400'd.
+    from: selectedFrom?.id,
+    to:   selectedTo?.id,
     departure,
   };
 
-  const { data, isLoading, error, refetch } = useJourneys(params, searchTriggered);
+  const { data, isLoading, error } = useJourneys(params, searchTriggered);
 
   const handleSearch = () => {
-    if (!fromQuery && !selectedFrom) return;
-    if (!toQuery   && !selectedTo)   return;
+    if (!selectedFrom?.id || !selectedTo?.id) return;
+    // Bumping searchTriggered already changes the query key and refetches —
+    // calling refetch() too was firing the request twice per click.
     setSearchTriggered((n) => n + 1);
-    refetch();
   };
 
   const handleSwap = () => {
@@ -91,7 +91,7 @@ export default function PlanJourney() {
           <Button
           className='refresh border-1'
            size='sm'
-            onClick={() => { setSearchTriggered((n) => n + 1); refetch(); }}
+            onClick={() => setSearchTriggered((n) => n + 1)}
           >
             Refresh
           </Button>

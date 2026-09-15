@@ -1,5 +1,6 @@
 import { Card, Button, Row, Col, Form, ListGroup, Spinner } from 'react-bootstrap';
 import { useLocations } from '../hooks/useLocation';
+import { toDatetimeLocalValue, fromDatetimeLocalValue } from '../utils/transportUtils';
 import '../css/SearchForm.css';
 
 export default function SearchForm({
@@ -93,8 +94,11 @@ export default function SearchForm({
             <Form.Label>Departure</Form.Label>
             <Form.Control
               type="datetime-local"
-              value={departure.slice(0, 16)}
-              onChange={(e) => setDeparture(new Date(e.target.value).toISOString())}
+              value={toDatetimeLocalValue(departure)}
+              onChange={(e) => {
+                const iso = fromDatetimeLocalValue(e.target.value);
+                if (iso) setDeparture(iso);
+              }}
             />
           </Col>
 
