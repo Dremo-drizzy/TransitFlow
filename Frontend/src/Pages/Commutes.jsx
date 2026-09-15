@@ -9,12 +9,12 @@ import '../css/Commutes.css';
 
 export default function Commutes() {
   const navigate = useNavigate();
-  const [commutes, setCommutes] = useState(loadFromLocalStorage('commutes', []));
+  const [commutes, setCommutes] = useState(() => loadFromLocalStorage('commutes', []));
   const [showModal, setShowModal] = useState(false);
 
   const handleAdd = ({ name, from, to }) => {
     const newCommute = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       name,
       from,
       to,

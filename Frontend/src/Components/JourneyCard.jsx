@@ -3,8 +3,11 @@ import { formatTime, formatDuration, getProductIcon, formatDelay, getDelayMinute
 import '../css/JourneyCard.css';
 
 export default function JourneyCard({ journey, index = 0 }) {
-  const firstLeg = journey.legs[0];
-  const lastLeg  = journey.legs[journey.legs.length - 1];
+  const legs = journey?.legs || [];
+  if (legs.length === 0) return null;
+
+  const firstLeg = legs[0];
+  const lastLeg  = legs[legs.length - 1];
 
   return (
     <Card className="journey-card text-white" style={{ animationDelay: `${index * 0.07}s` }}>
@@ -17,14 +20,14 @@ export default function JourneyCard({ journey, index = 0 }) {
             {formatTime(firstLeg?.plannedDeparture)} → {formatTime(lastLeg?.plannedArrival)}
           </div>
         </div>
-        <Badge bg={journey.legs.length > 1 ? 'secondary' : 'primary'}>
+        <Badge bg={legs.length > 1 ? 'secondary' : 'primary'}>
           {formatDuration(journey.duration)}
-          {journey.legs.length > 1 && ` · ${journey.legs.length - 1} change${journey.legs.length > 2 ? 's' : ''}`}
+          {legs.length > 1 && ` · ${legs.length - 1} change${legs.length > 2 ? 's' : ''}`}
         </Badge>
       </Card.Header>
 
       <ListGroup variant="flush">
-        {journey.legs.map((leg, i) => {
+        {legs.map((leg, i) => {
           const delay = getDelayMinutes(leg.plannedDeparture, leg.departure);
           return (
             <div className="journey-leg" key={i}>

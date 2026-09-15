@@ -34,4 +34,12 @@ export default defineConfig([
       'react/jsx-uses-vars': 'error',
     },
   },
+  {
+    // Tests run under vitest/Node, not the browser, so they need `process`
+    // etc. in scope too.
+    files: ['**/*.test.{js,jsx}'],
+    languageOptions: {
+      globals: globals.node,
+    },
+  },
 ])

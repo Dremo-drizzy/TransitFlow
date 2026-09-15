@@ -1,4 +1,4 @@
-import { format, parseISO, differenceInMinutes } from 'date-fns';
+import { format, parseISO, differenceInMinutes, isValid } from 'date-fns';
 
 // Format an ISO date string to HH:mm — e.g. "14:32"
 export const formatTime = (dateString) => {
@@ -14,7 +14,13 @@ export const formatTime = (dateString) => {
 export const getDelayMinutes = (scheduled, actual) => {
   if (!scheduled || !actual) return 0;
   try {
-    return differenceInMinutes(parseISO(actual), parseISO(scheduled));
+    const scheduledDate = parseISO(scheduled);
+    const actualDate = parseISO(actual);
+    // parseISO doesn't throw on a malformed string — it returns an Invalid
+    // Date, and differenceInMinutes silently returns NaN for that rather
+    // than throwing, so the catch below never fires. Check explicitly.
+    if (!isValid(scheduledDate) || !isValid(actualDate)) return 0;
+    return differenceInMinutes(actualDate, scheduledDate);
   } catch {
     return 0;
   }
@@ -22,12 +28,15 @@ export const getDelayMinutes = (scheduled, actual) => {
 
 // Turn delay minutes into a readable string — e.g. "+7 min" or "On time"
 export const formatDelay = (delayMinutes) => {
-  if (delayMinutes <= 0) return 'On time';
+  if (delayMinutes == null || Number.isNaN(delayMinutes) || delayMinutes <= 0) {
+    return 'On time';
+  }
   return `+${delayMinutes} min`;
 };
 
 // Bootstrap badge colour based on how late something is
 export const getDelayBadgeVariant = (delayMinutes) => {
+  if (delayMinutes == null || Number.isNaN(delayMinutes)) return 'secondary';
   if (delayMinutes <= 0) return 'success';
   if (delayMinutes < 5)  return 'warning';
   return 'danger';
@@ -35,24 +44,59 @@ export const getDelayBadgeVariant = (delayMinutes) => {
 
 // Convert seconds to a human-readable duration — e.g. "2h 18m"
 export const formatDuration = (seconds) => {
-  if (!seconds) return '';
+  if (!seconds || typeof seconds !== 'number' || Number.isNaN(seconds)) return '';
   const hours   = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 };
 
-// Pick an emoji icon based on the transport type
+// line.product from the DB API is a plain string id (e.g. "nationalExpress",
+// "suburban", "bus") — not an object with .type/.name, which is what the old
+// version of this function assumed. Exact lookup, no substring guessing.
+const PRODUCT_ICONS = {
+  nationalExpress: '🚄',
+  national:        '🚆',
+  regionalExpress: '🚆',
+  regional:        '🚆',
+  suburban:        '🚈',
+  subway:          '🚇',
+  tram:            '🚊',
+  bus:             '🚌',
+  ferry:           '⛴️',
+  taxi:            '🚕',
+};
+const DEFAULT_PRODUCT_ICON = '🚏';
+
+// Pick an emoji icon based on the transport product. Accepts either the
+// string id the DB API actually sends, or an object with a .type for
+// callers that still pass one.
 export const getProductIcon = (product) => {
-  if (!product) return '🚇';
-  const t = product.type?.toLowerCase() || product.name?.toLowerCase() || '';
-  if (t.includes('ice') || t.includes('high_speed')) return '🚄';
-  if (t.includes('regional') || t.includes('re'))    return '🚆';
-  if (t.includes('s-bahn') || t.includes('s'))       return '🚈';
-  if (t.includes('u-bahn') || t.includes('u'))       return '🚇';
-  if (t.includes('tram'))                            return '🚊';
-  if (t.includes('bus'))                             return '🚌';
-  if (t.includes('ferry'))                           return '⛴️';
-  return '🚇';
+  const id = typeof product === 'string' ? product : product?.type;
+  return PRODUCT_ICONS[id] || DEFAULT_PRODUCT_ICON;
+};
+
+// Convert an ISO datetime string to the local wall-clock value
+// <input type="datetime-local"> expects ("YYYY-MM-DDTHH:mm"). An ISO string
+// is UTC (or carries its own offset); slicing it directly displays UTC time,
+// which is off by the viewer's UTC offset.
+export const toDatetimeLocalValue = (isoString) => {
+  if (!isoString) return '';
+  try {
+    const date = parseISO(isoString);
+    if (!isValid(date)) return '';
+    return format(date, "yyyy-MM-dd'T'HH:mm");
+  } catch {
+    return '';
+  }
+};
+
+// Convert a <input type="datetime-local"> value (local wall-clock time, no
+// timezone info) back to a UTC ISO string for the API.
+export const fromDatetimeLocalValue = (localValue) => {
+  if (!localValue) return null;
+  const date = new Date(localValue);
+  if (!isValid(date)) return null;
+  return date.toISOString();
 };
 
 // Save any value to localStorage under a key

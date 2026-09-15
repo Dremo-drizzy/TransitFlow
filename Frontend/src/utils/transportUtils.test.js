@@ -1,10 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import {
   formatTime,
   formatDuration,
   getDelayMinutes,
   formatDelay,
   getDelayBadgeVariant,
+  getProductIcon,
+  toDatetimeLocalValue,
+  fromDatetimeLocalValue,
 } from './transportUtils';
 
 describe('formatTime', () => {
@@ -49,10 +52,7 @@ describe('formatDuration', () => {
     expect(formatDuration(4980)).toBe('1h 23m');
   });
 
-  // TODO(Stage 1): formatDuration(seconds) does `!seconds` then floors seconds/3600
-  // with no numeric validation, so a non-numeric input produces "NaNh NaNm" instead
-  // of a safe fallback. Fix in Stage 1, not here.
-  it.fails('returns "" for a malformed (non-numeric) input', () => {
+  it('returns "" for a malformed (non-numeric) input', () => {
     expect(formatDuration('not-a-number')).toBe('');
   });
 });
@@ -82,11 +82,7 @@ describe('getDelayMinutes', () => {
     ).toBe(-7);
   });
 
-  // TODO(Stage 1): parseISO on a malformed string produces an Invalid Date, and
-  // differenceInMinutes silently returns NaN instead of throwing — the try/catch
-  // in getDelayMinutes never fires, so malformed input returns NaN instead of the
-  // documented 0 fallback. Fix in Stage 1, not here.
-  it.fails('returns 0 for a malformed scheduled/actual string', () => {
+  it('returns 0 for a malformed scheduled/actual string', () => {
     expect(getDelayMinutes('not-a-date', 'also-not-a-date')).toBe(0);
   });
 });
@@ -104,11 +100,7 @@ describe('formatDelay', () => {
     expect(formatDelay(7)).toBe('+7 min');
   });
 
-  // TODO(Stage 1): formatDelay does `delayMinutes <= 0` with no null/NaN guard, so
-  // undefined/NaN fall through to the string-interpolation branch and produce
-  // "+undefined min" / "+NaN min" instead of a safe fallback like "On time". Fix in
-  // Stage 1, not here.
-  it.fails('returns "On time" for null/undefined delay', () => {
+  it('returns "On time" for null/undefined delay', () => {
     expect(formatDelay(undefined)).toBe('On time');
   });
 });
@@ -130,11 +122,95 @@ describe('getDelayBadgeVariant', () => {
     expect(getDelayBadgeVariant(10)).toBe('danger');
   });
 
-  // TODO(Stage 1): getDelayBadgeVariant has no null/NaN guard, so undefined delay
-  // minutes fall through both comparisons (undefined <= 0 and undefined < 5 are
-  // both false) and produce "danger" — the worst-looking badge — for missing data,
-  // instead of a neutral fallback. Fix in Stage 1, not here.
-  it.fails('returns a neutral variant for undefined delay', () => {
-    expect(getDelayBadgeVariant(undefined)).not.toBe('danger');
+  it('returns a neutral variant for undefined delay', () => {
+    expect(getDelayBadgeVariant(undefined)).toBe('secondary');
+  });
+});
+
+describe('getProductIcon', () => {
+  const cases = [
+    ['nationalExpress', '🚄'],
+    ['national', '🚆'],
+    ['regionalExpress', '🚆'],
+    ['regional', '🚆'],
+    ['suburban', '🚈'],
+    ['subway', '🚇'],
+    ['tram', '🚊'],
+    ['bus', '🚌'],
+    ['ferry', '⛴️'],
+    ['taxi', '🚕'],
+  ];
+
+  it.each(cases)('returns the right icon for product id "%s"', (id, icon) => {
+    expect(getProductIcon(id)).toBe(icon);
+  });
+
+  it('accepts an object with a .type instead of a bare string', () => {
+    expect(getProductIcon({ type: 'bus' })).toBe('🚌');
+  });
+
+  it('falls back to a neutral icon for an unrecognised product id', () => {
+    expect(getProductIcon('hyperloop')).not.toBe(undefined);
+    expect(getProductIcon('hyperloop')).toBe('🚏');
+  });
+
+  it('falls back to a neutral icon for null/undefined', () => {
+    expect(getProductIcon(null)).toBe('🚏');
+    expect(getProductIcon(undefined)).toBe('🚏');
+  });
+
+  it('does not let a bus match the old broken "s" substring check for S-Bahn', () => {
+    // Regression guard for the old implementation, where t.includes('s') for
+    // S-Bahn was checked before the bus branch, so "bus" (which contains no
+    // "s"... but the old `t` was built from product.type/.name, always '' for
+    // a string product) matched the wrong branch. Confirm bus and suburban
+    // never collide now that lookup is exact.
+    expect(getProductIcon('bus')).not.toBe(getProductIcon('suburban'));
+  });
+});
+
+describe('toDatetimeLocalValue / fromDatetimeLocalValue', () => {
+  const originalTZ = process.env.TZ;
+
+  beforeAll(() => {
+    // Pin a non-UTC zone so a naive implementation that treats ISO strings
+    // as already-local (e.g. departure.slice(0, 16)) would fail this test.
+    // New York is UTC-5 in January (EST, before DST starts in March).
+    process.env.TZ = 'America/New_York';
+  });
+
+  afterAll(() => {
+    process.env.TZ = originalTZ;
+  });
+
+  it('converts a UTC ISO string to local wall-clock time for the input value', () => {
+    expect(toDatetimeLocalValue('2024-01-15T14:32:00.000Z')).toBe('2024-01-15T09:32');
+  });
+
+  it('returns "" for a malformed ISO string', () => {
+    expect(toDatetimeLocalValue('not-a-date')).toBe('');
+  });
+
+  it('returns "" for null/undefined', () => {
+    expect(toDatetimeLocalValue(null)).toBe('');
+    expect(toDatetimeLocalValue(undefined)).toBe('');
+  });
+
+  it('converts a local wall-clock input value back to the correct UTC instant', () => {
+    expect(fromDatetimeLocalValue('2024-01-15T09:32')).toBe('2024-01-15T14:32:00.000Z');
+  });
+
+  it('round-trips through both conversions', () => {
+    const original = '2024-06-01T18:00:00.000Z';
+    const roundTripped = fromDatetimeLocalValue(toDatetimeLocalValue(original));
+    expect(roundTripped).toBe(original);
+  });
+
+  it('returns null for a malformed local value', () => {
+    expect(fromDatetimeLocalValue('not-a-date')).toBeNull();
+  });
+
+  it('returns null for an empty local value', () => {
+    expect(fromDatetimeLocalValue('')).toBeNull();
   });
 });

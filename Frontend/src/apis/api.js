@@ -1,24 +1,52 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-const USER_AGENT = 'TransitFlowAustria/1.0';
+
+const REQUEST_TIMEOUT_MS = 10000;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Exponential backoff with jitter: ~1s, ~2s, ~4s (plus up to 50% extra,
+// randomised), so retrying clients don't all hammer the upstream in lockstep.
+function backoffDelayMs(attempt) {
+  const base = 1000 * 2 ** (attempt - 1);
+  return base + Math.random() * base * 0.5;
+}
 
 async function fetchFromApi(url, retries = 3) {
-    for (let attempt = 1; attempt <= retries; attempt++){
-        try{
-            const response = await fetch(url);
-            if (response.status === 429) {
-                await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); 
-                continue; 
-            }
-            if (!response.ok){
-                throw new Error(`API request failed with status ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            if (attempt === retries - 1) {
-                throw error;
-            }
-        }
+  let lastError;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const isLastAttempt = attempt === retries;
+
+    let response;
+    try {
+      response = await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+    } catch (error) {
+      // Network error, timeout, or abort — worth retrying.
+      lastError = error;
+      if (isLastAttempt) throw lastError;
+      await sleep(backoffDelayMs(attempt));
+      continue;
     }
+
+    if (response.ok) {
+      return await response.json();
+    }
+
+    const isNon429ClientError = response.status >= 400 && response.status < 500 && response.status !== 429;
+    if (isNon429ClientError) {
+      // A 404/400/etc won't fix itself on retry — fail fast.
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    // 429 (rate limited) or a 5xx — worth retrying.
+    lastError = new Error(`API request failed with status ${response.status}`);
+    if (isLastAttempt) throw lastError;
+    await sleep(backoffDelayMs(attempt));
+  }
+
+  // Unreachable in practice (every branch above returns or throws), but
+  // guarantees fetchFromApi() can never silently resolve to undefined.
+  throw lastError;
 }
 
 export const searchLocations = async (query) => {
