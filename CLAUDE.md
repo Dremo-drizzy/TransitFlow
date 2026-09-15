@@ -5,6 +5,11 @@ live departures with delay info, plan multi-leg journeys, and save frequent
 commutes. It is a rebuild of a fetch-wrapper demo into a product with a
 split-flap departure board aesthetic and live map/trip tracking.
 
+This is a staged rebuild — see [docs/build-plan.md](docs/build-plan.md) for
+the source of truth on what each stage does, why, and its verification gate.
+Check it before starting work to see which stage is current and what the
+next one assumes is already in place.
+
 ## Upstream API
 
 All transit data comes from the public [v6.db.transport.rest](https://v6.db.transport.rest)
