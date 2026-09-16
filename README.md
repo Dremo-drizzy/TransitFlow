@@ -41,6 +41,19 @@ npm run dev
 
 The Vite dev server proxies `/api` to `http://localhost:5000`, so with both halves running locally there's nothing else to configure. To point the frontend at a different backend (e.g. a deployed one), copy `Frontend/.env.example` to `Frontend/.env` and set `VITE_API_BASE_URL`.
 
+## Deployment
+
+**Frontend (Vercel):**
+- **Root Directory** must be set to `Frontend` — the app lives in a subdirectory, not the repo root, and Vercel won't find it otherwise.
+- **`VITE_API_BASE_URL`** must be set as an environment variable, to the deployed backend's `/api` URL (e.g. `https://your-backend.onrender.com/api`). If it's left unset, `api.js` falls back to `/api`, which on a deployed frontend resolves against the frontend's own origin — there's no backend there. The build succeeds and the app loads fine; it's only once a user tries to search for a station or load departures that every single request 404s. That gap between "looks deployed" and "actually works" is exactly the kind of thing worth setting explicitly rather than trusting the fallback.
+- `Frontend/vercel.json` adds an SPA fallback rewrite (`/(.*)` → `/index.html`). The app uses `BrowserRouter`, so without this, Vercel has no static file at `/plan` or `/commutes` to serve — loading either route directly, or just refreshing on one, 404s. Only `/` would work.
+
+**Backend (Render):**
+- **Root Directory:** `Backend`.
+- **Start Command:** `npm start`.
+- **Environment variables:** currently just `PORT` (Render sets this automatically; the app defaults to `5000` if it's unset). Stage 2 of the rebuild replaces the current wildcard proxy with a hardened one and adds `Backend/.env.example` documenting its config, including `ALLOWED_ORIGINS`.
+- **Once Stage 2 lands:** `ALLOWED_ORIGINS` on the backend must include the deployed frontend's origin, or the backend's CORS policy will reject every request from it — the frontend will load, but every API call will fail as a CORS error rather than a 404, which is a different failure mode worth recognizing if it comes up.
+
 ## Roadmap
 
 This is a staged rebuild of an earlier fetch-wrapper version of this project into something that reads as a product — a split-flap departure board UI and live map/trip tracking are the end goal. The full plan, stage by stage, with what each one changes and why, lives in [`docs/build-plan.md`](docs/build-plan.md).
