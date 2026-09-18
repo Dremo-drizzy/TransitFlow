@@ -72,6 +72,34 @@ describe('fetchFromApi (exercised via searchLocations)', () => {
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
   });
 
+  it("surfaces the proxy's own error message instead of a generic status line", async () => {
+    globalThis.fetch.mockResolvedValueOnce(
+      jsonResponse({ error: 'Origin http://evil.example is not allowed' }, 403)
+    );
+
+    await expect(searchLocations('berlin')).rejects.toThrow(
+      'Origin http://evil.example is not allowed'
+    );
+  });
+
+  it('falls back to a generic message when the error body is not JSON', async () => {
+    // 502 isn't a 429-or-other-4xx, so it's in the retry bucket — needs the
+    // same fake-timer treatment as the 429/503 retry tests above.
+    const nonJsonErrorResponse = {
+      ok: false,
+      status: 502,
+      json: async () => {
+        throw new SyntaxError('Unexpected token < in JSON');
+      },
+    };
+    globalThis.fetch.mockResolvedValue(nonJsonErrorResponse);
+
+    const promise = searchLocations('berlin');
+    const assertion = expect(promise).rejects.toThrow(/502/);
+    await vi.runAllTimersAsync();
+    await assertion;
+  });
+
   it('retries on a 5xx and eventually rethrows if it never recovers', async () => {
     globalThis.fetch.mockResolvedValue(jsonResponse(null, 503));
 

@@ -8,14 +8,22 @@ import PlanJourney from './Pages/PlanJourney';
 import Commutes from './Pages/Commutes';
 import About from './Pages/About';
 import NotFound from './Pages/NotFound';
+import { useServerWake } from './hooks/useServerWake';
 import './App.css';
 
 export default function App() {
   const location = useLocation();
+  const waking = useServerWake();
 
   return (
     <div className="app-wrapper d-flex flex-column min-vh-100">
       <TransNavbar/>
+      {/* Plain for now — Stage 3 restyles this. */}
+      {waking && (
+        <div className="text-center bg-warning text-dark py-2">
+          Waking the server up — this can take about a minute…
+        </div>
+      )}
       {/* Keyed by pathname so a route that previously errored recovers on navigation. */}
       <ErrorBoundary key={location.pathname}>
         <AnimatePresence mode="wait">

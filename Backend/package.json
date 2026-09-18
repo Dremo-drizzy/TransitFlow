@@ -1,19 +1,31 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "",
+  "name": "transitflow-backend",
+  "version": "2.0.0",
+  "description": "Caching, rate-limited proxy in front of the v6.db.transport.rest API.",
   "main": "server.js",
-  "scripts": {
-    "test": "echo \"No backend tests yet — see Stage 2 in docs/build-plan.md\" && exit 0",
-    "start": "node server.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "transit",
+    "deutsche-bahn",
+    "proxy"
+  ],
+  "author": "",
+  "license": "MIT",
   "dependencies": {
-    "cors": "^2.8.6",
+    "cors": "^2.8.5",
     "express": "^5.2.1",
-    "node-fetch": "^3.3.2"
+    "express-rate-limit": "^8.1.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^5.0.1"
   }
 }

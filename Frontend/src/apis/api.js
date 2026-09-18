@@ -11,6 +11,21 @@ function backoffDelayMs(attempt) {
   return base + Math.random() * base * 0.5;
 }
 
+// The proxy answers errors with a JSON body like { error: "..." } (rate
+// limited, CORS-rejected, upstream timeout, etc). Surface that message
+// instead of a generic "status 429" — it's the difference between a user
+// seeing "Too many requests, slow down" and just "something went wrong".
+async function errorFromResponse(response) {
+  let message = `API request failed with status ${response.status}`;
+  try {
+    const body = await response.json();
+    if (body?.error) message = body.error;
+  } catch {
+    // Non-JSON error body (e.g. an HTML error page) — keep the generic message.
+  }
+  return new Error(message);
+}
+
 async function fetchFromApi(url, retries = 3) {
   let lastError;
 
@@ -35,11 +50,11 @@ async function fetchFromApi(url, retries = 3) {
     const isNon429ClientError = response.status >= 400 && response.status < 500 && response.status !== 429;
     if (isNon429ClientError) {
       // A 404/400/etc won't fix itself on retry — fail fast.
-      throw new Error(`API request failed with status ${response.status}`);
+      throw await errorFromResponse(response);
     }
 
     // 429 (rate limited) or a 5xx — worth retrying.
-    lastError = new Error(`API request failed with status ${response.status}`);
+    lastError = await errorFromResponse(response);
     if (isLastAttempt) throw lastError;
     await sleep(backoffDelayMs(attempt));
   }
