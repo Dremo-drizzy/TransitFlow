@@ -18,8 +18,8 @@
 }
 
 .brand-icon {
-  font-size: 1.2rem;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .brand-text {

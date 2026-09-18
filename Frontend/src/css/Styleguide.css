@@ -80,11 +80,27 @@
   font-size: 1.5rem;
 }
 
+.sg-flap-size-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.sg-flap-size-label {
+  font-family: var(--tf-font-mono);
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--tf-muted);
+  width: 2ch;
+  flex-shrink: 0;
+}
+
 .sg-flap-row {
   display: flex;
+  align-items: center;
   gap: 2rem;
   flex-wrap: wrap;
-  margin-bottom: 1.25rem;
 }
 
 .sg-flap-button {

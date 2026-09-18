@@ -55,12 +55,19 @@ export default function Styleguide() {
 
       <section className="sg-section">
         <h2 className="sg-section-title">SplitFlap</h2>
-        <div className="sg-flap-row">
-          <SplitFlap value={demoValue} length={5} tone="amber" />
-          <SplitFlap value={demoValue} length={5} tone="green" />
-          <SplitFlap value={demoValue} length={5} tone="red" />
-          <SplitFlap value={demoValue} length={5} tone="muted" />
-        </div>
+
+        {['sm', 'md', 'lg'].map((size) => (
+          <div className="sg-flap-size-row" key={size}>
+            <div className="sg-flap-size-label">{size}</div>
+            <div className="sg-flap-row">
+              <SplitFlap value={demoValue} length={5} tone="amber" size={size} />
+              <SplitFlap value={demoValue} length={5} tone="green" size={size} />
+              <SplitFlap value={demoValue} length={5} tone="red" size={size} />
+              <SplitFlap value={demoValue} length={5} tone="muted" size={size} />
+            </div>
+          </div>
+        ))}
+
         <button
           type="button"
           className="sg-flap-button"

@@ -1,34 +1,47 @@
 .split-flap {
   display: inline-flex;
+  /* Flaps on a real board sit nearly abutting, with the dark housing as a
+   * thin gutter between them — not spaced out like separate chips. */
   gap: 2px;
   font-family: var(--tf-font-mono);
 }
+
+/* Cell height is the single source of truth for scale; width, font-size and
+ * the hinge line are all derived from it so there's one number to tune per
+ * size, not three duplicated rulesets. */
+.split-flap-sm { --sf-size: 22px; }
+.split-flap-md { --sf-size: 34px; }
+.split-flap-lg { --sf-size: 56px; }
 
 .sf-cell {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.4em;
-  padding: 0.15em 0.05em;
+  height: var(--sf-size);
+  min-width: calc(var(--sf-size) * 0.74);
+  padding: 0 calc(var(--sf-size) * 0.1);
   background: linear-gradient(to bottom, var(--tf-flap), var(--tf-flap-dark));
   border: 1px solid var(--tf-edge);
   border-radius: 2px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  font-size: calc(var(--sf-size) * 0.52);
+  line-height: 1;
   overflow: hidden;
 }
 
-/* The hinge line across the middle of every flap tile. */
+/* The hinge line across the middle of every flap tile — a real horizontal
+ * seam, not a hairline that disappears once the cell is legible size. */
 .sf-cell::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
-  height: 1px;
-  background: var(--tf-edge);
-  transform: translateY(-50%);
+  top: calc(50% - calc(var(--sf-size) * 0.025));
+  height: calc(var(--sf-size) * 0.05);
+  background: var(--tf-flap-dark);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.55);
   pointer-events: none;
 }
 

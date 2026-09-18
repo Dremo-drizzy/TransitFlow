@@ -60,4 +60,17 @@ describe('SplitFlap', () => {
     const { container } = render(<SplitFlap value="OK" length={2} tone="green" />);
     expect(container.querySelector('.split-flap-green')).not.toBeNull();
   });
+
+  it('defaults to the md size', () => {
+    const { container } = render(<SplitFlap value="OK" length={2} />);
+    expect(container.querySelector('.split-flap-md')).not.toBeNull();
+  });
+
+  it('applies the requested size as a class', () => {
+    const { container: sm } = render(<SplitFlap value="OK" length={2} size="sm" />);
+    expect(sm.querySelector('.split-flap-sm')).not.toBeNull();
+
+    const { container: lg } = render(<SplitFlap value="OK" length={2} size="lg" />);
+    expect(lg.querySelector('.split-flap-lg')).not.toBeNull();
+  });
 });
