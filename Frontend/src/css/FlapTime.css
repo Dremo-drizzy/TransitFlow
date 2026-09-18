@@ -1,0 +1,34 @@
+.flap-time {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--sf-size) * 0.06);
+}
+
+.flap-colon {
+  font-family: var(--tf-font-mono);
+  font-weight: 700;
+  font-size: calc(var(--sf-size) * 0.52);
+  line-height: 1;
+}
+
+.flap-colon.split-flap-amber { color: var(--tf-amber); }
+.flap-colon.split-flap-green { color: var(--tf-green); }
+.flap-colon.split-flap-red   { color: var(--tf-red); }
+.flap-colon.split-flap-muted { color: var(--tf-muted); }
+
+/* Drawn across the whole group (both flap groups and the colon) rather
+ * than as text-decoration on each cell, which would only strike through
+ * one tile at a time given the cells' own flex/inline-flex boxes. */
+.flap-time-cancelled::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: var(--tf-red);
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: none;
+}

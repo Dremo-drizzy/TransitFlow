@@ -10,7 +10,7 @@ export default function CommuteCard({ commute, onDelete, onPlan, onDepartures })
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
     >
-      <Card className="commute-card text-white">
+      <Card className="commute-card">
         <Card.Body>
           <div className="d-flex justify-content-between align-items-start mb-3">
             <h5 className="fw-bold mb-0">{commute.name}</h5>
@@ -26,20 +26,18 @@ export default function CommuteCard({ commute, onDelete, onPlan, onDepartures })
 
           <div className="mb-3">
             <div className="commute-route-from">
-              <span className="dot-from" />
+              <span className="terminal-from" />
               <span>{commute.from.name}</span>
             </div>
             <div className="route-connector ms-1" />
             <div className="commute-route-to">
-              <span className="dot-to" />
+              <span className="terminal-to" />
               <span>{commute.to.name}</span>
             </div>
           </div>
 
           <div className="d-grid gap-2">
-            <Button
-            className='border-0' 
-            variant="primary" size="sm" onClick={() => onPlan(commute)}>
+            <Button variant="primary" size="sm" onClick={() => onPlan(commute)}>
               Plan Journey
             </Button>
             <Button variant="outline-primary" size="sm" onClick={() => onDepartures(commute)}>

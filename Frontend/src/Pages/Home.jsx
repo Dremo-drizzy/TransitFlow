@@ -16,10 +16,12 @@ export default function Home() {
       <Container fluid="lg">
         <Hero
           eyebrow="Live Transit Updates"
-          title='Your city,<br /><span>on schedule.</span>'
           subtitle="Real-time departures, smart journey planning, and saved commutes — all in one place."
-          chips={['🟢 Live', '🚆 DB Network', '⚡ Real-time']}
-        />
+          chips={['Live', 'DB Network', 'Real-time']}
+        >
+          Your city,<br />
+          <span>on schedule.</span>
+        </Hero>
         <QuickSearch />
         <LiveDeparturesPreview />
       </Container>

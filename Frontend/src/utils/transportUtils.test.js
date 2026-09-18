@@ -114,11 +114,16 @@ describe('getDelayBadgeVariant', () => {
     expect(getDelayBadgeVariant(-3)).toBe('success');
   });
 
-  it('returns "warning" for a delay under 5 minutes', () => {
+  it('returns "warning" for a 1-5 minute delay', () => {
     expect(getDelayBadgeVariant(3)).toBe('warning');
   });
 
-  it('returns "danger" for a delay of 5 minutes or more', () => {
+  it('returns "warning" at exactly 5 minutes (the boundary is inclusive)', () => {
+    expect(getDelayBadgeVariant(5)).toBe('warning');
+  });
+
+  it('returns "danger" for a delay over 5 minutes', () => {
+    expect(getDelayBadgeVariant(6)).toBe('danger');
     expect(getDelayBadgeVariant(10)).toBe('danger');
   });
 

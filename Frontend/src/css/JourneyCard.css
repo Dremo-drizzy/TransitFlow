@@ -8,22 +8,32 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.journey-card .card-header {
-  padding: 0.9rem 1.25rem !important;
-  
-}
-
 .journey-route {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--tf-font-mono);
   font-weight: 700;
   font-size: 0.9rem;
 }
 
 .journey-times {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.75rem;
-  color: var(--t2);
-  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 4px;
+}
+
+.journey-times-arrow {
+  color: var(--tf-muted);
+  font-size: 0.8rem;
+}
+
+.journey-duration-pill {
+  font-family: var(--tf-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: var(--tf-muted);
+  border: 1px solid var(--tf-edge);
+  padding: 0.3rem 0.6rem;
+  white-space: nowrap;
 }
 
 .journey-leg {
@@ -31,31 +41,80 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.8rem 1.25rem;
-  border-bottom: 1px solid var(--bd);
+  border-bottom: 1px solid var(--tf-edge);
   gap: 0.85rem;
   transition: var(--tr);
 }
 
 .journey-leg:last-child { border-bottom: none; }
-.journey-leg:hover { background: var(--bgh); }
+.journey-leg:hover { background: var(--tf-flap); }
 
-.leg-icon { font-size: 1.2rem; min-width: 24px; text-align: center; }
-
-.leg-name {
-  font-family: 'Syne', sans-serif;
+.leg-product-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--tf-font-mono);
+  font-size: 0.72rem;
   font-weight: 700;
-  font-size: 0.84rem;
+  letter-spacing: 0.03em;
+  color: var(--tf-text);
+  border: 1px solid var(--tf-edge);
+  padding: 0.3rem 0.55rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
+
+.leg-product-icon { font-size: 0.95rem; }
 
 .leg-stops {
-  font-size: 0.74rem;
-  color: var(--t2);
-  margin-top: 1px;
+  font-size: 0.78rem;
+  color: var(--tf-muted);
+  min-width: 0;
 }
 
-.leg-times {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.8rem;
+.leg-time-status {
   text-align: right;
+  flex-shrink: 0;
+}
+
+.leg-times-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+.leg-arrival-time {
+  font-family: var(--tf-font-mono);
+  font-size: 0.72rem;
+  color: var(--tf-muted);
   white-space: nowrap;
+}
+
+.leg-status {
+  font-family: var(--tf-font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-top: 3px;
+}
+
+.leg-status-success  { color: var(--tf-green); }
+.leg-status-warning  { color: var(--tf-amber); }
+.leg-status-danger,
+.leg-status-cancelled { color: var(--tf-red); }
+
+@media (max-width: 480px) {
+  .journey-leg {
+    flex-wrap: wrap;
+  }
+
+  .leg-stops {
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .leg-time-status {
+    margin-left: auto;
+  }
 }

@@ -1,0 +1,14 @@
+.station-autocomplete .form-control {
+  font-family: var(--tf-font-mono);
+  caret-color: var(--tf-amber);
+}
+
+.station-autocomplete .suggestions-list {
+  border-radius: 0;
+}
+
+.station-autocomplete .suggestions-list .list-group-item.active {
+  background: var(--tf-amber) !important;
+  color: var(--tf-void) !important;
+  border-color: var(--tf-amber) !important;
+}

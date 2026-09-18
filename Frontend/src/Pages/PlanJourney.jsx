@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Container, Button, Spinner } from 'react-bootstrap';
+import { Container, Button } from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useJourneys } from '../hooks/useJourneys';
@@ -26,8 +26,6 @@ export default function PlanJourney() {
   const [selectedTo,   setSelectedTo]   = useState(() => stationFromParams(searchParams, 'to', 'toName'));
   const [fromQuery, setFromQuery] = useState(() => selectedFrom?.name || '');
   const [toQuery,   setToQuery]   = useState(() => selectedTo?.name || '');
-  const [showFrom, setShowFrom] = useState(false);
-  const [showTo,   setShowTo]   = useState(false);
   const [departure, setDeparture] = useState(() => new Date().toISOString());
   const [searchTriggered, setSearchTriggered] = useState(() => (selectedFrom && selectedTo) ? 1 : 0);
 
@@ -78,19 +76,17 @@ export default function PlanJourney() {
           toQuery={toQuery}         setToQuery={setToQuery}
           selectedFrom={selectedFrom} setSelectedFrom={setSelectedFrom}
           selectedTo={selectedTo}     setSelectedTo={setSelectedTo}
-          showFrom={showFrom}       setShowFrom={setShowFrom}
-          showTo={showTo}           setShowTo={setShowTo}
           departure={departure}     setDeparture={setDeparture}
           onSearch={handleSearch}
           onSwap={handleSwap}
           isLoading={isLoading}
         />
 
-        <div className="results-header mt-5 mb-3">
-          <h4 className='fs-5'>Available Connections</h4>
+        <div className="results-header mt-5">
+          <span className="section-label">Available Connections</span>
           <Button
-          className='refresh border-1'
-           size='sm'
+            variant="outline-primary"
+            size="sm"
             onClick={() => setSearchTriggered((n) => n + 1)}
           >
             Refresh
@@ -100,8 +96,14 @@ export default function PlanJourney() {
         {error && <p className="text-muted">Could not load journeys. Please try again.</p>}
 
         {isLoading ? (
-          <div className="text-center py-4">
-            <Spinner animation="border" />
+          <div className="journey-skeleton-list">
+            {[0, 1, 2].map((i) => (
+              <div className="journey-skeleton-card" key={i}>
+                <div className="skeleton-block" style={{ width: '55%', height: '0.95rem' }} />
+                <div className="skeleton-block" style={{ width: '35%', height: '0.75rem', marginTop: '0.5rem' }} />
+                <div className="skeleton-block" style={{ width: '100%', height: '2.5rem', marginTop: '0.85rem' }} />
+              </div>
+            ))}
           </div>
         ) : journeys.length === 0 ? (
           <div className="empty-state">

@@ -43,9 +43,18 @@ html[data-bs-theme='dark'] {
   --bs-card-border-color: var(--tf-edge);
   --bs-card-cap-bg: var(--tf-housing);
 
+  /* Bootstrap's compiled CSS bakes --bs-{variant}-rgb in as static values
+   * (e.g. --bs-success-rgb: 25,135,84) — utilities like .text-bg-success
+   * read the -rgb variable directly, not --bs-success, so both have to be
+   * overridden or the color mapping silently does nothing. */
+  --bs-secondary: var(--tf-muted);
+  --bs-secondary-rgb: 118, 127, 140;
   --bs-success: var(--tf-green);
+  --bs-success-rgb: 61, 220, 132;
   --bs-danger: var(--tf-red);
+  --bs-danger-rgb: 255, 90, 95;
   --bs-warning: var(--tf-amber);
+  --bs-warning-rgb: 255, 179, 2;
 
   --bs-font-monospace: var(--tf-font-mono);
   --bs-body-font-family: var(--tf-font-sans);
