@@ -1,0 +1,58 @@
+.split-flap {
+  display: inline-flex;
+  gap: 2px;
+  font-family: var(--tf-font-mono);
+}
+
+.sf-cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4em;
+  padding: 0.15em 0.05em;
+  background: linear-gradient(to bottom, var(--tf-flap), var(--tf-flap-dark));
+  border: 1px solid var(--tf-edge);
+  border-radius: 2px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+}
+
+/* The hinge line across the middle of every flap tile. */
+.sf-cell::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--tf-edge);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.split-flap-amber .sf-cell { color: var(--tf-amber); }
+.split-flap-green .sf-cell { color: var(--tf-green); }
+.split-flap-red   .sf-cell { color: var(--tf-red); }
+.split-flap-muted .sf-cell { color: var(--tf-muted); }
+
+.sf-cell-flip {
+  animation: sf-flip 260ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes sf-flip {
+  from { transform: rotateX(-90deg); }
+  to   { transform: rotateX(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sf-cell-flip {
+    animation: sf-fade 120ms ease both;
+  }
+
+  @keyframes sf-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}

@@ -1,24 +1,23 @@
 .footer-custom {
-  background: var(--bgr) !important;
-  border-top: 1px solid var(--bd) !important;
-  backdrop-filter: blur(12px);
+  background: var(--tf-void) !important;
+  border-top: 1px solid var(--tf-edge) !important;
   padding: 0.7rem 0;
 }
 
 .footer-custom small {
-  color: var(--t3);
+  color: var(--tf-muted);
   font-size: 0.72rem;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--tf-font-mono);
   letter-spacing: 0.02em;
 }
 
 .footer-custom a {
-  color: var(--ac);
+  color: var(--tf-amber);
   text-decoration: none;
   font-weight: 500;
   transition: var(--tr);
 }
 
 .footer-custom a:hover {
-  color: var(--t1);
+  color: var(--tf-text);
 }
