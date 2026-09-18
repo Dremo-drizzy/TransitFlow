@@ -46,20 +46,26 @@ body {
   font-family: 'Syne', sans-serif;
   font-size: 15px;
   line-height: 1.3;
-  background: var(--bg);
+  background: var(--tf-void);
   color: var(--t1);
   overflow-x: hidden;
 }
 
+/* A very subtle amber scanline overlay — the split-flap board's texture on
+ * the page background. Keep it under 3% opacity; if individual lines are
+ * visible at 100% zoom, it's too strong. */
 body::before {
   content: '';
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background-image:
-    linear-gradient(rgba(45,212,191,0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(45,212,191,0.018) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(var(--bs-primary-rgb), 0.03) 0px,
+    rgba(var(--bs-primary-rgb), 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
   pointer-events: none;
   z-index: 0;
 }
@@ -70,7 +76,6 @@ body::before {
   z-index: 1;
   padding-top: 6%;
   padding-bottom: 8%;
-  background-color: var(--t2);
 }
 
 /* ── Typography ────────────────────────────────────────── */

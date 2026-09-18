@@ -1,0 +1,53 @@
+/* ------------------------------------------------------------------ *
+ * TransitFlow design tokens — the split-flap departure board palette.
+ * Single source of truth: everything else (Bootstrap's own variables,
+ * component CSS) should read these, not hardcode colors.
+ * ------------------------------------------------------------------ */
+:root {
+  --tf-void: #08090b;        /* page background */
+  --tf-housing: #101216;     /* board / card surface */
+  --tf-flap: #1a1d23;        /* flap tile face */
+  --tf-flap-dark: #0b0d10;   /* lower half of a flap */
+  --tf-edge: #252a32;        /* 1px borders */
+  --tf-amber: #ffb302;       /* primary readout */
+  --tf-amber-dim: #8a6100;   /* inactive readout */
+  --tf-green: #3ddc84;       /* on time, live */
+  --tf-red: #ff5a5f;         /* delayed, cancelled */
+  --tf-text: #e9e7e2;        /* off-white body text */
+  --tf-muted: #767f8c;       /* labels, column headers */
+
+  --tf-font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --tf-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Bootstrap 5.3 reads its own component colors from these custom
+ * properties — remapping them here means react-bootstrap components
+ * inherit the theme instead of needing per-component overrides.
+ * `html[data-bs-theme="dark"]` (rather than the bare attribute selector
+ * Bootstrap itself uses) is deliberate: it's more specific, so this block
+ * wins regardless of whether this stylesheet or bootstrap.min.css loads
+ * first in the bundle. */
+html[data-bs-theme='dark'] {
+  --bs-body-bg: var(--tf-void);
+  --bs-body-color: var(--tf-text);
+  --bs-emphasis-color: var(--tf-text);
+  --bs-secondary-color: var(--tf-muted);
+  --bs-border-color: var(--tf-edge);
+
+  --bs-primary: var(--tf-amber);
+  --bs-primary-rgb: 255, 179, 2;
+  --bs-link-color: var(--tf-amber);
+  --bs-link-hover-color: var(--tf-amber-dim);
+
+  --bs-card-bg: var(--tf-housing);
+  --bs-card-border-color: var(--tf-edge);
+  --bs-card-cap-bg: var(--tf-housing);
+
+  --bs-success: var(--tf-green);
+  --bs-danger: var(--tf-red);
+  --bs-warning: var(--tf-amber);
+
+  --bs-font-monospace: var(--tf-font-mono);
+  --bs-body-font-family: var(--tf-font-sans);
+  --bs-border-radius: 2px;
+}

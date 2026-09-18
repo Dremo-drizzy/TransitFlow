@@ -1,55 +1,53 @@
 .navbar-custom {
-  background: rgba(0, 0, 0, 0.88) !important;
-  border-bottom: 1px solid var(--bd);
+  background: var(--tf-void) !important;
+  border-bottom: 1px solid var(--tf-edge);
   margin-bottom: 0 !important;
 }
 
 .brand-logo {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.2rem;
+  font-family: var(--tf-font-mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 8px;
   text-decoration: none !important;
+  color: var(--tf-amber) !important;
 }
 
 .brand-icon {
-  font-size: 1.2rem;
   display: inline-block;
-  animation: brandFloat 4s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
-
 .brand-text {
-  background: linear-gradient(120deg, var(--ac) 0%, var(--ac2) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--tf-amber);
 }
 
 .nav-link {
-  font-family: 'DM Sans', sans-serif !important;
+  font-family: var(--tf-font-mono) !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   letter-spacing: 0.1rem;
   text-transform: uppercase;
-  color: var(--t2) !important;
+  color: var(--tf-muted) !important;
   padding: 0.4rem 0.85rem !important;
-  border-radius: var(--r-sm);
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
   transition: var(--tr);
 }
 
 .nav-link:hover {
-  color: var(--t1) !important;
-  background: var(--bgh);
+  color: var(--tf-text) !important;
 }
 
 .nav-link.active {
-  color: var(--ac) !important;
-  background: var(--ac-subtle);
+  color: var(--tf-text) !important;
+  border-bottom: 2px solid var(--tf-amber);
 }
 
-.main-nav{
+.main-nav {
   gap: 10px;
 }

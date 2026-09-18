@@ -8,6 +8,7 @@ import PlanJourney from './Pages/PlanJourney';
 import Commutes from './Pages/Commutes';
 import About from './Pages/About';
 import NotFound from './Pages/NotFound';
+import Styleguide from './Pages/Styleguide';
 import { useServerWake } from './hooks/useServerWake';
 import './App.css';
 
@@ -18,7 +19,7 @@ export default function App() {
   return (
     <div className="app-wrapper d-flex flex-column min-vh-100">
       <TransNavbar/>
-      {/* Plain for now — Stage 3 restyles this. */}
+      {/* Plain for now — a later stage restyles this. */}
       {waking && (
         <div className="text-center bg-warning text-dark py-2">
           Waking the server up — this can take about a minute…
@@ -28,13 +29,15 @@ export default function App() {
       <ErrorBoundary key={location.pathname}>
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
-            <Route path="/"         element={<Home />} />
+            <Route path="/"           element={<Home />} />
             {/* Keyed by location.search so navigating to /plan with new params
                 while already on /plan remounts the page — see PlanJourney.jsx. */}
-            <Route path="/plan"     element={<PlanJourney key={location.search} />} />
-            <Route path="/commutes" element={<Commutes />} />
-            <Route path="/about"    element={<About />} />
-            <Route path="*"         element={<NotFound />} />
+            <Route path="/plan"       element={<PlanJourney key={location.search} />} />
+            <Route path="/commutes"   element={<Commutes />} />
+            <Route path="/about"      element={<About />} />
+            {/* Temporary — deleted at the end of Stage 4. */}
+            <Route path="/styleguide" element={<Styleguide />} />
+            <Route path="*"           element={<NotFound />} />
           </Routes>
         </AnimatePresence>
       </ErrorBoundary>

@@ -4,7 +4,7 @@ import '../css/Footer.css';
 
 export default function Footer() {
   return (
-    <footer className="footer-custom fixed-bottom text-center">
+    <footer className="footer-custom mt-auto text-center">
       <Container fluid="lg">
         <small>
           Powered by{' '}
