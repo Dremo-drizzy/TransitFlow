@@ -51,31 +51,6 @@ export const formatDuration = (seconds) => {
   return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 };
 
-// line.product from the DB API is a plain string id (e.g. "nationalExpress",
-// "suburban", "bus") — not an object with .type/.name, which is what the old
-// version of this function assumed. Exact lookup, no substring guessing.
-const PRODUCT_ICONS = {
-  nationalExpress: '🚄',
-  national:        '🚆',
-  regionalExpress: '🚆',
-  regional:        '🚆',
-  suburban:        '🚈',
-  subway:          '🚇',
-  tram:            '🚊',
-  bus:             '🚌',
-  ferry:           '⛴️',
-  taxi:            '🚕',
-};
-const DEFAULT_PRODUCT_ICON = '🚏';
-
-// Pick an emoji icon based on the transport product. Accepts either the
-// string id the DB API actually sends, or an object with a .type for
-// callers that still pass one.
-export const getProductIcon = (product) => {
-  const id = typeof product === 'string' ? product : product?.type;
-  return PRODUCT_ICONS[id] || DEFAULT_PRODUCT_ICON;
-};
-
 // The DB API sets cancelled: true rather than leaving `when` null and
 // nothing else — but a cancelled departure/leg DOES have `when: null`,
 // which getDelayMinutes reads as "no data, delay 0", so cancellation has

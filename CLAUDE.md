@@ -56,6 +56,8 @@ Frontend/
   file directly.
 - Environment-specific values (API base URL, etc.) come from Vite env vars
   (`import.meta.env.VITE_*`), never hardcoded — see `Frontend/.env.example`.
+- No colour emoji anywhere in the UI — use monochrome SVG or text that takes
+  a --tf token.
 
 ## Verification gate
 

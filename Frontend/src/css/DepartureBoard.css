@@ -3,9 +3,14 @@
   background: var(--tf-housing);
 }
 
+/* Fixed-width tracks, not auto — auto sizes each row's grid independently
+ * to that row's own content (a "S7" pill vs an "ICE 1537" pill), which is
+ * exactly why destinations didn't line up. The header shares this same
+ * declaration, so both land on identical column boundaries regardless of
+ * what either one contains. Only destination flexes. */
 .db-row {
   display: grid;
-  grid-template-columns: auto auto 1fr auto auto;
+  grid-template-columns: 100px 110px 1fr 60px 100px;
   grid-template-areas: "time line destination platform delay";
   align-items: center;
   gap: 1rem;
@@ -18,6 +23,9 @@
 .db-platform    { grid-area: platform; }
 .db-delay       { grid-area: delay; text-align: right; }
 
+/* Every header label inherits this uniformly — font-size/color/tracking are
+ * all inheritable, so as long as no data-cell rule leaks into the header
+ * (see the .db-data-row-scoped rules below), all five labels match. */
 .db-header {
   font-family: var(--tf-font-mono);
   font-size: 0.65rem;
@@ -54,7 +62,6 @@ a.db-data-row:focus-visible {
 .db-line-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
   font-family: var(--tf-font-mono);
   font-size: 0.72rem;
   font-weight: 700;
@@ -64,9 +71,12 @@ a.db-data-row:focus-visible {
   white-space: nowrap;
 }
 
-.db-line-icon { font-size: 0.9rem; }
-
-.db-destination {
+/* Scoped to .db-data-row specifically — .db-destination/.db-delay are also
+ * the header's grid-area classes, and a bare-class rule here would win over
+ * .db-header's (equal specificity, later in the cascade) for those cells,
+ * which is exactly why DESTINATION and DELAY read heavier than the other
+ * three header labels. */
+.db-data-row .db-destination {
   font-size: 0.82rem;
   color: var(--tf-text);
   white-space: nowrap;
@@ -74,7 +84,7 @@ a.db-data-row:focus-visible {
   text-overflow: ellipsis;
 }
 
-.db-delay {
+.db-data-row .db-delay {
   font-family: var(--tf-font-mono);
   font-size: 0.7rem;
   font-weight: 700;

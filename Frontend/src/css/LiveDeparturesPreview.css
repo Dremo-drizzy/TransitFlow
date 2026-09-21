@@ -61,8 +61,6 @@
   text-overflow: ellipsis;
 }
 
-.departure-icon { font-size: 1rem; }
-
 .departure-direction {
   font-size: 0.78rem;
   color: var(--tf-muted);

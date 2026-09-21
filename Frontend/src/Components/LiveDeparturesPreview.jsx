@@ -3,7 +3,7 @@ import { Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useDepartures } from '../hooks/useDepartures';
 import { useNearbyStops } from '../hooks/useNearbyStops';
-import { getUserLocation, formatTime, getProductIcon } from '../utils/transportUtils';
+import { getUserLocation, formatTime } from '../utils/transportUtils';
 import '../css/LiveDeparturesPreview.css';
 
 const DEFAULT_STOP = { id: '900003200', name: 'Berlin Hbf' };
@@ -92,7 +92,6 @@ export default function LiveDeparturesPreview() {
           <div className="departure-row" key={dep.tripId || dep.when}>
             <div className="departure-time">{formatTime(dep.plannedWhen)}</div>
             <div className="departure-line">
-              <span className="departure-icon">{getProductIcon(dep.line?.product)}</span>
               {dep.line?.name || dep.tripId}
             </div>
             <div className="departure-direction">{dep.direction}</div>

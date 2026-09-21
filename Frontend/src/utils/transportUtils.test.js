@@ -5,7 +5,6 @@ import {
   getDelayMinutes,
   formatDelay,
   getDelayBadgeVariant,
-  getProductIcon,
   toDatetimeLocalValue,
   fromDatetimeLocalValue,
   getDepartureStatus,
@@ -130,48 +129,6 @@ describe('getDelayBadgeVariant', () => {
 
   it('returns a neutral variant for undefined delay', () => {
     expect(getDelayBadgeVariant(undefined)).toBe('secondary');
-  });
-});
-
-describe('getProductIcon', () => {
-  const cases = [
-    ['nationalExpress', '🚄'],
-    ['national', '🚆'],
-    ['regionalExpress', '🚆'],
-    ['regional', '🚆'],
-    ['suburban', '🚈'],
-    ['subway', '🚇'],
-    ['tram', '🚊'],
-    ['bus', '🚌'],
-    ['ferry', '⛴️'],
-    ['taxi', '🚕'],
-  ];
-
-  it.each(cases)('returns the right icon for product id "%s"', (id, icon) => {
-    expect(getProductIcon(id)).toBe(icon);
-  });
-
-  it('accepts an object with a .type instead of a bare string', () => {
-    expect(getProductIcon({ type: 'bus' })).toBe('🚌');
-  });
-
-  it('falls back to a neutral icon for an unrecognised product id', () => {
-    expect(getProductIcon('hyperloop')).not.toBe(undefined);
-    expect(getProductIcon('hyperloop')).toBe('🚏');
-  });
-
-  it('falls back to a neutral icon for null/undefined', () => {
-    expect(getProductIcon(null)).toBe('🚏');
-    expect(getProductIcon(undefined)).toBe('🚏');
-  });
-
-  it('does not let a bus match the old broken "s" substring check for S-Bahn', () => {
-    // Regression guard for the old implementation, where t.includes('s') for
-    // S-Bahn was checked before the bus branch, so "bus" (which contains no
-    // "s"... but the old `t` was built from product.type/.name, always '' for
-    // a string product) matched the wrong branch. Confirm bus and suburban
-    // never collide now that lookup is exact.
-    expect(getProductIcon('bus')).not.toBe(getProductIcon('suburban'));
   });
 });
 

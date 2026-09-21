@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { useDepartures } from '../hooks/useDepartures';
-import { formatTime, getProductIcon, getDepartureStatus } from '../utils/transportUtils';
+import { formatTime, getDepartureStatus } from '../utils/transportUtils';
 import FlapTime from './FlapTime';
 import SplitFlap from './SplitFlap';
 import '../css/DepartureBoard.css';
@@ -35,18 +35,16 @@ function DepartureRow({ dep }) {
         />
       </div>
       <div className="db-cell db-line" role="cell">
-        <span className="db-line-pill">
-          <span className="db-line-icon">{getProductIcon(dep.line?.product)}</span>
-          {dep.line?.name || dep.tripId}
-        </span>
+        <span className="db-line-pill">{dep.line?.name || dep.tripId}</span>
       </div>
       <div className="db-cell db-destination" role="cell">{dep.direction}</div>
       <div className="db-cell db-platform" role="cell">
         <SplitFlap
           value={dep.platform || '-'}
-          length={3}
+          length={2}
+          align="end"
           size="md"
-          tone={platformChanged ? 'amber' : 'muted'}
+          tone={platformChanged ? 'amber' : dep.platform ? 'text' : 'muted'}
           pulseOnChange={platformChanged}
         />
       </div>

@@ -64,8 +64,6 @@
   flex-shrink: 0;
 }
 
-.leg-product-icon { font-size: 0.95rem; }
-
 .leg-stops {
   font-size: 0.78rem;
   color: var(--tf-muted);

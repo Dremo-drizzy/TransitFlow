@@ -67,6 +67,10 @@
 .split-flap-amber .sf-cell { color: var(--tf-amber); }
 .split-flap-green .sf-cell { color: var(--tf-green); }
 .split-flap-red   .sf-cell { color: var(--tf-red); }
+/* --tf-muted means "no data" specifically — a normal, present value reads
+ * in --tf-text instead, so muted stays reserved and legible values aren't
+ * dimmed by default. */
+.split-flap-text  .sf-cell { color: var(--tf-text); }
 .split-flap-muted .sf-cell { color: var(--tf-muted); }
 
 .sf-cell-flip {

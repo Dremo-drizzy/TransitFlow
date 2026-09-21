@@ -1,5 +1,5 @@
 import { Card } from 'react-bootstrap';
-import { formatTime, formatDuration, getProductIcon, getDepartureStatus } from '../utils/transportUtils';
+import { formatTime, formatDuration, getDepartureStatus } from '../utils/transportUtils';
 import FlapTime from './FlapTime';
 import '../css/JourneyCard.css';
 
@@ -35,7 +35,6 @@ export default function JourneyCard({ journey, index = 0 }) {
           return (
             <div className="journey-leg" key={i}>
               <div className="leg-product-pill">
-                <span className="leg-product-icon">{getProductIcon(leg.line?.product)}</span>
                 <span>{leg.line?.name || leg.tripId}</span>
               </div>
 
