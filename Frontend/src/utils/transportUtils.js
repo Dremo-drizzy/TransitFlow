@@ -76,6 +76,25 @@ export const getProductIcon = (product) => {
   return PRODUCT_ICONS[id] || DEFAULT_PRODUCT_ICON;
 };
 
+// The DB API sets cancelled: true rather than leaving `when` null and
+// nothing else — but a cancelled departure/leg DOES have `when: null`,
+// which getDelayMinutes reads as "no data, delay 0", so cancellation has
+// to be checked before any delay math or it silently renders as on time.
+const STATUS_TONE = { success: 'green', warning: 'amber', danger: 'red', secondary: 'muted' };
+
+export const getDepartureStatus = (plannedTime, actualTime, cancelled) => {
+  if (cancelled) {
+    return { text: 'CANCELLED', tone: 'red', cancelled: true };
+  }
+  const delay = getDelayMinutes(plannedTime, actualTime);
+  const variant = getDelayBadgeVariant(delay);
+  return {
+    text: delay <= 0 ? 'ON TIME' : `+${delay} MIN`,
+    tone: STATUS_TONE[variant],
+    cancelled: false,
+  };
+};
+
 // Convert an ISO datetime string to the local wall-clock value
 // <input type="datetime-local"> expects ("YYYY-MM-DDTHH:mm"). An ISO string
 // is UTC (or carries its own offset); slicing it directly displays UTC time,

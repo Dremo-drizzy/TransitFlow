@@ -1,0 +1,54 @@
+.departures-page {
+  color: var(--tf-text);
+}
+
+.departures-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.departures-station-name {
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.departures-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-chip {
+  font-family: var(--tf-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--tf-edge);
+  color: var(--tf-muted);
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  transition: var(--tr);
+}
+
+.filter-chip:hover {
+  border-color: var(--tf-amber-dim);
+  color: var(--tf-text);
+}
+
+.filter-chip-active,
+.filter-chip-active:hover {
+  background: var(--tf-amber);
+  border-color: var(--tf-amber);
+  color: var(--tf-void);
+}
+
+@media (max-width: 480px) {
+  .departures-station-name { font-size: 1.3rem; }
+}

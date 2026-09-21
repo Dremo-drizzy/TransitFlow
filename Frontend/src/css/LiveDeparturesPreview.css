@@ -6,6 +6,16 @@
   color: var(--tf-green);
 }
 
+.departures-station-link {
+  color: var(--tf-amber);
+  text-decoration: none;
+}
+
+.departures-station-link:hover,
+.departures-station-link:focus-visible {
+  text-decoration: underline;
+}
+
 .departures-header-row,
 .departure-row {
   display: grid;

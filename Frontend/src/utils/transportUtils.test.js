@@ -8,6 +8,7 @@ import {
   getProductIcon,
   toDatetimeLocalValue,
   fromDatetimeLocalValue,
+  getDepartureStatus,
 } from './transportUtils';
 
 describe('formatTime', () => {
@@ -217,5 +218,30 @@ describe('toDatetimeLocalValue / fromDatetimeLocalValue', () => {
 
   it('returns null for an empty local value', () => {
     expect(fromDatetimeLocalValue('')).toBeNull();
+  });
+});
+
+describe('getDepartureStatus', () => {
+  it('returns CANCELLED/red when cancelled, ignoring the planned/actual times', () => {
+    // A cancelled departure has when: null, which getDelayMinutes reads as
+    // "no data, delay 0" — cancelled must be checked first or this would
+    // render as ON TIME.
+    const status = getDepartureStatus('2024-01-15T14:00:00.000Z', null, true);
+    expect(status).toEqual({ text: 'CANCELLED', tone: 'red', cancelled: true });
+  });
+
+  it('returns ON TIME/green when not delayed', () => {
+    const status = getDepartureStatus('2024-01-15T14:00:00.000Z', '2024-01-15T14:00:00.000Z', false);
+    expect(status).toEqual({ text: 'ON TIME', tone: 'green', cancelled: false });
+  });
+
+  it('returns +N MIN/amber for a 1-5 minute delay', () => {
+    const status = getDepartureStatus('2024-01-15T14:00:00.000Z', '2024-01-15T14:03:00.000Z', false);
+    expect(status).toEqual({ text: '+3 MIN', tone: 'amber', cancelled: false });
+  });
+
+  it('returns +N MIN/red for a delay over 5 minutes', () => {
+    const status = getDepartureStatus('2024-01-15T14:00:00.000Z', '2024-01-15T14:09:00.000Z', false);
+    expect(status).toEqual({ text: '+9 MIN', tone: 'red', cancelled: false });
   });
 });

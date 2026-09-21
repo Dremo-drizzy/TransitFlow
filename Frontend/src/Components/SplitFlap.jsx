@@ -17,8 +17,12 @@ function normalize(value, length) {
  * Only the characters that actually changed since the last render flip —
  * flipping the whole row on every tick would look like a loading spinner,
  * not a departure board catching up to a new time.
+ *
+ * pulseOnChange adds a brief amber wash over the whole group on top of the
+ * normal flip, for changes worth calling extra attention to (a platform
+ * change, say) beyond the routine flip every live time update gets.
  */
-export default function SplitFlap({ value, length, tone = 'amber', size = 'md' }) {
+export default function SplitFlap({ value, length, tone = 'amber', size = 'md', pulseOnChange = false }) {
   const normalized = normalize(value, length);
 
   const [prevValue, setPrevValue] = useState(normalized);
@@ -42,6 +46,12 @@ export default function SplitFlap({ value, length, tone = 'amber', size = 'md' }
 
   return (
     <div className={`split-flap split-flap-${tone} split-flap-${size}`}>
+      {pulseOnChange && changedIndices && (
+        // Keyed by bump so it remounts (and its animation restarts) on
+        // every change, without touching the cells' own DOM identity —
+        // that would break their independent flip animations.
+        <span key={bump} className="sf-pulse-overlay" aria-hidden="true" />
+      )}
       {normalized.split('').map((char, i) => {
         const flipped = changedIndices?.has(i) ?? false;
         return (

@@ -1,0 +1,112 @@
+.departure-board {
+  border: 1px solid var(--tf-edge);
+  background: var(--tf-housing);
+}
+
+.db-row {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
+  grid-template-areas: "time line destination platform delay";
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+}
+
+.db-time        { grid-area: time; }
+.db-line        { grid-area: line; min-width: 0; }
+.db-destination { grid-area: destination; min-width: 0; }
+.db-platform    { grid-area: platform; }
+.db-delay       { grid-area: delay; text-align: right; }
+
+.db-header {
+  font-family: var(--tf-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tf-muted);
+  border-bottom: 1px solid var(--tf-edge);
+}
+
+.db-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.db-data-row {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--tf-edge);
+  transition: var(--tr);
+}
+
+.db-data-row:last-child { border-bottom: none; }
+
+a.db-data-row:hover,
+a.db-data-row:focus-visible {
+  background: var(--tf-flap);
+  color: inherit;
+}
+
+.db-row-cancelled {
+  opacity: 0.55;
+}
+
+.db-line-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--tf-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--tf-edge);
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+
+.db-line-icon { font-size: 0.9rem; }
+
+.db-destination {
+  font-size: 0.82rem;
+  color: var(--tf-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.db-delay {
+  font-family: var(--tf-font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.db-message {
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.db-message-text {
+  font-family: var(--tf-font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tf-muted);
+  margin-bottom: 1rem;
+}
+
+/* Below ~600px, a 5-column grid has nowhere to put a real destination name.
+ * Reflow into two lines per row instead of hiding data outright: time/line/
+ * delay on top, destination/platform below. */
+@media (max-width: 600px) {
+  .db-row {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "time line delay"
+      "destination destination platform";
+    row-gap: 0.5rem;
+  }
+
+  .db-platform { justify-self: end; }
+}

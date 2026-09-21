@@ -40,7 +40,7 @@ export default function Commutes() {
   };
 
   const handleDepartures = (commute) => {
-    navigate(`/departures?stationId=${commute.from.id}&stationName=${encodeURIComponent(commute.from.name)}`);
+    navigate(`/departures/${commute.from.id}?name=${encodeURIComponent(commute.from.name)}`);
   };
 
   return (

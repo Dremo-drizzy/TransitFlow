@@ -99,11 +99,6 @@
   margin-top: 3px;
 }
 
-.leg-status-success  { color: var(--tf-green); }
-.leg-status-warning  { color: var(--tf-amber); }
-.leg-status-danger,
-.leg-status-cancelled { color: var(--tf-red); }
-
 @media (max-width: 480px) {
   .journey-leg {
     flex-wrap: wrap;

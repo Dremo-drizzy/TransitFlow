@@ -73,4 +73,21 @@ describe('SplitFlap', () => {
     const { container: lg } = render(<SplitFlap value="OK" length={2} size="lg" />);
     expect(lg.querySelector('.split-flap-lg')).not.toBeNull();
   });
+
+  it('does not render a pulse overlay by default, even when the value changes', () => {
+    const { container, rerender } = render(<SplitFlap value="12" length={2} />);
+    rerender(<SplitFlap value="14" length={2} />);
+    expect(container.querySelector('.sf-pulse-overlay')).toBeNull();
+  });
+
+  it('does not render a pulse overlay on first render even with pulseOnChange', () => {
+    const { container } = render(<SplitFlap value="12" length={2} pulseOnChange />);
+    expect(container.querySelector('.sf-pulse-overlay')).toBeNull();
+  });
+
+  it('renders a pulse overlay when pulseOnChange is set and the value changes', () => {
+    const { container, rerender } = render(<SplitFlap value="12" length={2} pulseOnChange />);
+    rerender(<SplitFlap value="14" length={2} pulseOnChange />);
+    expect(container.querySelector('.sf-pulse-overlay')).not.toBeNull();
+  });
 });
