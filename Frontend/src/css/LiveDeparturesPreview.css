@@ -1,51 +1,86 @@
+.live-pill {
+  font-family: var(--tf-font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--tf-green);
+}
+
+.departures-header-row,
 .departure-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 3.5rem 4.5rem 1fr 2.5rem;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid var(--bd);
+  gap: 0.75rem;
+  padding: 0.6rem 1.25rem;
+}
+
+.departures-header-row {
+  font-family: var(--tf-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tf-muted);
+  border-bottom: 1px solid var(--tf-edge);
+}
+
+.departure-row {
+  border-bottom: 1px solid var(--tf-edge);
   transition: var(--tr);
-  gap: 1rem;
 }
 
 .departure-row:last-child { border-bottom: none; }
-.departure-row:hover { background: var(--bgh); }
-
-.departure-icon {
-  font-size: 1.3rem;
-  min-width: 26px;
-  text-align: center;
-}
-
-.departure-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.88rem;
-}
-
-.departure-direction {
-  font-size: 0.75rem;
-  color: var(--t2);
-  margin-top: 1px;
-}
+.departure-row:hover { background: var(--tf-flap); }
 
 .departure-time {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.95rem;
-  font-weight: 500;
-  text-align: right;
+  font-family: var(--tf-font-mono);
+  font-weight: 700;
+  color: var(--tf-amber);
+  font-size: 0.9rem;
 }
 
-.departure-time.delayed {
-  text-decoration: line-through;
-  color: var(--t3);
+.departure-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--tf-font-mono);
+  font-weight: 700;
   font-size: 0.78rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.departure-time-actual {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--err);
+.departure-icon { font-size: 1rem; }
+
+.departure-direction {
+  font-size: 0.78rem;
+  color: var(--tf-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.departure-platform {
+  font-family: var(--tf-font-mono);
+  font-size: 0.8rem;
+  color: var(--tf-text);
   text-align: right;
+}
+
+.skeleton-time        { width: 2.2rem; }
+.skeleton-line         { width: 3rem; }
+.skeleton-destination  { width: 70%; }
+.skeleton-platform     { width: 1.2rem; margin-left: auto; }
+
+@media (max-width: 480px) {
+  .departures-header-row,
+  .departure-row {
+    grid-template-columns: 3rem 1fr 2rem;
+  }
+
+  .departures-header-row span:nth-child(3),
+  .departure-direction {
+    display: none;
+  }
 }

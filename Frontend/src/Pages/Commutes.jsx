@@ -55,24 +55,20 @@ export default function Commutes() {
           <div>
             <h2 className='fs-1'>My Commutes</h2>
           </div>
-          <Button 
-          className='border-0'
-          variant="primary" onClick={() => setShowModal(true)}>
+          <Button variant="primary" onClick={() => setShowModal(true)}>
             + Add Commute
           </Button>
         </div>
 
         {commutes.length === 0 ? (
           <Card>
-            <Card.Body className="empty-state text-white">
+            <Card.Body className="empty-state">
               <span className="empty-state-icon">🚇</span>
-              <h4 className="fw-bold mb-2">No Saved Commutes Yet</h4>
-              <p className=" mb-4 text-white-50">
+              <h4 className="mb-2">No Saved Commutes Yet</h4>
+              <p className="mb-4">
                 Save your frequent routes for quick access to journey plans and live updates.
               </p>
-              <Button 
-              className='border-0'
-              variant="primary" onClick={() => setShowModal(true)}>
+              <Button variant="primary" onClick={() => setShowModal(true)}>
                 Add Your First Commute
               </Button>
             </Card.Body>

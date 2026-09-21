@@ -19,7 +19,8 @@
   align-items: center;
   justify-content: center;
   height: var(--sf-size);
-  min-width: calc(var(--sf-size) * 0.74);
+  /* Real board flaps are portrait, not landscape — ~0.62 width-to-height. */
+  min-width: calc(var(--sf-size) * 0.62);
   padding: 0 calc(var(--sf-size) * 0.1);
   background: linear-gradient(to bottom, var(--tf-flap), var(--tf-flap-dark));
   border: 1px solid var(--tf-edge);

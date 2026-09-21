@@ -34,11 +34,12 @@ export const formatDelay = (delayMinutes) => {
   return `+${delayMinutes} min`;
 };
 
-// Bootstrap badge colour based on how late something is
+// Delay severity, expressed as a Bootstrap-style variant name: on time is
+// 'success', 1-5 min late is 'warning', over 5 min is 'danger'.
 export const getDelayBadgeVariant = (delayMinutes) => {
   if (delayMinutes == null || Number.isNaN(delayMinutes)) return 'secondary';
   if (delayMinutes <= 0) return 'success';
-  if (delayMinutes < 5)  return 'warning';
+  if (delayMinutes <= 5) return 'warning';
   return 'danger';
 };
 

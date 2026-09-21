@@ -1,67 +1,101 @@
-import { useState, useEffect } from 'react';
-import { Card, Badge, Spinner } from 'react-bootstrap';
+import { useState } from 'react';
+import { Card, Button } from 'react-bootstrap';
 import { useDepartures } from '../hooks/useDepartures';
 import { useNearbyStops } from '../hooks/useNearbyStops';
-import { getUserLocation, formatTime, getDelayMinutes, formatDelay, getProductIcon, getDelayBadgeVariant } from '../utils/transportUtils';
+import { getUserLocation, formatTime, getProductIcon } from '../utils/transportUtils';
 import '../css/LiveDeparturesPreview.css';
+
+const DEFAULT_STOP = { id: '900003200', name: 'Berlin Hbf' };
 
 export default function LiveDeparturesPreview() {
   const [location, setLocation] = useState(null);
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState(false);
 
-  useEffect(() => {
-    getUserLocation()
-      .then(({ lat, lon }) => setLocation({ lat, lon }))
-      .catch(() => {});
-  }, []);
-
+  // Geolocation now happens only on request — a first-time visitor used to
+  // get a browser permission prompt before seeing anything. The Berlin Hbf
+  // default renders immediately either way.
   const { data: nearbyData } = useNearbyStops(location?.lat, location?.lon, 1000, !!location);
-
   const nearbyStop = nearbyData?.[0];
-  const stopId   = nearbyStop?.id   || '900003200';
-  const stopName = nearbyStop?.name || 'Berlin Hbf';
+
+  const stopId   = nearbyStop?.id   || DEFAULT_STOP.id;
+  const stopName = nearbyStop?.name || DEFAULT_STOP.name;
 
   const { data, isLoading, error } = useDepartures(stopId, { duration: 60 });
-
-  if (isLoading) return <Spinner animation="border" />;
-  if (error)     return <p className="text-muted">Could not load departures.</p>;
-
   const departures = data?.departures || [];
 
+  const handleUseLocation = () => {
+    setLocating(true);
+    setLocationError(false);
+    getUserLocation()
+      .then(({ lat, lon }) => setLocation({ lat, lon }))
+      .catch(() => setLocationError(true))
+      .finally(() => setLocating(false));
+  };
+
   return (
-    <Card>
-      <Card.Header className="d-flex justify-content-between align-items-center text-white">
-        <h5 className="fw-bold mb-0">Live Departures — {stopName}</h5>
-        <Badge bg="success">● Live</Badge>
+    <Card className="departures-preview-card">
+      <Card.Header className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 className="m-0">Live Departures — {stopName}</h5>
+        <div className="d-flex align-items-center gap-2">
+          <span className="live-pill">● LIVE</span>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={handleUseLocation}
+            disabled={locating}
+          >
+            {locating ? 'Locating…' : 'Use my location'}
+          </Button>
+        </div>
       </Card.Header>
 
-      {departures.length === 0 ? (
+      {locationError && (
+        <div className="px-3 pt-2">
+          <p className="text-muted mb-0 small">
+            Could not get your location — showing {DEFAULT_STOP.name} instead.
+          </p>
+        </div>
+      )}
+
+      <div className="departures-header-row">
+        <span>Time</span>
+        <span>Line</span>
+        <span>Destination</span>
+        <span>Pl.</span>
+      </div>
+
+      {isLoading ? (
+        <div className="departures-skeleton">
+          {[0, 1, 2].map((i) => (
+            <div className="departure-row" key={i}>
+              <div className="skeleton-block skeleton-time" />
+              <div className="skeleton-block skeleton-line" />
+              <div className="skeleton-block skeleton-destination" />
+              <div className="skeleton-block skeleton-platform" />
+            </div>
+          ))}
+        </div>
+      ) : error ? (
         <Card.Body>
-          <p className="text-white-50 mb-0">No departures found.</p>
+          <p className="text-muted mb-0">Could not load departures.</p>
+        </Card.Body>
+      ) : departures.length === 0 ? (
+        <Card.Body>
+          <p className="text-muted mb-0">No departures found.</p>
         </Card.Body>
       ) : (
-        departures.map((dep) => {
-          const delay       = getDelayMinutes(dep.plannedWhen, dep.when);
-          const plannedTime = formatTime(dep.plannedWhen);
-          const actualTime  = formatTime(dep.when);
-
-          return (
-            <div className="departure-row" key={dep.tripId || dep.when}>
-              <div className="departure-icon">{getProductIcon(dep.line?.product)}</div>
-
-              <div className="flex-grow-1">
-                <div className="departure-name">{dep.line?.name || dep.tripId}</div>
-                <div className="departure-direction">{dep.direction}</div>
-              </div>
-
-              <div className="text-end">
-                <div className={`departure-time ${delay > 0 ? 'delayed' : ''}`}>{plannedTime}</div>
-                {delay > 0 && <div className="departure-time-actual">{actualTime}</div>}
-                <Badge bg={getDelayBadgeVariant(delay)}>{formatDelay(delay)}</Badge>
-                {dep.platform && <Badge bg="secondary" className="ms-1">Pl. {dep.platform}</Badge>}
-              </div>
+        departures.map((dep) => (
+          <div className="departure-row" key={dep.tripId || dep.when}>
+            <div className="departure-time">{formatTime(dep.plannedWhen)}</div>
+            <div className="departure-line">
+              <span className="departure-icon">{getProductIcon(dep.line?.product)}</span>
+              {dep.line?.name || dep.tripId}
             </div>
-          );
-        })
+            <div className="departure-direction">{dep.direction}</div>
+            <div className="departure-platform">{dep.platform || '—'}</div>
+          </div>
+        ))
       )}
     </Card>
   );

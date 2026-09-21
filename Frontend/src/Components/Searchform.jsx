@@ -1,57 +1,31 @@
-import { Card, Button, Row, Col, Form, ListGroup, Spinner } from 'react-bootstrap';
-import { useLocations } from '../hooks/useLocation';
+import { Card, Button, Row, Col, Form, Spinner } from 'react-bootstrap';
+import StationAutocomplete from './StationAutocomplete';
 import { toDatetimeLocalValue, fromDatetimeLocalValue } from '../utils/transportUtils';
 import '../css/SearchForm.css';
 
 export default function SearchForm({
   fromQuery, setFromQuery,
   toQuery,   setToQuery,
-  setSelectedFrom,
-  setSelectedTo,
-  showFrom, setShowFrom,
-  showTo,   setShowTo,
+  selectedFrom, setSelectedFrom,
+  selectedTo,   setSelectedTo,
   departure, setDeparture,
   onSearch, onSwap,
   isLoading,
 }) {
-  const { data: fromResults, isLoading: fromLoading } = useLocations(fromQuery);
-  const { data: toResults,   isLoading: toLoading }   = useLocations(toQuery);
-
   return (
     <Card className="search-form-card">
       <Card.Body>
         <Row className="g-3">
 
           <Col xs={12} md={5}>
-            <Form.Label>From</Form.Label>
-            <div className="input-wrapper">
-              <Form.Control
-                placeholder="Origin station"
-                value={fromQuery}
-                onChange={(e) => {
-                  setFromQuery(e.target.value);
-                  setShowFrom(true);
-                  setSelectedFrom(null);
-                }}
-                autoComplete="off"
-              />
-              {fromLoading && <Spinner size="sm" className="mt-1" />}
-              {showFrom && fromResults?.length > 0 && (
-                <ListGroup className="suggestions-list">
-                  {fromResults.map((loc) => (
-                    <ListGroup.Item key={loc.id} action
-                      onClick={() => {
-                        setSelectedFrom(loc);
-                        setFromQuery(loc.name);
-                        setShowFrom(false);
-                      }}
-                    >
-                      {loc.name}
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              )}
-            </div>
+            <StationAutocomplete
+              label="From"
+              placeholder="Origin station"
+              value={fromQuery}
+              onChange={setFromQuery}
+              selected={selectedFrom}
+              onSelect={setSelectedFrom}
+            />
           </Col>
 
           <Col xs={12} md={2} className="swap-col">
@@ -59,35 +33,14 @@ export default function SearchForm({
           </Col>
 
           <Col xs={12} md={5}>
-            <Form.Label>To</Form.Label>
-            <div className="input-wrapper">
-              <Form.Control
-                placeholder="Destination station"
-                value={toQuery}
-                onChange={(e) => {
-                  setToQuery(e.target.value);
-                  setShowTo(true);
-                  setSelectedTo(null);
-                }}
-                autoComplete="off"
-              />
-              {toLoading && <Spinner size="sm" className="mt-1" />}
-              {showTo && toResults?.length > 0 && (
-                <ListGroup className="suggestions-list">
-                  {toResults.map((loc) => (
-                    <ListGroup.Item key={loc.id} action
-                      onClick={() => {
-                        setSelectedTo(loc);
-                        setToQuery(loc.name);
-                        setShowTo(false);
-                      }}
-                    >
-                      {loc.name}
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              )}
-            </div>
+            <StationAutocomplete
+              label="To"
+              placeholder="Destination station"
+              value={toQuery}
+              onChange={setToQuery}
+              selected={selectedTo}
+              onSelect={setSelectedTo}
+            />
           </Col>
 
           <Col xs={12} md={6}>
@@ -105,7 +58,7 @@ export default function SearchForm({
           <Col xs={12}>
             <Button
               variant="primary"
-              className="btn-lg border-0"
+              className="btn-lg"
               onClick={onSearch}
               disabled={isLoading}
             >

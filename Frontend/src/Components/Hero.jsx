@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import '../css/Hero.css';
 
-export default function Hero({ title, subtitle, eyebrow = 'Live Transit Updates', chips = [] }) {
+export default function Hero({ children, subtitle, eyebrow = 'Live Transit Updates', chips = [] }) {
   return (
     <motion.div
       className="hero-section"
@@ -11,10 +11,7 @@ export default function Hero({ title, subtitle, eyebrow = 'Live Transit Updates'
     >
       <div className="hero-eyebrow">{eyebrow}</div>
 
-      <h1
-        className="hero-title"
-        dangerouslySetInnerHTML={{ __html: title }}
-      />
+      <h1 className="hero-title">{children}</h1>
 
       <p className="hero-subtitle">{subtitle}</p>
 

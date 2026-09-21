@@ -8,7 +8,6 @@ import PlanJourney from './Pages/PlanJourney';
 import Commutes from './Pages/Commutes';
 import About from './Pages/About';
 import NotFound from './Pages/NotFound';
-import Styleguide from './Pages/Styleguide';
 import { useServerWake } from './hooks/useServerWake';
 import './App.css';
 
@@ -35,8 +34,6 @@ export default function App() {
             <Route path="/plan"       element={<PlanJourney key={location.search} />} />
             <Route path="/commutes"   element={<Commutes />} />
             <Route path="/about"      element={<About />} />
-            {/* Temporary — deleted at the end of Stage 4. */}
-            <Route path="/styleguide" element={<Styleguide />} />
             <Route path="*"           element={<NotFound />} />
           </Routes>
         </AnimatePresence>
