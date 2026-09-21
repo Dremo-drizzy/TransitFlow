@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { searchLocations } from './api';
+import { searchLocations, getDepartures } from './api';
 
 function jsonResponse(body, status = 200) {
   return {
@@ -120,5 +120,51 @@ describe('fetchFromApi (exercised via searchLocations)', () => {
     await assertion;
 
     expect(globalThis.fetch).toHaveBeenCalledTimes(3);
+  });
+
+  it('attaches the real HTTP status to the thrown error, not just the message', async () => {
+    // The message wording differs between our own rate limiter and a
+    // passed-through upstream error, so callers need error.status to
+    // reliably detect a 429 rather than pattern-matching text. Every
+    // attempt needs a mocked response — a 429 retries all 3 times.
+    globalThis.fetch.mockResolvedValue(jsonResponse({ error: 'Too many requests. Slow down.' }, 429));
+
+    const promise = searchLocations('berlin');
+    const assertion = expect(promise).rejects.toMatchObject({ status: 429 });
+    await vi.runAllTimersAsync();
+    await assertion;
+  });
+});
+
+describe('getDepartures', () => {
+  beforeEach(() => {
+    globalThis.fetch = vi.fn();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('does not send any product filter params by default', async () => {
+    globalThis.fetch.mockResolvedValueOnce(jsonResponse({ departures: [] }));
+
+    await getDepartures('8011160', { duration: 60 });
+
+    const [calledUrl] = globalThis.fetch.mock.calls[0];
+    expect(calledUrl).not.toContain('bus');
+    expect(calledUrl).not.toContain('tram');
+  });
+
+  it('sends only the excluded product types as false, omitting everything else', async () => {
+    globalThis.fetch.mockResolvedValueOnce(jsonResponse({ departures: [] }));
+
+    await getDepartures('8011160', { duration: 60, bus: false, tram: false, nationalExpress: true });
+
+    const [calledUrl] = globalThis.fetch.mock.calls[0];
+    const url = new URL(calledUrl, 'http://localhost');
+    expect(url.searchParams.get('bus')).toBe('false');
+    expect(url.searchParams.get('tram')).toBe('false');
+    // true isn't a real API value — only explicit `false` should ever be sent.
+    expect(url.searchParams.has('nationalExpress')).toBe(false);
   });
 });

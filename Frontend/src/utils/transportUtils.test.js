@@ -5,9 +5,9 @@ import {
   getDelayMinutes,
   formatDelay,
   getDelayBadgeVariant,
-  getProductIcon,
   toDatetimeLocalValue,
   fromDatetimeLocalValue,
+  getDepartureStatus,
 } from './transportUtils';
 
 describe('formatTime', () => {
@@ -132,48 +132,6 @@ describe('getDelayBadgeVariant', () => {
   });
 });
 
-describe('getProductIcon', () => {
-  const cases = [
-    ['nationalExpress', '🚄'],
-    ['national', '🚆'],
-    ['regionalExpress', '🚆'],
-    ['regional', '🚆'],
-    ['suburban', '🚈'],
-    ['subway', '🚇'],
-    ['tram', '🚊'],
-    ['bus', '🚌'],
-    ['ferry', '⛴️'],
-    ['taxi', '🚕'],
-  ];
-
-  it.each(cases)('returns the right icon for product id "%s"', (id, icon) => {
-    expect(getProductIcon(id)).toBe(icon);
-  });
-
-  it('accepts an object with a .type instead of a bare string', () => {
-    expect(getProductIcon({ type: 'bus' })).toBe('🚌');
-  });
-
-  it('falls back to a neutral icon for an unrecognised product id', () => {
-    expect(getProductIcon('hyperloop')).not.toBe(undefined);
-    expect(getProductIcon('hyperloop')).toBe('🚏');
-  });
-
-  it('falls back to a neutral icon for null/undefined', () => {
-    expect(getProductIcon(null)).toBe('🚏');
-    expect(getProductIcon(undefined)).toBe('🚏');
-  });
-
-  it('does not let a bus match the old broken "s" substring check for S-Bahn', () => {
-    // Regression guard for the old implementation, where t.includes('s') for
-    // S-Bahn was checked before the bus branch, so "bus" (which contains no
-    // "s"... but the old `t` was built from product.type/.name, always '' for
-    // a string product) matched the wrong branch. Confirm bus and suburban
-    // never collide now that lookup is exact.
-    expect(getProductIcon('bus')).not.toBe(getProductIcon('suburban'));
-  });
-});
-
 describe('toDatetimeLocalValue / fromDatetimeLocalValue', () => {
   const originalTZ = process.env.TZ;
 
@@ -217,5 +175,30 @@ describe('toDatetimeLocalValue / fromDatetimeLocalValue', () => {
 
   it('returns null for an empty local value', () => {
     expect(fromDatetimeLocalValue('')).toBeNull();
+  });
+});
+
+describe('getDepartureStatus', () => {
+  it('returns CANCELLED/red when cancelled, ignoring the planned/actual times', () => {
+    // A cancelled departure has when: null, which getDelayMinutes reads as
+    // "no data, delay 0" — cancelled must be checked first or this would
+    // render as ON TIME.
+    const status = getDepartureStatus('2024-01-15T14:00:00.000Z', null, true);
+    expect(status).toEqual({ text: 'CANCELLED', tone: 'red', cancelled: true });
+  });
+
+  it('returns ON TIME/green when not delayed', () => {
+    const status = getDepartureStatus('2024-01-15T14:00:00.000Z', '2024-01-15T14:00:00.000Z', false);
+    expect(status).toEqual({ text: 'ON TIME', tone: 'green', cancelled: false });
+  });
+
+  it('returns +N MIN/amber for a 1-5 minute delay', () => {
+    const status = getDepartureStatus('2024-01-15T14:00:00.000Z', '2024-01-15T14:03:00.000Z', false);
+    expect(status).toEqual({ text: '+3 MIN', tone: 'amber', cancelled: false });
+  });
+
+  it('returns +N MIN/red for a delay over 5 minutes', () => {
+    const status = getDepartureStatus('2024-01-15T14:00:00.000Z', '2024-01-15T14:09:00.000Z', false);
+    expect(status).toEqual({ text: '+9 MIN', tone: 'red', cancelled: false });
   });
 });

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Card, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { useDepartures } from '../hooks/useDepartures';
 import { useNearbyStops } from '../hooks/useNearbyStops';
-import { getUserLocation, formatTime, getProductIcon } from '../utils/transportUtils';
+import { getUserLocation, formatTime } from '../utils/transportUtils';
 import '../css/LiveDeparturesPreview.css';
 
 const DEFAULT_STOP = { id: '900003200', name: 'Berlin Hbf' };
@@ -36,7 +37,9 @@ export default function LiveDeparturesPreview() {
   return (
     <Card className="departures-preview-card">
       <Card.Header className="d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h5 className="m-0">Live Departures — {stopName}</h5>
+        <h5 className="m-0">
+          Live Departures — <Link to={`/departures/${stopId}?name=${encodeURIComponent(stopName)}`} className="departures-station-link">{stopName}</Link>
+        </h5>
         <div className="d-flex align-items-center gap-2">
           <span className="live-pill">● LIVE</span>
           <Button
@@ -89,7 +92,6 @@ export default function LiveDeparturesPreview() {
           <div className="departure-row" key={dep.tripId || dep.when}>
             <div className="departure-time">{formatTime(dep.plannedWhen)}</div>
             <div className="departure-line">
-              <span className="departure-icon">{getProductIcon(dep.line?.product)}</span>
               {dep.line?.name || dep.tripId}
             </div>
             <div className="departure-direction">{dep.direction}</div>

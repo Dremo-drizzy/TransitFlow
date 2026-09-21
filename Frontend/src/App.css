@@ -309,6 +309,13 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .text-accent { color: var(--tf-amber) !important; }
 .input-wrapper { position: relative; }
 
+/* Shared delay/status tone colors — the output of getDepartureStatus(),
+ * used identically by JourneyCard and DepartureBoard. */
+.leg-status-green { color: var(--tf-green); }
+.leg-status-amber { color: var(--tf-amber); }
+.leg-status-red   { color: var(--tf-red); }
+.leg-status-muted { color: var(--tf-muted); }
+
 /* Shared loading-skeleton primitive — every Bootstrap Spinner in a
  * content area is replaced with skeleton rows shaped like what's loading,
  * built from this block. */

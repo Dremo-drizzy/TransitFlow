@@ -1,9 +1,27 @@
 .split-flap {
+  position: relative;
   display: inline-flex;
   /* Flaps on a real board sit nearly abutting, with the dark housing as a
    * thin gutter between them — not spaced out like separate chips. */
   gap: 2px;
   font-family: var(--tf-font-mono);
+}
+
+/* A brief amber wash over the whole group, for changes worth more
+ * attention than the routine flip (a platform change, say). */
+.sf-pulse-overlay {
+  position: absolute;
+  inset: -3px;
+  background: var(--tf-amber);
+  opacity: 0;
+  animation: sf-pulse 2s ease-out both;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes sf-pulse {
+  0%   { opacity: 0.35; }
+  100% { opacity: 0; }
 }
 
 /* Cell height is the single source of truth for scale; width, font-size and
@@ -49,6 +67,10 @@
 .split-flap-amber .sf-cell { color: var(--tf-amber); }
 .split-flap-green .sf-cell { color: var(--tf-green); }
 .split-flap-red   .sf-cell { color: var(--tf-red); }
+/* --tf-muted means "no data" specifically — a normal, present value reads
+ * in --tf-text instead, so muted stays reserved and legible values aren't
+ * dimmed by default. */
+.split-flap-text  .sf-cell { color: var(--tf-text); }
 .split-flap-muted .sf-cell { color: var(--tf-muted); }
 
 .sf-cell-flip {

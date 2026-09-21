@@ -1,27 +1,7 @@
 import { Card } from 'react-bootstrap';
-import { formatTime, formatDuration, getProductIcon, getDelayMinutes, getDelayBadgeVariant } from '../utils/transportUtils';
+import { formatTime, formatDuration, getDepartureStatus } from '../utils/transportUtils';
 import FlapTime from './FlapTime';
 import '../css/JourneyCard.css';
-
-// getDelayBadgeVariant works off plannedWhen/when, and a cancelled leg has
-// when: null — which getDelayMinutes reads as "no data, delay 0", so a
-// cancelled train would otherwise render as "ON TIME". Check leg.cancelled
-// first, before any delay math.
-const STATUS_TONE = { success: 'green', warning: 'amber', danger: 'red', secondary: 'muted' };
-
-function legStatus(leg) {
-  if (leg.cancelled) {
-    return { text: 'CANCELLED', tone: 'red', className: 'leg-status-cancelled', cancelled: true };
-  }
-  const delay = getDelayMinutes(leg.plannedDeparture, leg.departure);
-  const variant = getDelayBadgeVariant(delay);
-  return {
-    text: delay <= 0 ? 'ON TIME' : `+${delay} MIN`,
-    tone: STATUS_TONE[variant],
-    className: `leg-status-${variant}`,
-    cancelled: false,
-  };
-}
 
 export default function JourneyCard({ journey, index = 0 }) {
   const legs = journey?.legs || [];
@@ -51,11 +31,10 @@ export default function JourneyCard({ journey, index = 0 }) {
 
       <div className="journey-legs">
         {legs.map((leg, i) => {
-          const status = legStatus(leg);
+          const status = getDepartureStatus(leg.plannedDeparture, leg.departure, leg.cancelled);
           return (
             <div className="journey-leg" key={i}>
               <div className="leg-product-pill">
-                <span className="leg-product-icon">{getProductIcon(leg.line?.product)}</span>
                 <span>{leg.line?.name || leg.tripId}</span>
               </div>
 
@@ -73,7 +52,7 @@ export default function JourneyCard({ journey, index = 0 }) {
                   />
                   <span className="leg-arrival-time">→ {formatTime(leg.plannedArrival)}</span>
                 </div>
-                <div className={`leg-status ${status.className}`}>{status.text}</div>
+                <div className={`leg-status leg-status-${status.tone}`}>{status.text}</div>
               </div>
             </div>
           );

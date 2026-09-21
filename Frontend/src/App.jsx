@@ -6,6 +6,7 @@ import ErrorBoundary from './Components/ErrorBoundary';
 import Home from './Pages/Home';
 import PlanJourney from './Pages/PlanJourney';
 import Commutes from './Pages/Commutes';
+import Departures from './Pages/Departures';
 import About from './Pages/About';
 import NotFound from './Pages/NotFound';
 import { useServerWake } from './hooks/useServerWake';
@@ -33,6 +34,7 @@ export default function App() {
                 while already on /plan remounts the page — see PlanJourney.jsx. */}
             <Route path="/plan"       element={<PlanJourney key={location.search} />} />
             <Route path="/commutes"   element={<Commutes />} />
+            <Route path="/departures/:stopId" element={<Departures />} />
             <Route path="/about"      element={<About />} />
             <Route path="*"           element={<NotFound />} />
           </Routes>

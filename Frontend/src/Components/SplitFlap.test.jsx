@@ -73,4 +73,47 @@ describe('SplitFlap', () => {
     const { container: lg } = render(<SplitFlap value="OK" length={2} size="lg" />);
     expect(lg.querySelector('.split-flap-lg')).not.toBeNull();
   });
+
+  it('does not render a pulse overlay by default, even when the value changes', () => {
+    const { container, rerender } = render(<SplitFlap value="12" length={2} />);
+    rerender(<SplitFlap value="14" length={2} />);
+    expect(container.querySelector('.sf-pulse-overlay')).toBeNull();
+  });
+
+  it('does not render a pulse overlay on first render even with pulseOnChange', () => {
+    const { container } = render(<SplitFlap value="12" length={2} pulseOnChange />);
+    expect(container.querySelector('.sf-pulse-overlay')).toBeNull();
+  });
+
+  it('renders a pulse overlay when pulseOnChange is set and the value changes', () => {
+    const { container, rerender } = render(<SplitFlap value="12" length={2} pulseOnChange />);
+    rerender(<SplitFlap value="14" length={2} pulseOnChange />);
+    expect(container.querySelector('.sf-pulse-overlay')).not.toBeNull();
+  });
+
+  it('pads a short value at the start when align is "end"', () => {
+    const { container } = render(<SplitFlap value="3" length={2} align="end" />);
+    const cells = cellsOf(container);
+    expect(cells).toHaveLength(2);
+    expect(cells[0].textContent).toBe(' ');
+    expect(cells[1].textContent).toBe('3');
+  });
+
+  it('truncates a long value from the start when align is "end"', () => {
+    const { container } = render(<SplitFlap value="123" length={2} align="end" />);
+    const cells = cellsOf(container);
+    expect(Array.from(cells).map((c) => c.textContent).join('')).toBe('23');
+  });
+
+  it('defaults align to "start" (pads/truncates at the end)', () => {
+    const { container } = render(<SplitFlap value="3" length={2} />);
+    const cells = cellsOf(container);
+    expect(cells[0].textContent).toBe('3');
+    expect(cells[1].textContent).toBe(' ');
+  });
+
+  it('applies the text tone as a class', () => {
+    const { container } = render(<SplitFlap value="11" length={2} tone="text" />);
+    expect(container.querySelector('.split-flap-text')).not.toBeNull();
+  });
 });

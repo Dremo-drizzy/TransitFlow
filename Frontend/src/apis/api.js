@@ -23,7 +23,13 @@ async function errorFromResponse(response) {
   } catch {
     // Non-JSON error body (e.g. an HTML error page) — keep the generic message.
   }
-  return new Error(message);
+  const error = new Error(message);
+  // The message alone isn't a reliable way to detect a 429 — our own proxy's
+  // rate limiter and a passed-through upstream 429 use different wording.
+  // Attach the real status so callers (e.g. the departures board) can check
+  // error.status === 429 instead of pattern-matching text.
+  error.status = response.status;
+  return error;
 }
 
 async function fetchFromApi(url, retries = 3) {
@@ -83,10 +89,21 @@ export const getStopDetails = async (stopId) => {
   return await fetchFromApi(url);
 };
 
+// Boolean product-type filters the proxy allowlists and forwards upstream.
+// Omitted entirely means "show everything"; the DB API only excludes a
+// product when its param is explicitly sent as false.
+const PRODUCT_FILTER_KEYS = [
+  'nationalExpress', 'national', 'regionalExpress', 'regional',
+  'suburban', 'subway', 'tram', 'bus', 'ferry',
+];
+
 export const getDepartures = async (stopId, options = { duration: 60 }) => {
   if (!stopId) return [];
   const params = new URLSearchParams({ duration: options.duration.toString() });
   if (options.when) params.append('when', options.when);
+  for (const key of PRODUCT_FILTER_KEYS) {
+    if (options[key] === false) params.append(key, 'false');
+  }
   const url = `${BASE_URL}/stops/${stopId}/departures?${params}`;
   return await fetchFromApi(url);
 };

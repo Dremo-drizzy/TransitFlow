@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import '../css/SplitFlap.css';
 
-function normalize(value, length) {
+function normalize(value, length, align) {
   const str = String(value ?? '');
-  return str.length >= length ? str.slice(0, length) : str.padEnd(length, ' ');
+  if (str.length >= length) {
+    // align="end" truncates from the start too, so the meaningful end of
+    // an over-length value (e.g. the units digit) is what survives.
+    return align === 'end' ? str.slice(-length) : str.slice(0, length);
+  }
+  return align === 'end' ? str.padStart(length, ' ') : str.padEnd(length, ' ');
 }
 
 /**
@@ -17,9 +22,18 @@ function normalize(value, length) {
  * Only the characters that actually changed since the last render flip —
  * flipping the whole row on every tick would look like a loading spinner,
  * not a departure board catching up to a new time.
+ *
+ * pulseOnChange adds a brief amber wash over the whole group on top of the
+ * normal flip, for changes worth calling extra attention to (a platform
+ * change, say) beyond the routine flip every live time update gets.
+ *
+ * align controls which end padding/truncation favors: "start" (default) is
+ * right for left-to-right text like a time; "end" right-aligns instead —
+ * for a number like a platform, so "3" and "11" share a right edge instead
+ * of "3" reading as "3" followed by a blank tile.
  */
-export default function SplitFlap({ value, length, tone = 'amber', size = 'md' }) {
-  const normalized = normalize(value, length);
+export default function SplitFlap({ value, length, tone = 'amber', size = 'md', pulseOnChange = false, align = 'start' }) {
+  const normalized = normalize(value, length, align);
 
   const [prevValue, setPrevValue] = useState(normalized);
   const [bump, setBump] = useState(0);
@@ -42,6 +56,12 @@ export default function SplitFlap({ value, length, tone = 'amber', size = 'md' }
 
   return (
     <div className={`split-flap split-flap-${tone} split-flap-${size}`}>
+      {pulseOnChange && changedIndices && (
+        // Keyed by bump so it remounts (and its animation restarts) on
+        // every change, without touching the cells' own DOM identity —
+        // that would break their independent flip animations.
+        <span key={bump} className="sf-pulse-overlay" aria-hidden="true" />
+      )}
       {normalized.split('').map((char, i) => {
         const flipped = changedIndices?.has(i) ?? false;
         return (

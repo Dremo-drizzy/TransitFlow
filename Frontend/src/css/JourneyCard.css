@@ -64,8 +64,6 @@
   flex-shrink: 0;
 }
 
-.leg-product-icon { font-size: 0.95rem; }
-
 .leg-stops {
   font-size: 0.78rem;
   color: var(--tf-muted);
@@ -98,11 +96,6 @@
   letter-spacing: 0.04em;
   margin-top: 3px;
 }
-
-.leg-status-success  { color: var(--tf-green); }
-.leg-status-warning  { color: var(--tf-amber); }
-.leg-status-danger,
-.leg-status-cancelled { color: var(--tf-red); }
 
 @media (max-width: 480px) {
   .journey-leg {
