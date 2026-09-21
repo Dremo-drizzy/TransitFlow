@@ -2,6 +2,16 @@
   height: 100%;
 }
 
+.commute-delete-btn {
+  color: var(--tf-muted) !important;
+  transition: var(--tr);
+}
+
+.commute-delete-btn:hover,
+.commute-delete-btn:focus-visible {
+  color: var(--tf-red) !important;
+}
+
 .commute-route-from,
 .commute-route-to {
   display: flex;

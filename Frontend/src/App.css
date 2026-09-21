@@ -90,6 +90,15 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--tf-font-mono);
 }
 
+/* Card titles match the column-header treatment used elsewhere on the
+ * board (uppercase, wide tracking) rather than reading as plain prose. */
+.card-header h5 {
+  margin: 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
 .card-footer {
   background: transparent !important;
   border-top: 1px solid var(--tf-edge) !important;
@@ -110,15 +119,20 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid transparent;
 }
 
+/* Amber means live data in this design, not "primary button" — so no
+ * solid amber fill here. Outlined instead: transparent fill, amber
+ * border and text, a low-alpha amber wash on hover. Solid amber fill is
+ * unused everywhere, for now. */
 .btn-primary {
-  background: var(--tf-amber) !important;
+  background: transparent !important;
   border-color: var(--tf-amber) !important;
-  color: var(--tf-void) !important;
+  color: var(--tf-amber) !important;
 }
 
 .btn-primary:hover {
-  background: var(--tf-amber-dim) !important;
-  border-color: var(--tf-amber-dim) !important;
+  background: rgba(var(--bs-primary-rgb), 0.1) !important;
+  border-color: var(--tf-amber) !important;
+  color: var(--tf-amber) !important;
 }
 
 .btn-outline-primary {
