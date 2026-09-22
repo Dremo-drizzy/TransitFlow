@@ -301,9 +301,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 .empty-state-icon {
-  font-size: 3rem;
+  display: flex;
+  justify-content: center;
   margin-bottom: 1rem;
-  display: block;
 }
 
 .text-accent { color: var(--tf-amber) !important; }
