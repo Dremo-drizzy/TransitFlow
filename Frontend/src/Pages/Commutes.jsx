@@ -63,7 +63,18 @@ export default function Commutes() {
         {commutes.length === 0 ? (
           <Card>
             <Card.Body className="empty-state">
-              <span className="empty-state-icon">🚇</span>
+              <span className="empty-state-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" fill="none" aria-hidden="true">
+                  <rect x="5" y="3" width="14" height="13" rx="3" stroke="currentColor" strokeWidth="1.4" />
+                  <line x1="5" y1="10" x2="19" y2="10" stroke="currentColor" strokeWidth="1.4" />
+                  <line x1="9" y1="3" x2="9" y2="10" stroke="currentColor" strokeWidth="1.4" />
+                  <line x1="15" y1="3" x2="15" y2="10" stroke="currentColor" strokeWidth="1.4" />
+                  <line x1="8.5" y1="16" x2="8.5" y2="17.6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                  <line x1="15.5" y1="16" x2="15.5" y2="17.6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                  <circle cx="8.5" cy="19" r="1.4" stroke="currentColor" strokeWidth="1.4" />
+                  <circle cx="15.5" cy="19" r="1.4" stroke="currentColor" strokeWidth="1.4" />
+                </svg>
+              </span>
               <h4 className="mb-2">No Saved Commutes Yet</h4>
               <p className="mb-4">
                 Save your frequent routes for quick access to journey plans and live updates.

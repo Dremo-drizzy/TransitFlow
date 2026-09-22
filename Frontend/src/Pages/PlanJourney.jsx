@@ -107,7 +107,17 @@ export default function PlanJourney() {
           </div>
         ) : journeys.length === 0 ? (
           <div className="empty-state">
-            <span className="empty-state-icon">🗺️</span>
+            <span className="empty-state-icon">
+              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" aria-hidden="true">
+                <path
+                  d="M12 21s7-7.58 7-12a7 7 0 1 0-14 0c0 4.42 7 12 7 12Z"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinejoin="round"
+                />
+                <circle cx="12" cy="9" r="2.4" stroke="currentColor" strokeWidth="1.4" />
+              </svg>
+            </span>
             <p>Search for a journey to see connections.</p>
           </div>
         ) : (
