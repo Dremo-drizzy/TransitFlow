@@ -1,0 +1,59 @@
+.trip-map {
+  border: 1px solid var(--tf-edge);
+  background: var(--tf-housing);
+  overflow: hidden;
+}
+
+/* A Leaflet map container with no explicit height renders at zero pixels. */
+.trip-map .leaflet-container {
+  height: 420px;
+  width: 100%;
+  background: var(--tf-void);
+  font-family: var(--tf-font-sans);
+}
+
+@media (max-width: 768px) {
+  .trip-map .leaflet-container {
+    height: 280px;
+  }
+}
+
+.tf-stop-marker span {
+  display: block;
+  width: 10px;
+  height: 10px;
+  background: var(--tf-housing);
+  border: 2px solid var(--tf-amber-dim);
+}
+
+.tf-vehicle-marker-pill {
+  display: inline-flex;
+  align-items: center;
+  transform: translate(-50%, -50%);
+  font-family: var(--tf-font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--tf-void);
+  background: var(--tf-amber);
+  border: 1px solid var(--tf-void);
+  padding: 0.2rem 0.45rem;
+  white-space: nowrap;
+  box-shadow: 0 0 0 3px rgba(255, 179, 2, 0.25);
+}
+
+/* Position changes (our useNow tick moving the vehicle) animate smoothly
+ * instead of snapping — Leaflet updates a marker's position via a CSS
+ * transform, so transitioning transform here is what makes it glide. Map
+ * pans/zooms reposition every marker the same way, so they'll animate too;
+ * a brief, acceptable side effect of this approach rather than building a
+ * fully custom, manually-driven marker animation. */
+.tf-vehicle-marker {
+  transition: transform 1s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tf-vehicle-marker {
+    transition: none;
+  }
+}

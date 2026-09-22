@@ -124,6 +124,7 @@ export const getJourneys = async (params) => {
 
 export const getTripDetails = async (tripId) => {
   if (!tripId) return null;
-  const url = `${BASE_URL}/trips/${tripId}`;
+  const params = new URLSearchParams({ stopovers: 'true', polyline: 'true' });
+  const url = `${BASE_URL}/trips/${encodeURIComponent(tripId)}?${params}`;
   return await fetchFromApi(url);
 };

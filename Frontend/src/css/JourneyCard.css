@@ -47,7 +47,16 @@
 }
 
 .journey-leg:last-child { border-bottom: none; }
-.journey-leg:hover { background: var(--tf-flap); }
+
+.journey-leg-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.journey-leg-link:hover { background: var(--tf-flap); }
+
+/* A footpath between platforms, not a real leg — no tripId to link to. */
+.journey-leg-walk { opacity: 0.75; }
 
 .leg-product-pill {
   display: flex;

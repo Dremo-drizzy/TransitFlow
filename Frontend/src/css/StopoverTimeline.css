@@ -1,0 +1,125 @@
+.stopover-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--tf-edge);
+  background: var(--tf-housing);
+}
+
+.stopover-node {
+  display: flex;
+  align-items: stretch;
+  gap: 0.85rem;
+  padding: 0.7rem 1rem 0;
+}
+
+.stopover-node:last-child { padding-bottom: 0.7rem; }
+
+.stopover-node-rail-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 12px;
+}
+
+.stopover-node-marker {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--tf-edge);
+  background: var(--tf-housing);
+  padding: 0;
+  cursor: pointer;
+}
+
+.stopover-node-marker:disabled { cursor: default; }
+.stopover-node-marker:not(:disabled):hover { border-color: var(--tf-amber); }
+
+.stopover-rail {
+  flex: 1;
+  width: 2px;
+  min-height: 1.25rem;
+  margin: 4px 0;
+  background: var(--tf-edge);
+}
+
+.stopover-node-body {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--tf-edge);
+}
+
+.stopover-node:last-child .stopover-node-body {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.stopover-node-name {
+  font-family: var(--tf-font-mono);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.stopover-node-name-cancelled {
+  color: var(--tf-muted);
+  text-decoration: line-through;
+}
+
+.stopover-node-times {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2px;
+  font-family: var(--tf-font-mono);
+  font-size: 0.72rem;
+  color: var(--tf-muted);
+}
+
+.stopover-node-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 4px;
+}
+
+.stopover-platform {
+  font-family: var(--tf-font-mono);
+  font-size: 0.7rem;
+  color: var(--tf-text);
+}
+
+.stopover-platform-changed {
+  color: var(--tf-amber);
+  font-weight: 700;
+}
+
+.stopover-status {
+  font-family: var(--tf-font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* Passed: dimmed. Current: the marker fills amber. Upcoming: default. */
+.stopover-node-passed { opacity: 0.5; }
+
+.stopover-node-current .stopover-node-marker {
+  border-color: var(--tf-amber);
+  background: var(--tf-amber);
+}
+
+.stopover-rail-active {
+  background: var(--tf-amber);
+  animation: stopover-rail-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes stopover-rail-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stopover-rail-active { animation: none; }
+}
