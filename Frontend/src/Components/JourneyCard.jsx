@@ -1,4 +1,5 @@
 import { Card } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { formatTime, formatDuration, getDepartureStatus } from '../utils/transportUtils';
 import FlapTime from './FlapTime';
 import '../css/JourneyCard.css';
@@ -31,9 +32,33 @@ export default function JourneyCard({ journey, index = 0 }) {
 
       <div className="journey-legs">
         {legs.map((leg, i) => {
+          // Walking legs (footpaths between platforms) have no line and no
+          // tripId — linking them to /trip/undefined would 404. Render them
+          // as a plain, unlinked row instead.
+          if (leg.walking) {
+            return (
+              <div className="journey-leg journey-leg-walk" key={i}>
+                <div className="leg-product-pill">
+                  <span>Walk</span>
+                </div>
+
+                <div className="leg-stops flex-grow-1">
+                  {leg.origin?.name} → {leg.destination?.name}
+                </div>
+
+                <div className="leg-time-status">
+                  <div className="leg-times-row">
+                    <FlapTime value={formatTime(leg.departure)} size="sm" />
+                    <span className="leg-arrival-time">→ {formatTime(leg.arrival)}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
           const status = getDepartureStatus(leg.plannedDeparture, leg.departure, leg.cancelled);
-          return (
-            <div className="journey-leg" key={i}>
+          const content = (
+            <>
               <div className="leg-product-pill">
                 <span>{leg.line?.name || leg.tripId}</span>
               </div>
@@ -54,7 +79,17 @@ export default function JourneyCard({ journey, index = 0 }) {
                 </div>
                 <div className={`leg-status leg-status-${status.tone}`}>{status.text}</div>
               </div>
-            </div>
+            </>
+          );
+
+          if (!leg.tripId) {
+            return <div className="journey-leg" key={i}>{content}</div>;
+          }
+
+          return (
+            <Link to={`/trip/${encodeURIComponent(leg.tripId)}`} className="journey-leg journey-leg-link" key={i}>
+              {content}
+            </Link>
           );
         })}
       </div>

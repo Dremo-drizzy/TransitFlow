@@ -1,0 +1,57 @@
+.trip-detail-header {
+  margin-bottom: 0.35rem;
+}
+
+.trip-detail-line {
+  font-family: var(--tf-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tf-amber);
+}
+
+.trip-detail-route {
+  font-size: 1.6rem;
+  margin: 0.15rem 0 0;
+}
+
+.trip-detail-status {
+  font-family: var(--tf-font-mono);
+  font-size: 0.85rem;
+  color: var(--tf-text);
+  margin-bottom: 1.5rem;
+}
+
+.trip-detail-status-cancelled {
+  color: var(--tf-red);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* Map first on mobile (single column), map + timeline side by side once
+ * there's room for both to read comfortably. */
+.trip-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 992px) {
+  .trip-detail-layout {
+    grid-template-columns: 1.4fr 1fr;
+    align-items: start;
+  }
+}
+
+.trip-detail-message {
+  font-family: var(--tf-font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tf-muted);
+  margin-bottom: 1rem;
+}
+
+.trip-detail-skeleton {
+  padding: 0.5rem 0;
+}

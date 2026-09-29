@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import TransNavbar from './Components/TransNavbar';
@@ -11,6 +12,10 @@ import About from './Pages/About';
 import NotFound from './Pages/NotFound';
 import { useServerWake } from './hooks/useServerWake';
 import './App.css';
+
+// Leaflet is large and has no business in the main bundle — split it into
+// its own chunk, only fetched when someone actually navigates to a trip.
+const TripDetail = lazy(() => import('./Pages/TripDetail'));
 
 export default function App() {
   const location = useLocation();
@@ -35,6 +40,14 @@ export default function App() {
             <Route path="/plan"       element={<PlanJourney key={location.search} />} />
             <Route path="/commutes"   element={<Commutes />} />
             <Route path="/departures/:stopId" element={<Departures />} />
+            <Route
+              path="/trip/:tripId"
+              element={
+                <Suspense fallback={<div className="page-loading-fallback">Loading…</div>}>
+                  <TripDetail />
+                </Suspense>
+              }
+            />
             <Route path="/about"      element={<About />} />
             <Route path="*"           element={<NotFound />} />
           </Routes>

@@ -306,6 +306,17 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   margin-bottom: 1rem;
 }
 
+/* Suspense fallback while the lazy-loaded trip map chunk downloads. */
+.page-loading-fallback {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  font-family: var(--tf-font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tf-muted);
+}
+
 .text-accent { color: var(--tf-amber) !important; }
 .input-wrapper { position: relative; }
 
