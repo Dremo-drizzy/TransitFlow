@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { format } from 'date-fns';
@@ -41,12 +41,18 @@ export default function Departures() {
   // No chips active means no filtering at all — the API only excludes a
   // product when its param is explicitly false, so an active selection
   // means "exclude everything not selected", not "include only these".
-  const filters = {};
-  if (activeFilters.size > 0) {
-    for (const { key } of PRODUCT_FILTERS) {
-      if (!activeFilters.has(key)) filters[key] = false;
+  // Memoized so the ticking clock's re-render every second doesn't hand
+  // DepartureBoard a new object identity it has no way to tell apart from
+  // an actual filter change — that would defeat the memoization below.
+  const filters = useMemo(() => {
+    const next = {};
+    if (activeFilters.size > 0) {
+      for (const { key } of PRODUCT_FILTERS) {
+        if (!activeFilters.has(key)) next[key] = false;
+      }
     }
-  }
+    return next;
+  }, [activeFilters]);
 
   return (
     <Container fluid="lg" className="departures-page py-4">

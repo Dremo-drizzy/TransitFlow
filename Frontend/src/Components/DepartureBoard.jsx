@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { useDepartures } from '../hooks/useDepartures';
@@ -69,7 +69,10 @@ function DepartureRow({ dep }) {
   );
 }
 
-export default function DepartureBoard({ stopId, filters = {} }) {
+// Departures.jsx re-renders once a second for its own header clock —
+// without this, that tick cascaded down and re-rendered every single row
+// along with it, even though none of their data had actually changed.
+function DepartureBoard({ stopId, filters = {} }) {
   const { data, isLoading, error, refetch, dataUpdatedAt } = useDepartures(stopId, {
     duration: 60,
     ...filters,
@@ -130,3 +133,5 @@ export default function DepartureBoard({ stopId, filters = {} }) {
     </div>
   );
 }
+
+export default memo(DepartureBoard);

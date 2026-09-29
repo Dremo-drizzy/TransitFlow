@@ -14,7 +14,14 @@
   --tf-green: #3ddc84;       /* on time, live */
   --tf-red: #ff5a5f;         /* delayed, cancelled */
   --tf-text: #e9e7e2;        /* off-white body text */
-  --tf-muted: #767f8c;       /* labels, column headers */
+  /* Bumped from #767f8c during the Stage 8 accessibility pass: the original
+   * cleared 4.5:1 against --tf-housing (4.63:1) but fell to 4.17:1 against
+   * --tf-flap — the hover background used on board rows, list items and the
+   * autocomplete dropdown — which fails WCAG AA for the muted labels/status
+   * text that lives on top of it. #7e8794 clears 4.5:1 against every
+   * surface token this app actually uses as a background (flap included,
+   * at 4.65:1) with a real margin, not just barely. */
+  --tf-muted: #7e8794;       /* labels, column headers */
 
   --tf-font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --tf-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
