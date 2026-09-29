@@ -18,6 +18,49 @@
   }
 }
 
+/* Leaflet's default zoom control and attribution bar are both styled for a
+ * light basemap — bright white box, grey text — and break the theme on a
+ * dark map. Hard edges and a border instead of Leaflet's box-shadow, to
+ * match this app's flat-panel look rather than a floating control. */
+.trip-map .leaflet-control-zoom {
+  border: none;
+  box-shadow: none;
+  border-radius: 2px;
+}
+
+.trip-map .leaflet-bar a {
+  background: var(--tf-housing);
+  border-bottom: 1px solid var(--tf-edge);
+  color: var(--tf-amber);
+  border-radius: 0;
+}
+
+.trip-map .leaflet-bar a:first-child { border-radius: 2px 2px 0 0; }
+.trip-map .leaflet-bar a:last-child { border-radius: 0 0 2px 2px; }
+
+.trip-map .leaflet-bar a:hover,
+.trip-map .leaflet-bar a:focus {
+  background: var(--tf-flap);
+  color: var(--tf-amber);
+}
+
+.trip-map .leaflet-bar a.leaflet-disabled {
+  background: var(--tf-housing);
+  color: var(--tf-muted);
+}
+
+.trip-map .leaflet-control-attribution {
+  background: var(--tf-housing);
+  color: var(--tf-muted);
+  font-family: var(--tf-font-sans);
+  font-size: 0.68rem;
+  border-top: 1px solid var(--tf-edge);
+}
+
+.trip-map .leaflet-control-attribution a {
+  color: var(--tf-muted);
+}
+
 .tf-stop-marker span {
   display: block;
   width: 10px;
