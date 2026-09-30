@@ -27,7 +27,7 @@ export default function TransNavbar() {
           <span className="brand-text">TransitFlow</span>
         </Navbar.Brand>
 
-        <Navbar.Toggle aria-controls="main-nav bg-white" />
+        <Navbar.Toggle aria-controls="main-nav" />
 
         <Navbar.Collapse id="main-nav">
           <Nav className="main-nav ms-auto gap-3">

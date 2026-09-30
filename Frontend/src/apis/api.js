@@ -94,12 +94,16 @@ export const getStopDetails = async (stopId) => {
 // product when its param is explicitly sent as false.
 const PRODUCT_FILTER_KEYS = [
   'nationalExpress', 'national', 'regionalExpress', 'regional',
-  'suburban', 'subway', 'tram', 'bus', 'ferry',
+  'suburban', 'subway', 'tram', 'bus', 'ferry', 'taxi',
 ];
 
-export const getDepartures = async (stopId, options = { duration: 60 }) => {
+export const getDepartures = async (stopId, options = {}) => {
   if (!stopId) return [];
-  const params = new URLSearchParams({ duration: options.duration.toString() });
+  // A default on the `options` PARAMETER only applies when the whole
+  // argument is omitted — useDepartures always passes at least `{}`, so
+  // that default never actually fired and options.duration was undefined.
+  const duration = options.duration ?? 60;
+  const params = new URLSearchParams({ duration: duration.toString() });
   if (options.when) params.append('when', options.when);
   for (const key of PRODUCT_FILTER_KEYS) {
     if (options[key] === false) params.append(key, 'false');

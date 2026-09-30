@@ -19,6 +19,7 @@ const PRODUCT_FILTERS = [
   { key: 'tram', label: 'Tram' },
   { key: 'bus', label: 'Bus' },
   { key: 'ferry', label: 'Ferry' },
+  { key: 'taxi', label: 'Taxi' },
 ];
 
 export default function Departures() {

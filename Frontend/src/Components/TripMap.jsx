@@ -15,9 +15,13 @@ const TILE_ATTRIBUTION =
 // match --tf-amber for that reason.
 const ROUTE_COLOR = '#ffb302';
 
-function stopDivIcon() {
-  return L.divIcon({ className: 'tf-stop-marker', html: '<span></span>', iconSize: [10, 10] });
-}
+// A single shared icon instance — every stop marker looks identical, so
+// there's no reason to build a fresh L.divIcon for each one on every render.
+// Building this inside the component meant every marker's DOM element was
+// destroyed and recreated once a second (the page ticks that often), which
+// also broke the vehicle marker's CSS transition, since Leaflet has nothing
+// stable to transition FROM once its icon element is a brand new node.
+const STOP_ICON = L.divIcon({ className: 'tf-stop-marker', html: '<span></span>', iconSize: [10, 10] });
 
 // divIcon's `html` is set via innerHTML — escape the line name (it comes
 // straight from the API) rather than trust it's never markup.
@@ -65,10 +69,15 @@ export default function TripMap({ stopovers, polyline, lineName, vehicle, select
   const stopPoints = useMemo(
     () =>
       (stopovers || [])
-        .filter((s) => !s.cancelled)
+        .filter((s) => !s.cancelled && s.stop?.location)
         .map((s) => ({ lat: s.stop.location.latitude, lon: s.stop.location.longitude, name: s.stop.name })),
     [stopovers]
   );
+
+  // Rebuilt only when the line name actually changes (never, in practice,
+  // during a single trip) rather than on every render — same reasoning as
+  // the stop icon above.
+  const vehicleIcon = useMemo(() => vehicleDivIcon(lineName || ''), [lineName]);
 
   const bounds = useMemo(() => {
     const points = polyline && polyline.length > 0 ? polyline : stopPoints;
@@ -94,11 +103,11 @@ export default function TripMap({ stopovers, polyline, lineName, vehicle, select
         )}
 
         {stopPoints.map((stop) => (
-          <Marker key={`${stop.lat},${stop.lon},${stop.name}`} position={[stop.lat, stop.lon]} icon={stopDivIcon()} />
+          <Marker key={`${stop.lat},${stop.lon},${stop.name}`} position={[stop.lat, stop.lon]} icon={STOP_ICON} />
         ))}
 
         {vehicle?.position && (
-          <Marker position={[vehicle.position.lat, vehicle.position.lon]} icon={vehicleDivIcon(lineName || '')} />
+          <Marker position={[vehicle.position.lat, vehicle.position.lon]} icon={vehicleIcon} />
         )}
       </MapContainer>
     </div>

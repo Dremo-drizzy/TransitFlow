@@ -197,4 +197,22 @@ describe('vehiclePosition', () => {
     expect(result.status).toBe('scheduled');
     expect(result.position).toBeNull();
   });
+
+  it('skips a stopover with no location instead of throwing', () => {
+    const noLocation = {
+      stop: { id: '9999', name: 'No Coordinates Stop' },
+      arrival: '2024-01-15T10:40:00.000Z',
+      plannedArrival: '2024-01-15T10:40:00.000Z',
+      departure: '2024-01-15T10:41:00.000Z',
+      plannedDeparture: '2024-01-15T10:41:00.000Z',
+    };
+    const withMissingLocation = [berlin, wolfsburg, noLocation, hannover];
+    expect(() => vehiclePosition(withMissingLocation, null, '2024-01-15T10:45:00.000Z')).not.toThrow();
+    // Still squarely inside the Wolfsburg -> Hannover leg once the
+    // uncoordinated stopover is filtered out, same as a cancelled one.
+    const result = vehiclePosition(withMissingLocation, null, '2024-01-15T10:45:00.000Z');
+    expect(result.status).toBe('en_route');
+    expect(result.fromStop).toBe('Wolfsburg Hbf');
+    expect(result.toStop).toBe('Hannover Hbf');
+  });
 });

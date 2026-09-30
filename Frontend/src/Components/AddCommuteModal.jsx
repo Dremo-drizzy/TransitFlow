@@ -8,9 +8,21 @@ export default function AddCommuteModal({ show, onHide, onSave }) {
   const [toQuery,   setToQuery]   = useState('');
   const [selectedFrom, setSelectedFrom] = useState(null);
   const [selectedTo,   setSelectedTo]   = useState(null);
+  const [error, setError] = useState('');
 
   const handleSave = () => {
-    if (!name || !selectedFrom || !selectedTo) return;
+    if (!name) {
+      setError('Give this commute a name.');
+      return;
+    }
+    // Typing a full station name isn't the same as selecting it — only a
+    // pick from the dropdown sets selectedFrom/selectedTo. Without this,
+    // pressing Save on typed-but-unselected text did nothing at all.
+    if (!selectedFrom || !selectedTo) {
+      setError('Pick a station from the dropdown for both From and To.');
+      return;
+    }
+    setError('');
     onSave({ name, from: selectedFrom, to: selectedTo });
     setName(''); setFromQuery(''); setToQuery('');
     setSelectedFrom(null); setSelectedTo(null);
@@ -53,6 +65,8 @@ export default function AddCommuteModal({ show, onHide, onSave }) {
             onSelect={setSelectedTo}
           />
         </Form.Group>
+
+        {error && <p className="form-hint-error">{error}</p>}
       </Modal.Body>
 
       <Modal.Footer>

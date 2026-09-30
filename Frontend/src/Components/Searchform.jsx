@@ -11,6 +11,7 @@ export default function SearchForm({
   departure, setDeparture,
   onSearch, onSwap,
   isLoading,
+  error,
 }) {
   return (
     <Card className="search-form-card">
@@ -64,6 +65,7 @@ export default function SearchForm({
             >
               {isLoading ? <Spinner size="sm" /> : 'Search Journeys'}
             </Button>
+            {error && <p className="form-hint-error">{error}</p>}
           </Col>
 
         </Row>

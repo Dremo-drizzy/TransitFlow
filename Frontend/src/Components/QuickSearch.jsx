@@ -11,6 +11,7 @@ export default function QuickSearch() {
   const [toQuery, setToQuery]     = useState('');
   const [selectedFrom, setSelectedFrom] = useState(null);
   const [selectedTo, setSelectedTo]     = useState(null);
+  const [error, setError] = useState('');
 
   const handleSwap = () => {
     setSelectedFrom(selectedTo);
@@ -20,7 +21,14 @@ export default function QuickSearch() {
   };
 
   const handleSearch = () => {
-    if (!selectedFrom || !selectedTo) return;
+    // Typing a full station name isn't the same as selecting it — only a
+    // pick from the dropdown sets selectedFrom/selectedTo. Silently doing
+    // nothing here looked like the button was broken.
+    if (!selectedFrom || !selectedTo) {
+      setError('Pick a station from the dropdown for both From and To.');
+      return;
+    }
+    setError('');
     navigate(
       `/plan?from=${selectedFrom.id}&to=${selectedTo.id}` +
       `&fromName=${encodeURIComponent(selectedFrom.name)}` +
@@ -66,6 +74,7 @@ export default function QuickSearch() {
             <Button variant="primary" className="btn-lg" onClick={handleSearch}>
               Search Connections
             </Button>
+            {error && <p className="form-hint-error">{error}</p>}
           </Col>
 
         </Row>

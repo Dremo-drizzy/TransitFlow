@@ -331,6 +331,17 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .text-accent { color: var(--tf-amber) !important; }
 .input-wrapper { position: relative; }
 
+/* A short inline validation message — QuickSearch, PlanJourney and
+ * AddCommuteModal all need to tell the user to pick a station from the
+ * dropdown rather than just silently doing nothing on Search/Save. */
+.form-hint-error {
+  color: var(--tf-red);
+  font-family: var(--tf-font-mono);
+  font-size: 0.78rem;
+  margin-top: 0.6rem;
+  margin-bottom: 0;
+}
+
 /* Shared delay/status tone colors — the output of getDepartureStatus(),
  * used identically by JourneyCard and DepartureBoard. */
 .leg-status-green { color: var(--tf-green); }
