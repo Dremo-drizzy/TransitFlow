@@ -7,9 +7,15 @@ import CommuteCard from '../Components/CommuteCard';
 import AddCommuteModal from '../Components/AddCommuteModal';
 import '../css/Commutes.css';
 
+// A commute saved by an older version of the app (or edited by hand in
+// devtools) can be missing the fields every render path here assumes exist
+// — drop it rather than let it reach CommuteCard/handlePlan/handleDepartures
+// unguarded.
+const isValidCommute = (c) => Boolean(c?.from?.id && c?.to?.id && c?.name);
+
 export default function Commutes() {
   const navigate = useNavigate();
-  const [commutes, setCommutes] = useState(() => loadFromLocalStorage('commutes', []));
+  const [commutes, setCommutes] = useState(() => loadFromLocalStorage('commutes', [], isValidCommute));
   const [showModal, setShowModal] = useState(false);
 
   const handleAdd = ({ name, from, to }) => {

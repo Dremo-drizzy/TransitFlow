@@ -73,8 +73,8 @@ export function nearestPointIndex(path, point) {
 }
 
 function stopCoord(stopover) {
-  const { latitude, longitude } = stopover.stop.location;
-  return { lat: latitude, lon: longitude };
+  const location = stopover.stop?.location;
+  return location ? { lat: location.latitude, lon: location.longitude } : null;
 }
 
 function departureTime(stopover) {
@@ -118,7 +118,9 @@ function interpolate(fromCoord, toCoord, t, polylinePath) {
 //   { status: 'arrived', position }                 — after the final arrival
 // Cancelled stopovers are skipped, since the vehicle never actually calls there.
 export function vehiclePosition(stopovers, polylinePath, now) {
-  const stops = (stopovers || []).filter((s) => !s.cancelled);
+  // A stopover with no location can't be positioned and can't anchor an
+  // interpolation to/from it either — skip it same as a cancelled one.
+  const stops = (stopovers || []).filter((s) => !s.cancelled && stopCoord(s) != null);
   if (stops.length === 0) return { status: 'scheduled', position: null };
 
   const first = stops[0];

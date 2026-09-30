@@ -98,6 +98,10 @@ This was a staged rebuild of an earlier fetch-wrapper version of this project in
 - **Not deployed yet.** No live URL, and no Lighthouse run against one — see the Roadmap above.
 - **No end-to-end or visual regression tests.** Coverage is unit/component-level (Vitest + Testing Library) for the pure logic (formatting, delay math, vehicle-position interpolation) and component behavior; nothing drives a real browser in CI.
 - **The map itself has no bespoke screen-reader treatment.** The adjacent stopover timeline is the deliberate text equivalent (same data, fully operable), rather than trying to make the Leaflet widget itself meaningfully narratable.
+- **The backend's in-memory cache is bounded by entry count, not bytes.** A trip with a long, detailed polyline costs the same one cache slot as a small departures response — on a small instance, enough large trip payloads cached at once could pressure memory in a way an entry-count limit alone won't catch.
+- **A rate-limited (429) request is retried without honoring `Retry-After`.** The backoff is exponential with jitter, but it doesn't read the header the upstream API may send saying exactly how long to wait, so a retry can still land before the API is ready to answer it.
+- **The vehicle's position follows the route polyline approximately, not exactly.** It works by finding the polyline vertex nearest each stop and walking the track between them — on a route that loops back through the same geographic area (some regional and tram lines do), the nearest-point match can pick the wrong pass through that area, putting the marker on a visually plausible but wrong segment.
+- **The station autocomplete also returns addresses and POIs, not just stops.** Only stops carry the fields (an id journeys/departures can use) that the rest of the app expects — selecting an address or POI result doesn't error, but doesn't behave correctly downstream either.
 
 ## Engineering notes
 

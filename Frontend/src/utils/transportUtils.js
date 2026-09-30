@@ -61,6 +61,13 @@ export const getDepartureStatus = (plannedTime, actualTime, cancelled) => {
   if (cancelled) {
     return { text: 'CANCELLED', tone: 'red', cancelled: true };
   }
+  // A departure with no realtime prediction yet (actualTime missing, but
+  // not cancelled) has no delay to report — getDelayMinutes would read the
+  // missing value as "0 minutes late" and render a false ON TIME. Check
+  // for this before any delay math, same reasoning as the cancelled check.
+  if (!actualTime) {
+    return { text: 'NO DATA', tone: 'muted', cancelled: false };
+  }
   const delay = getDelayMinutes(plannedTime, actualTime);
   const variant = getDelayBadgeVariant(delay);
   return {
@@ -103,11 +110,17 @@ export const saveToLocalStorage = (key, value) => {
   }
 };
 
-// Load a value from localStorage, or return a default
-export const loadFromLocalStorage = (key, defaultValue = []) => {
+// Load a value from localStorage, or return a default. An optional
+// `isValid` predicate filters a stored array down to well-formed entries —
+// data saved by an older version of the app (or edited by hand) shouldn't
+// crash a component that assumes today's shape, it should just be dropped.
+export const loadFromLocalStorage = (key, defaultValue = [], isValid) => {
   try {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
+    if (!item) return defaultValue;
+    const parsed = JSON.parse(item);
+    if (isValid && Array.isArray(parsed)) return parsed.filter(isValid);
+    return parsed;
   } catch (e) {
     console.error('Load error:', e);
     return defaultValue;

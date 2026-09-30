@@ -1,9 +1,15 @@
 import { Card, Button } from 'react-bootstrap';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { motion } from 'framer-motion';
 import '../css/CommuteCard.css';
 
 export default function CommuteCard({ commute, onDelete, onPlan, onDepartures }) {
+  // date-fns v4's format() throws a RangeError on an invalid date rather
+  // than returning a placeholder — a commute saved without createdAt (or
+  // with a malformed one) would otherwise permanently break this page.
+  const createdAt = new Date(commute.createdAt);
+  const createdAtText = isValid(createdAt) ? format(createdAt, 'dd/MM/yyyy') : '—';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -37,12 +43,12 @@ export default function CommuteCard({ commute, onDelete, onPlan, onDepartures })
           <div className="mb-3">
             <div className="commute-route-from">
               <span className="terminal-from" />
-              <span>{commute.from.name}</span>
+              <span>{commute.from?.name}</span>
             </div>
             <div className="route-connector ms-1" />
             <div className="commute-route-to">
               <span className="terminal-to" />
-              <span>{commute.to.name}</span>
+              <span>{commute.to?.name}</span>
             </div>
           </div>
 
@@ -57,7 +63,7 @@ export default function CommuteCard({ commute, onDelete, onPlan, onDepartures })
         </Card.Body>
 
         <Card.Footer>
-          Added {format(new Date(commute.createdAt), 'dd/MM/yyyy')}
+          Added {createdAtText}
         </Card.Footer>
       </Card>
     </motion.div>

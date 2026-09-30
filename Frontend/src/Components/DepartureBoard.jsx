@@ -8,13 +8,16 @@ import SplitFlap from './SplitFlap';
 import '../css/DepartureBoard.css';
 
 function SkeletonRow() {
+  // No role attributes — these are placeholder blocks with no real content,
+  // so exposing them as table row/cells to a screen reader would just be
+  // "row, cell, cell, cell, cell, cell" announced with nothing in them.
   return (
-    <div className="db-row" role="row">
-      <div className="skeleton-block" style={{ width: '3.5rem' }} role="cell" />
-      <div className="skeleton-block" style={{ width: '3rem' }} role="cell" />
-      <div className="skeleton-block" style={{ width: '60%' }} role="cell" />
-      <div className="skeleton-block" style={{ width: '1.5rem' }} role="cell" />
-      <div className="skeleton-block" style={{ width: '4rem' }} role="cell" />
+    <div className="db-row">
+      <div className="skeleton-block" style={{ width: '3.5rem' }} />
+      <div className="skeleton-block" style={{ width: '3rem' }} />
+      <div className="skeleton-block" style={{ width: '60%' }} />
+      <div className="skeleton-block" style={{ width: '1.5rem' }} />
+      <div className="skeleton-block" style={{ width: '4rem' }} />
     </div>
   );
 }
@@ -62,8 +65,10 @@ function DepartureRow({ dep }) {
     );
   }
 
+  // No role="row" here — that would override the Link's own link role, so
+  // a screen reader would never announce it as something you can activate.
   return (
-    <Link to={`/trip/${encodeURIComponent(dep.tripId)}`} className={rowClassName} role="row">
+    <Link to={`/trip/${encodeURIComponent(dep.tripId)}`} className={rowClassName}>
       {rowContent}
     </Link>
   );
@@ -124,7 +129,7 @@ function DepartureBoard({ stopId, filters = {} }) {
           <p className="db-message-text">NO DEPARTURES IN THE NEXT 60 MIN</p>
         </div>
       ) : (
-        <div className="db-body">
+        <div className="db-body" role="rowgroup">
           {departures.map((dep) => (
             <DepartureRow dep={dep} key={dep.tripId || dep.when} />
           ))}

@@ -145,6 +145,19 @@ describe('getDepartures', () => {
     vi.restoreAllMocks();
   });
 
+  it('defaults duration to 60 when called with no options at all', async () => {
+    // useDepartures(stopId) with no second argument passes options = {} —
+    // a default on getDepartures' own `options` PARAMETER never fires in
+    // that case, since the argument isn't actually omitted, just empty.
+    globalThis.fetch.mockResolvedValueOnce(jsonResponse({ departures: [] }));
+
+    await getDepartures('8011160');
+
+    const [calledUrl] = globalThis.fetch.mock.calls[0];
+    const url = new URL(calledUrl, 'http://localhost');
+    expect(url.searchParams.get('duration')).toBe('60');
+  });
+
   it('does not send any product filter params by default', async () => {
     globalThis.fetch.mockResolvedValueOnce(jsonResponse({ departures: [] }));
 

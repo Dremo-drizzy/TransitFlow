@@ -28,6 +28,7 @@ export default function PlanJourney() {
   const [toQuery,   setToQuery]   = useState(() => selectedTo?.name || '');
   const [departure, setDeparture] = useState(() => new Date().toISOString());
   const [searchTriggered, setSearchTriggered] = useState(() => (selectedFrom && selectedTo) ? 1 : 0);
+  const [validationError, setValidationError] = useState('');
 
   const params = {
     // Gate strictly on a selected station's id — falling back to raw typed
@@ -41,7 +42,14 @@ export default function PlanJourney() {
   const { data, isLoading, error } = useJourneys(params, searchTriggered);
 
   const handleSearch = () => {
-    if (!selectedFrom?.id || !selectedTo?.id) return;
+    // Typing a full station name isn't the same as selecting it from the
+    // dropdown — only a pick sets selectedFrom/selectedTo.id. Without this,
+    // pressing Search on typed-but-unselected text did nothing at all.
+    if (!selectedFrom?.id || !selectedTo?.id) {
+      setValidationError('Pick a station from the dropdown for both From and To.');
+      return;
+    }
+    setValidationError('');
     // Bumping searchTriggered already changes the query key and refetches —
     // calling refetch() too was firing the request twice per click.
     setSearchTriggered((n) => n + 1);
@@ -80,6 +88,7 @@ export default function PlanJourney() {
           onSearch={handleSearch}
           onSwap={handleSwap}
           isLoading={isLoading}
+          error={validationError}
         />
 
         <div className="results-header mt-5">

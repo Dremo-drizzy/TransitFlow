@@ -201,4 +201,17 @@ describe('getDepartureStatus', () => {
     const status = getDepartureStatus('2024-01-15T14:00:00.000Z', '2024-01-15T14:09:00.000Z', false);
     expect(status).toEqual({ text: '+9 MIN', tone: 'red', cancelled: false });
   });
+
+  it('returns NO DATA/muted when there is no realtime prediction and it is not cancelled', () => {
+    // actualTime: null with cancelled: false is a real, distinct case from
+    // both CANCELLED and ON TIME — getDelayMinutes would otherwise read the
+    // missing value as "0 minutes late" and render a false ON TIME.
+    const status = getDepartureStatus('2024-01-15T14:00:00.000Z', null, false);
+    expect(status).toEqual({ text: 'NO DATA', tone: 'muted', cancelled: false });
+  });
+
+  it('returns NO DATA/muted when actualTime is missing even without a plannedTime', () => {
+    const status = getDepartureStatus(null, null, false);
+    expect(status).toEqual({ text: 'NO DATA', tone: 'muted', cancelled: false });
+  });
 });
