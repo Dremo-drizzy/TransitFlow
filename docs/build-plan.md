@@ -561,6 +561,8 @@ departure board — and show me the map with the vehicle marker placed on the ro
 
 ## Stage 7 — Nearby radar
 
+**Status: Cut — optional, not built.** Decorative second map surface; Stage 6's trip map already delivers the project's headline feature, so this was dropped to prioritize Stage 8 (shipping) instead.
+
 **Goal:** the second map surface, and a much better answer to "what's around me" than the current silent geolocation prompt.
 
 ```
@@ -646,13 +648,15 @@ you know is still weak, with no diplomacy.
 ## Dependency map
 
 ```
-Stage 0 ─┬─→ Stage 1 ──→ Stage 3 ──→ Stage 4 ──→ Stage 5 ──→ Stage 6 ──→ Stage 7 ──→ Stage 8
+Stage 0 ─┬─→ Stage 1 ──→ Stage 3 ──→ Stage 4 ──→ Stage 5 ──→ Stage 6 ──→ Stage 8
          └─→ Stage 2 ────────────────────────────┘
 ```
 
+Stage 7 (cut) would have branched off Stage 6 in parallel with Stage 8; with it gone, Stage 8 follows Stage 6 directly.
+
 Stage 2 only needs Stage 0, so it can run any time before Stage 5. Everything else is a straight line — Stage 4 needs the tokens from 3, Stage 5 needs the components from 4, Stage 6 needs the board rows from 5 to link from.
 
-Rough sizes: Stages 0, 2 and 7 are small. Stages 1, 3, 4 and 5 are medium. Stage 6 is the big one — budget real time for it and expect the vehicle-position maths to need a second pass.
+Rough sizes: Stages 0 and 2 are small. Stages 1, 3, 4 and 5 are medium. Stage 6 is the big one — budget real time for it and expect the vehicle-position maths to need a second pass.
 
 ---
 
@@ -669,8 +673,13 @@ Rough sizes: Stages 0, 2 and 7 are small. Stages 1, 3, 4 and 5 are medium. Stage
 --tf-green:     #3ddc84   /* on time, live              */
 --tf-red:       #ff5a5f   /* delayed, cancelled         */
 --tf-text:      #e9e7e2   /* off-white body text        */
---tf-muted:     #767f8c   /* labels, column headers     */
+--tf-muted:     #7e8794   /* labels, column headers     */
 ```
+
+Note: `--tf-muted` was `#767f8c` through Stage 7; Stage 8's accessibility pass bumped it to
+`#7e8794` after measuring 4.17:1 against `--tf-flap` (the hover background on rows and list
+items) — under the 4.5:1 AA minimum for text. The new value clears 4.5:1 against every
+surface token used as a background, `--tf-flap` included (4.65:1).
 
 Type: **IBM Plex Mono** for anything a real board would show — times, platforms, line names, labels, column headers. **Inter** for prose. Rule of thumb: if a station board would print it in mechanical characters, it is mono.
 

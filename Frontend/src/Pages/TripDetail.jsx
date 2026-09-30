@@ -108,9 +108,17 @@ export default function TripDetail() {
       </div>
 
       {trip.cancelled ? (
-        <p className="trip-detail-status trip-detail-status-cancelled">THIS TRIP IS CANCELLED</p>
+        <p className="trip-detail-status trip-detail-status-cancelled" aria-live="polite">
+          THIS TRIP IS CANCELLED
+        </p>
       ) : (
-        <p className="trip-detail-status">{statusLine(vehicle, stopovers, trip)}</p>
+        // The status line changes on its own (a stop reached, a new delay)
+        // without any user action, so it needs to announce itself — the text
+        // only actually changes at those meaningful moments, not every
+        // second, so this doesn't turn into a running commentary.
+        <p className="trip-detail-status" aria-live="polite">
+          {statusLine(vehicle, stopovers, trip)}
+        </p>
       )}
 
       <div className="trip-detail-layout">

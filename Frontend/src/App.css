@@ -15,6 +15,17 @@ body {
   overflow-x: hidden;
 }
 
+/* A visible amber ring on whatever's focused, everywhere — the baseline
+ * every interactive element gets unless a component defines its own (a few
+ * already do, e.g. the departure row's row-tinted version). Without this,
+ * plenty of custom clickable elements (filter chips, timeline nodes, leg
+ * rows) had no focus indicator at all once Bootstrap's own defaults were
+ * themed away, which fails keyboard navigation silently rather than loudly. */
+:focus-visible {
+  outline: 2px solid var(--tf-amber);
+  outline-offset: 2px;
+}
+
 /* A very subtle amber scanline overlay — the split-flap board's texture on
  * the page background. Keep it under 3% opacity; if individual lines are
  * visible at 100% zoom, it's too strong. */
