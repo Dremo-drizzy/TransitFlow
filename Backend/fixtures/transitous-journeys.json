@@ -1,0 +1,808 @@
+{
+  "earlierRef": "EARLIER|1791561420",
+  "laterRef": "LATER|1791565560",
+  "journeys": [
+    {
+      "type": "journey",
+      "legs": [
+        {
+          "origin": {
+            "type": "stop",
+            "id": "de-DELFI_de:11000:900003200:2:52",
+            "name": "S+U Berlin Hauptbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 52.52506,
+              "longitude": 13.369167000000001,
+              "id": "de-DELFI_de:11000:900003200:2:52"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:11000:900003201",
+              "name": "S+U Berlin Hauptbahnhof",
+              "location": {
+                "type": "location",
+                "latitude": 52.52506,
+                "longitude": 13.369167000000001,
+                "id": "de-DELFI_de:11000:900003200:2:52"
+              }
+            }
+          },
+          "destination": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:10:14:4",
+            "name": "Frankfurt (Main) Hauptbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.105976000000005,
+              "longitude": 8.662206000000001,
+              "id": "de-DELFI_de:06412:10:14:4"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:06412:10",
+              "name": "Frankfurt (Main) Hauptbahnhof",
+              "location": {
+                "type": "location",
+                "latitude": 50.105976000000005,
+                "longitude": 8.662206000000001,
+                "id": "de-DELFI_de:06412:10:14:4"
+              }
+            }
+          },
+          "departure": "2026-10-09T18:43:00+02:00",
+          "plannedDeparture": "2026-10-09T18:43:00+02:00",
+          "departureDelay": 0,
+          "arrival": "2026-10-09T22:44:00+02:00",
+          "plannedArrival": "2026-10-09T22:44:00+02:00",
+          "arrivalDelay": 0,
+          "tripId": "20261009_18:43_de-DELFI_3432203775",
+          "line": {
+            "type": "line",
+            "id": "20261009-18-43-de-delfi-3432203775",
+            "fahrtNr": "de-DELFI_3432203775",
+            "name": "ICE 677",
+            "public": true,
+            "mode": "train",
+            "product": "nationalExpress",
+            "productName": "ICE",
+            "operator": {
+              "type": "operator",
+              "id": "12681",
+              "name": "DB Fernverkehr AG"
+            }
+          },
+          "direction": "Karlsruhe Hauptbahnhof",
+          "arrivalPlatform": "7",
+          "plannedArrivalPlatform": "7",
+          "departurePlatform": "3",
+          "plannedDeparturePlatform": "3",
+          "remarks": []
+        }
+      ],
+      "refreshToken": "CrUBCgdJQ0UgNjc3EiIyMDI2MTAwOV8xODo0M19kZS1ERUxGSV8zNDMyMjAzNzc1GiBkZS1ERUxGSV9kZToxMTAwMDo5MDAwMDMyMDA6Mjo1MiEJOIQqNUNKQClehv90A70qQDIZZGUtREVMRklfZGU6MDY0MTI6MTA6MTQ6NDmZFB+fkA1JQEESbjKqDFMhQEiUs6TWBlCQpKXWBloOSElHSFNQRUVEX1JBSUxgAWkAAAAAAAAAwA==",
+      "remarks": []
+    },
+    {
+      "type": "journey",
+      "legs": [
+        {
+          "origin": {
+            "type": "stop",
+            "id": "de-DELFI_de:11000:900003200:2:53",
+            "name": "S+U Berlin Hauptbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 52.525097,
+              "longitude": 13.369321,
+              "id": "de-DELFI_de:11000:900003200:2:53"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:11000:900003201",
+              "name": "S+U Berlin Hauptbahnhof",
+              "location": {
+                "type": "location",
+                "latitude": 52.525097,
+                "longitude": 13.369321,
+                "id": "de-DELFI_de:11000:900003200:2:53"
+              }
+            }
+          },
+          "destination": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:912:4:8",
+            "name": "Frankfurt (Main) Südbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.099007,
+              "longitude": 8.686183,
+              "id": "de-DELFI_de:06412:912:4:8"
+            },
+            "station": {
+              "id": "8002041",
+              "name": "Frankfurt(Main)Süd",
+              "type": "station",
+              "location": {
+                "id": "8002041",
+                "type": "location",
+                "latitude": 50.099365,
+                "longitude": 8.686457
+              },
+              "products": {
+                "nationalExpress": true,
+                "national": true,
+                "regionalExpress": true,
+                "regional": true,
+                "suburban": true,
+                "subway": true,
+                "tram": true,
+                "bus": true,
+                "taxi": false,
+                "ferry": false
+              },
+              "weight": 406869,
+              "ril100Ids": [
+                "FFS"
+              ],
+              "ifoptId": "de:06412:912",
+              "priceCategory": 2,
+              "transitAuthority": "RMV",
+              "stadaId": "1856"
+            }
+          },
+          "departure": "2026-10-09T19:05:00+02:00",
+          "plannedDeparture": "2026-10-09T19:05:00+02:00",
+          "departureDelay": 0,
+          "arrival": "2026-10-09T22:52:00+02:00",
+          "plannedArrival": "2026-10-09T22:52:00+02:00",
+          "arrivalDelay": 0,
+          "tripId": "20261009_15:24_de-DELFI_3432205773",
+          "line": {
+            "type": "line",
+            "id": "20261009-15-24-de-delfi-3432205773",
+            "fahrtNr": "de-DELFI_3432205773",
+            "name": "ICE 937",
+            "public": true,
+            "mode": "train",
+            "product": "nationalExpress",
+            "productName": "ICE",
+            "operator": {
+              "type": "operator",
+              "id": "12681",
+              "name": "DB Fernverkehr AG"
+            }
+          },
+          "direction": "Darmstadt Hauptbahnhof",
+          "arrivalPlatform": "8",
+          "plannedArrivalPlatform": "8",
+          "departurePlatform": "4",
+          "plannedDeparturePlatform": "4",
+          "remarks": []
+        },
+        {
+          "origin": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:912:4:8",
+            "name": "Frankfurt (Main) Südbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.099007,
+              "longitude": 8.686183,
+              "id": "de-DELFI_de:06412:912:4:8"
+            },
+            "station": {
+              "id": "8002041",
+              "name": "Frankfurt(Main)Süd",
+              "type": "station",
+              "location": {
+                "id": "8002041",
+                "type": "location",
+                "latitude": 50.099365,
+                "longitude": 8.686457
+              },
+              "products": {
+                "nationalExpress": true,
+                "national": true,
+                "regionalExpress": true,
+                "regional": true,
+                "suburban": true,
+                "subway": true,
+                "tram": true,
+                "bus": true,
+                "taxi": false,
+                "ferry": false
+              },
+              "weight": 406869,
+              "ril100Ids": [
+                "FFS"
+              ],
+              "ifoptId": "de:06412:912",
+              "priceCategory": 2,
+              "transitAuthority": "RMV",
+              "stadaId": "1856"
+            }
+          },
+          "destination": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:912:3:5",
+            "name": "Frankfurt (Main) Südbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.099050000000005,
+              "longitude": 8.685679,
+              "id": "de-DELFI_de:06412:912:3:5"
+            },
+            "station": {
+              "id": "8002041",
+              "name": "Frankfurt(Main)Süd",
+              "type": "station",
+              "location": {
+                "id": "8002041",
+                "type": "location",
+                "latitude": 50.099365,
+                "longitude": 8.686457
+              },
+              "products": {
+                "nationalExpress": true,
+                "national": true,
+                "regionalExpress": true,
+                "regional": true,
+                "suburban": true,
+                "subway": true,
+                "tram": true,
+                "bus": true,
+                "taxi": false,
+                "ferry": false
+              },
+              "weight": 406869,
+              "ril100Ids": [
+                "FFS"
+              ],
+              "ifoptId": "de:06412:912",
+              "priceCategory": 2,
+              "transitAuthority": "RMV",
+              "stadaId": "1856"
+            }
+          },
+          "departure": "2026-10-09T22:52:00+02:00",
+          "plannedDeparture": "2026-10-09T22:52:00+02:00",
+          "departureDelay": null,
+          "arrival": "2026-10-09T22:54:00+02:00",
+          "plannedArrival": "2026-10-09T22:54:00+02:00",
+          "arrivalDelay": null,
+          "public": true,
+          "walking": true,
+          "distance": 114
+        },
+        {
+          "origin": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:912:3:5",
+            "name": "Frankfurt (Main) Südbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.099050000000005,
+              "longitude": 8.685679,
+              "id": "de-DELFI_de:06412:912:3:5"
+            },
+            "station": {
+              "id": "8002041",
+              "name": "Frankfurt(Main)Süd",
+              "type": "station",
+              "location": {
+                "id": "8002041",
+                "type": "location",
+                "latitude": 50.099365,
+                "longitude": 8.686457
+              },
+              "products": {
+                "nationalExpress": true,
+                "national": true,
+                "regionalExpress": true,
+                "regional": true,
+                "suburban": true,
+                "subway": true,
+                "tram": true,
+                "bus": true,
+                "taxi": false,
+                "ferry": false
+              },
+              "weight": 406869,
+              "ril100Ids": [
+                "FFS"
+              ],
+              "ifoptId": "de:06412:912",
+              "priceCategory": 2,
+              "transitAuthority": "RMV",
+              "stadaId": "1856"
+            }
+          },
+          "destination": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:10:14:5",
+            "name": "Frankfurt (Main) Hauptbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.105907,
+              "longitude": 8.662276,
+              "id": "de-DELFI_de:06412:10:14:5"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:06412:10",
+              "name": "Frankfurt (Main) Hauptbahnhof",
+              "location": {
+                "type": "location",
+                "latitude": 50.105907,
+                "longitude": 8.662276,
+                "id": "de-DELFI_de:06412:10:14:5"
+              }
+            }
+          },
+          "departure": "2026-10-09T23:05:00+02:00",
+          "plannedDeparture": "2026-10-09T23:05:00+02:00",
+          "departureDelay": null,
+          "arrival": "2026-10-09T23:10:00+02:00",
+          "plannedArrival": "2026-10-09T23:10:00+02:00",
+          "arrivalDelay": null,
+          "tripId": "20261009_22:16_de-DELFI_3432671643",
+          "line": {
+            "type": "line",
+            "id": "20261009-22-16-de-delfi-3432671643",
+            "fahrtNr": "de-DELFI_3432671643",
+            "name": "RB51 (15541)",
+            "public": true,
+            "mode": "train",
+            "product": "regional",
+            "productName": "RB",
+            "operator": {
+              "type": "operator",
+              "id": "10440",
+              "name": "DB Regio AG Mitte Region Hessen"
+            }
+          },
+          "direction": "Frankfurt (Main) Hauptbahnhof",
+          "arrivalPlatform": "6",
+          "plannedArrivalPlatform": "6",
+          "departurePlatform": "5",
+          "plannedDeparturePlatform": "5",
+          "remarks": []
+        }
+      ],
+      "refreshToken": "Cr4BCgdJQ0UgOTM3EiIyMDI2MTAwOV8xNToyNF9kZS1ERUxGSV8zNDMyMjA1NzczGiBkZS1ERUxGSV9kZToxMTAwMDo5MDAwMDMyMDA6Mjo1MyEmHeVgNkNKQCm4c2GkF70qQDIZZGUtREVMRklfZGU6MDY0MTI6OTEyOjQ6ODmcielCrAxJQEFwJNBgU18hQEi8vaTWBlDwp6XWBloOSElHSFNQRUVEX1JBSUxgAWkAAAAAAAAAwHEAAAAAAADwPwqAARoZZGUtREVMRklfZGU6MDY0MTI6OTEyOjQ6OCGcielCrAxJQClwJNBgU18hQDIZZGUtREVMRklfZGU6MDY0MTI6OTEyOjM6NTmcVZ+rrQxJQEGkG2FREV8hQEjwp6XWBlDoqKXWBloEV0FMS2ABaQAAAAAAAPA/cQAAAAAAAPA/CrIBCgxSQjUxICgxNTU0MSkSIjIwMjYxMDA5XzIyOjE2X2RlLURFTEZJXzM0MzI2NzE2NDMaGWRlLURFTEZJX2RlOjA2NDEyOjkxMjozOjUhnFWfq60MSUAppBthURFfIUAyGWRlLURFTEZJX2RlOjA2NDEyOjEwOjE0OjU5cLVOXI4NSUBB9dkB1xVTIUBI/K2l1gZQqLCl1gZaDVJFR0lPTkFMX1JBSUxgAWkAAAAAAADwPw==",
+      "remarks": []
+    },
+    {
+      "type": "journey",
+      "legs": [
+        {
+          "origin": {
+            "type": "stop",
+            "id": "de-DELFI_de:11000:900003200:2:53",
+            "name": "S+U Berlin Hauptbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 52.525097,
+              "longitude": 13.369321,
+              "id": "de-DELFI_de:11000:900003200:2:53"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:11000:900003201",
+              "name": "S+U Berlin Hauptbahnhof",
+              "location": {
+                "type": "location",
+                "latitude": 52.525097,
+                "longitude": 13.369321,
+                "id": "de-DELFI_de:11000:900003200:2:53"
+              }
+            }
+          },
+          "destination": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:912:4:8",
+            "name": "Frankfurt (Main) Südbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.099007,
+              "longitude": 8.686183,
+              "id": "de-DELFI_de:06412:912:4:8"
+            },
+            "station": {
+              "id": "8002041",
+              "name": "Frankfurt(Main)Süd",
+              "type": "station",
+              "location": {
+                "id": "8002041",
+                "type": "location",
+                "latitude": 50.099365,
+                "longitude": 8.686457
+              },
+              "products": {
+                "nationalExpress": true,
+                "national": true,
+                "regionalExpress": true,
+                "regional": true,
+                "suburban": true,
+                "subway": true,
+                "tram": true,
+                "bus": true,
+                "taxi": false,
+                "ferry": false
+              },
+              "weight": 406869,
+              "ril100Ids": [
+                "FFS"
+              ],
+              "ifoptId": "de:06412:912",
+              "priceCategory": 2,
+              "transitAuthority": "RMV",
+              "stadaId": "1856"
+            }
+          },
+          "departure": "2026-10-09T19:05:00+02:00",
+          "plannedDeparture": "2026-10-09T19:05:00+02:00",
+          "departureDelay": 0,
+          "arrival": "2026-10-09T22:52:00+02:00",
+          "plannedArrival": "2026-10-09T22:52:00+02:00",
+          "arrivalDelay": 0,
+          "tripId": "20261009_15:24_de-DELFI_3432205773",
+          "line": {
+            "type": "line",
+            "id": "20261009-15-24-de-delfi-3432205773",
+            "fahrtNr": "de-DELFI_3432205773",
+            "name": "ICE 937",
+            "public": true,
+            "mode": "train",
+            "product": "nationalExpress",
+            "productName": "ICE",
+            "operator": {
+              "type": "operator",
+              "id": "12681",
+              "name": "DB Fernverkehr AG"
+            }
+          },
+          "direction": "Darmstadt Hauptbahnhof",
+          "arrivalPlatform": "8",
+          "plannedArrivalPlatform": "8",
+          "departurePlatform": "4",
+          "plannedDeparturePlatform": "4",
+          "remarks": []
+        },
+        {
+          "origin": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:912:4:8",
+            "name": "Frankfurt (Main) Südbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.099007,
+              "longitude": 8.686183,
+              "id": "de-DELFI_de:06412:912:4:8"
+            },
+            "station": {
+              "id": "8002041",
+              "name": "Frankfurt(Main)Süd",
+              "type": "station",
+              "location": {
+                "id": "8002041",
+                "type": "location",
+                "latitude": 50.099365,
+                "longitude": 8.686457
+              },
+              "products": {
+                "nationalExpress": true,
+                "national": true,
+                "regionalExpress": true,
+                "regional": true,
+                "suburban": true,
+                "subway": true,
+                "tram": true,
+                "bus": true,
+                "taxi": false,
+                "ferry": false
+              },
+              "weight": 406869,
+              "ril100Ids": [
+                "FFS"
+              ],
+              "ifoptId": "de:06412:912",
+              "priceCategory": 2,
+              "transitAuthority": "RMV",
+              "stadaId": "1856"
+            }
+          },
+          "destination": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:912:7:10",
+            "name": "Frankfurt (Main) Südbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.099346000000004,
+              "longitude": 8.686586000000002,
+              "id": "de-DELFI_de:06412:912:7:10"
+            },
+            "station": {
+              "id": "8002041",
+              "name": "Frankfurt(Main)Süd",
+              "type": "station",
+              "location": {
+                "id": "8002041",
+                "type": "location",
+                "latitude": 50.099365,
+                "longitude": 8.686457
+              },
+              "products": {
+                "nationalExpress": true,
+                "national": true,
+                "regionalExpress": true,
+                "regional": true,
+                "suburban": true,
+                "subway": true,
+                "tram": true,
+                "bus": true,
+                "taxi": false,
+                "ferry": false
+              },
+              "weight": 406869,
+              "ril100Ids": [
+                "FFS"
+              ],
+              "ifoptId": "de:06412:912",
+              "priceCategory": 2,
+              "transitAuthority": "RMV",
+              "stadaId": "1856"
+            }
+          },
+          "departure": "2026-10-09T22:52:00+02:00",
+          "plannedDeparture": "2026-10-09T22:52:00+02:00",
+          "departureDelay": null,
+          "arrival": "2026-10-09T22:54:00+02:00",
+          "plannedArrival": "2026-10-09T22:54:00+02:00",
+          "arrivalDelay": null,
+          "public": true,
+          "walking": true,
+          "distance": 116
+        },
+        {
+          "origin": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:912:7:10",
+            "name": "Frankfurt (Main) Südbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.099346000000004,
+              "longitude": 8.686586000000002,
+              "id": "de-DELFI_de:06412:912:7:10"
+            },
+            "station": {
+              "id": "8002041",
+              "name": "Frankfurt(Main)Süd",
+              "type": "station",
+              "location": {
+                "id": "8002041",
+                "type": "location",
+                "latitude": 50.099365,
+                "longitude": 8.686457
+              },
+              "products": {
+                "nationalExpress": true,
+                "national": true,
+                "regionalExpress": true,
+                "regional": true,
+                "suburban": true,
+                "subway": true,
+                "tram": true,
+                "bus": true,
+                "taxi": false,
+                "ferry": false
+              },
+              "weight": 406869,
+              "ril100Ids": [
+                "FFS"
+              ],
+              "ifoptId": "de:06412:912",
+              "priceCategory": 2,
+              "transitAuthority": "RMV",
+              "stadaId": "1856"
+            }
+          },
+          "destination": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:4:21:1",
+            "name": "Frankfurt (Main) Willy-Brandt-Platz",
+            "location": {
+              "type": "location",
+              "latitude": 50.109215000000006,
+              "longitude": 8.674933,
+              "id": "de-DELFI_de:06412:4:21:1"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:06412:4",
+              "name": "Frankfurt (Main) Willy-Brandt-Platz",
+              "location": {
+                "type": "location",
+                "latitude": 50.109215000000006,
+                "longitude": 8.674933,
+                "id": "de-DELFI_de:06412:4:21:1"
+              }
+            }
+          },
+          "departure": "2026-10-09T22:55:00+02:00",
+          "plannedDeparture": "2026-10-09T22:55:00+02:00",
+          "departureDelay": null,
+          "arrival": "2026-10-09T22:57:00+02:00",
+          "plannedArrival": "2026-10-09T22:57:00+02:00",
+          "arrivalDelay": null,
+          "tripId": "20261009_22:55_de-DELFI_3405798073",
+          "line": {
+            "type": "line",
+            "id": "20261009-22-55-de-delfi-3405798073",
+            "fahrtNr": "de-DELFI_3405798073",
+            "name": "U1",
+            "public": true,
+            "mode": "train",
+            "product": "subway",
+            "productName": "U",
+            "operator": {
+              "type": "operator",
+              "id": "8639",
+              "name": "Stadtwerke Verkehrsgesellschaft Frankfurt"
+            }
+          },
+          "direction": "Frankfurt (Main) Ginnheim Mitte",
+          "arrivalPlatform": null,
+          "plannedArrivalPlatform": null,
+          "departurePlatform": null,
+          "plannedDeparturePlatform": null,
+          "remarks": []
+        },
+        {
+          "origin": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:4:21:1",
+            "name": "Frankfurt (Main) Willy-Brandt-Platz",
+            "location": {
+              "type": "location",
+              "latitude": 50.109215000000006,
+              "longitude": 8.674933,
+              "id": "de-DELFI_de:06412:4:21:1"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:06412:4",
+              "name": "Frankfurt (Main) Willy-Brandt-Platz",
+              "location": {
+                "type": "location",
+                "latitude": 50.109215000000006,
+                "longitude": 8.674933,
+                "id": "de-DELFI_de:06412:4:21:1"
+              }
+            }
+          },
+          "destination": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:4:24:4",
+            "name": "Frankfurt (Main) Willy-Brandt-Platz",
+            "location": {
+              "type": "location",
+              "latitude": 50.10926,
+              "longitude": 8.674987999999999,
+              "id": "de-DELFI_de:06412:4:24:4"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:06412:4",
+              "name": "Frankfurt (Main) Willy-Brandt-Platz",
+              "location": {
+                "type": "location",
+                "latitude": 50.10926,
+                "longitude": 8.674987999999999,
+                "id": "de-DELFI_de:06412:4:24:4"
+              }
+            }
+          },
+          "departure": "2026-10-09T22:57:00+02:00",
+          "plannedDeparture": "2026-10-09T22:57:00+02:00",
+          "departureDelay": null,
+          "arrival": "2026-10-09T22:59:00+02:00",
+          "plannedArrival": "2026-10-09T22:59:00+02:00",
+          "arrivalDelay": null,
+          "public": true,
+          "walking": true,
+          "distance": 6
+        },
+        {
+          "origin": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:4:24:4",
+            "name": "Frankfurt (Main) Willy-Brandt-Platz",
+            "location": {
+              "type": "location",
+              "latitude": 50.10926,
+              "longitude": 8.674987999999999,
+              "id": "de-DELFI_de:06412:4:24:4"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:06412:4",
+              "name": "Frankfurt (Main) Willy-Brandt-Platz",
+              "location": {
+                "type": "location",
+                "latitude": 50.10926,
+                "longitude": 8.674987999999999,
+                "id": "de-DELFI_de:06412:4:24:4"
+              }
+            }
+          },
+          "destination": {
+            "type": "stop",
+            "id": "de-DELFI_de:06412:10:5:35",
+            "name": "Frankfurt (Main) Hauptbahnhof",
+            "location": {
+              "type": "location",
+              "latitude": 50.108044,
+              "longitude": 8.663399,
+              "id": "de-DELFI_de:06412:10:5:35"
+            },
+            "station": {
+              "type": "station",
+              "id": "de-DELFI_de:06412:10",
+              "name": "Frankfurt (Main) Hauptbahnhof",
+              "location": {
+                "type": "location",
+                "latitude": 50.108044,
+                "longitude": 8.663399,
+                "id": "de-DELFI_de:06412:10:5:35"
+              }
+            }
+          },
+          "departure": "2026-10-09T23:03:00+02:00",
+          "plannedDeparture": "2026-10-09T23:03:00+02:00",
+          "departureDelay": null,
+          "arrival": "2026-10-09T23:05:00+02:00",
+          "plannedArrival": "2026-10-09T23:05:00+02:00",
+          "arrivalDelay": null,
+          "tripId": "20261009_22:55_de-DELFI_3031887877",
+          "line": {
+            "type": "line",
+            "id": "20261009-22-55-de-delfi-3031887877",
+            "fahrtNr": "de-DELFI_3031887877",
+            "name": "U4",
+            "public": true,
+            "mode": "train",
+            "product": "subway",
+            "productName": "U",
+            "operator": {
+              "type": "operator",
+              "id": "8639",
+              "name": "Stadtwerke Verkehrsgesellschaft Frankfurt"
+            }
+          },
+          "direction": "Frankfurt (Main) Bockenheimer Warte",
+          "arrivalPlatform": null,
+          "plannedArrivalPlatform": null,
+          "departurePlatform": null,
+          "plannedDeparturePlatform": null,
+          "remarks": [
+            {
+              "summary": "Frankfurt: U4, U5, U7 / Tram 12, 16 - nächtliche Ausfälle, Ersatzverkehr, Zusatzfahrten",
+              "text": "<b>Ausfälle von jeweils 22 Uhr bis Betriebsende:</b><br><ul><li> U4 - entfällt vollständig</li><li> U5 - verkehrt nur zwischen \"Preungesheim\" und \"Hauptfriedhof\"</li></ul><b>Ersatzverkehr:</b><br><ul><li> verkehrt zwischen \"Marbachweg/Sozialzentrum\" und \"Konstablerwache\"</li></ul><b>Zusatzfahrten:</b><br><ul><li> U7 - verkehrt bis Betriebsende im 15-Minuten-Takt</li><li> Tram 12 - zusätzliche Fahrten zwischen \"Festhalle/Messe\" und \"Hugo-Junkers-Straße\", verkehrt zwischen \"Hauptbahnhof/Münchener Straße\" und \"Hugo-Junkers-Straße\" im 15-Minuten-Takt</li><li> Tram 16 - zusätzliche Fahrten zwischen \"Hauptbahnhof\" und \"Ginnheim Mitte\", bis Betriebsende im 15-Minuten-Takt</li></ul><b>Grund:</b><br><ul><li> Arbeiten im Gleisbereich</li></ul>",
+              "type": "hint"
+            },
+            {
+              "summary": "Frankfurt: U4, U7 - verkürzte Linienwege, SEV",
+              "text": "<b>Streckenabschnitt:</b><br><ul><li> U4 - verkehrt nur zwischen \"Bockenheimer Warte\" und \"Schäfflestraße\"</li><li> U7 - verkehrt nur zwischen \"Heerstraße\" und \"Kruppstraße\"<br></li></ul><b>Ersatzverkehr:</b><br><ul><li> verkehrt zwischen \"Gwinnerstraße\" und \"Enkheim\"</li></ul><b>Weitere Hinweise:</b><br><ul><li> Fahrgäste von und nach Bergen können alternativ Bus M43 bis \"Seckbacher Landstraße\" nutzen und dort in die U4 umsteigen</li></ul><b>Grund:</b><br><ul><li> Gleisbauarbeiten</li></ul>",
+              "type": "hint"
+            }
+          ]
+        }
+      ],
+      "refreshToken": "Cr4BCgdJQ0UgOTM3EiIyMDI2MTAwOV8xNToyNF9kZS1ERUxGSV8zNDMyMjA1NzczGiBkZS1ERUxGSV9kZToxMTAwMDo5MDAwMDMyMDA6Mjo1MyEmHeVgNkNKQCm4c2GkF70qQDIZZGUtREVMRklfZGU6MDY0MTI6OTEyOjQ6ODmcielCrAxJQEFwJNBgU18hQEi8vaTWBlDwp6XWBloOSElHSFNQRUVEX1JBSUxgAWkAAAAAAAAAwHEAAAAAAADwPwqBARoZZGUtREVMRklfZGU6MDY0MTI6OTEyOjQ6OCGcielCrAxJQClwJNBgU18hQDIaZGUtREVMRklfZGU6MDY0MTI6OTEyOjc6MTA5hX6mXrcMSUBBbsg/M4hfIUBI8Kel1gZQ6Kil1gZaBFdBTEtgAWkAAAAAAADwP3EAAAAAAAAAwAqqAQoCVTESIjIwMjYxMDA5XzIyOjU1X2RlLURFTEZJXzM0MDU3OTgwNzMaGmRlLURFTEZJX2RlOjA2NDEyOjkxMjo3OjEwIYV+pl63DElAKW7IPzOIXyFAMhhkZS1ERUxGSV9kZTowNjQxMjo0OjIxOjE5yJ3SwfoNSUBBevtz0ZBZIUBIpKml1gZQnKql1gZaBlNVQldBWWABaQAAAAAAAADAcQAAAAAAABDACn4aGGRlLURFTEZJX2RlOjA2NDEyOjQ6MjE6MSHIndLB+g1JQCl6+3PRkFkhQDIYZGUtREVMRklfZGU6MDY0MTI6NDoyNDo0OWdhTzv8DUlAQYhi8gaYWSFASJyqpdYGUJSrpdYGWgRXQUxLYAFpAAAAAAAAEMBxAAAAAAAAEMAKqQEKAlU0EiIyMDI2MTAwOV8yMjo1NV9kZS1ERUxGSV8zMDMxODg3ODc3GhhkZS1ERUxGSV9kZTowNjQxMjo0OjI0OjQhZ2FPO/wNSUApiGLyBphZIUAyGWRlLURFTEZJX2RlOjA2NDEyOjEwOjU6MzU5t0PDYtQNSUBB8WWiCKlTIUBIhK2l1gZQ/K2l1gZaBlNVQldBWWABaQAAAAAAABDAcQAAAAAAAADA",
+      "remarks": []
+    }
+  ],
+  "realtimeDataUpdatedAt": null
+}
