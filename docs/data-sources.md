@@ -113,6 +113,79 @@ Saved commutes also store the station **name** next to each id, so they can be r
 
 ---
 
+## Findings
+
+### Real-time prediction coverage is a rail result, not a display detail
+
+In the Berlin Hbf departures fixture (204 departures in 60 minutes), **128 have no real-time prediction** (`delay: null`). They are not spread evenly:
+
+| Product | No prediction | Of |
+|---|---|---|
+| bus | 54 | 54 |
+| tram | 60 | 60 |
+| subway (U-Bahn) | 11 | 12 |
+| regional | 2 | 16 |
+| national (IC/EC) | 1 | 3 |
+| nationalExpress (ICE) | 0 | 8 |
+| suburban (S-Bahn) | 0 | 51 |
+
+**All 114 bus and tram departures have no prediction; of the 90 rail-type departures, 76 (84%) do.** Real-time data in German public transport is concentrated in rail and effectively absent for road-bound modes in this feed. This is one sample at one station at one time, so the shape is evidence, not a measured rate — but it has two practical consequences:
+
+- **The board** is mostly buses and trams at a large interchange, so by default over half the rows have a scheduled time and no prediction. They are labelled SCHEDULED (muted), not NO DATA, because the data is not missing — the scheduled time is known; only a prediction is absent.
+- **The delay-logging stage should poll rail services.** Logging buses and trams would record the absence of data, not delays.
+
+### One rule marks "no prediction" across all three response types
+
+Verified by fetching a bus trip, a tram trip and an S-Bahn trip live (fixtures `transitous-trip-bus-nolive.json`, `transitous-trip-sbahn-live.json`):
+
+- **Departures:** `delay: null`, with `when === plannedWhen`.
+- **Trips:** `departureDelay: null` and `arrivalDelay: null` on **every** stopover and at trip level (bus: 28 of 28; tram: 25 of 25), with the live time fields still present and equal to the planned ones. A trip with predictions has numeric delays instead (the S-Bahn trip: `0`, `60`, `-60`).
+- **Journey legs:** `departureDelay`/`arrivalDelay` null on 6 of 9 legs in the sample (3 are walking legs).
+
+So the normalising adapter has a single rule: **a `*Delay` field that is `null` means no prediction.** A delay of `0` is a real prediction ("on time"). Cancelled stopovers are marked separately (`cancelled: true`, and null live times).
+
+### Polyline size is a long-distance rail problem
+
+| Trip | Polyline points |
+|---|---|
+| ICE (München → Hamburg-Altona) | 12,110 (and 9,746 for another ICE trip) |
+| S-Bahn S5 | 762 |
+| Bus 142 | 287 |
+| Tram M5 | 243 |
+
+Downsampling matters for long-distance trips; short urban trips are already small.
+
+### The `motis-fptf-client` memory and latency check (in-process option)
+
+Measured by loading the client in-process and running locations → departures → trip against live Transitous (Node 24):
+
+| | `enrichStations: true` (default) | `enrichStations: false` |
+|---|---|---|
+| Resident memory after import | 77 MB | 77 MB |
+| Resident memory after real requests | **134–137 MB** | **87–96 MB** |
+| First request | **6.1 s** (station data loads) | 0.66 s |
+| Import + create | 8.7 s | 0.9 s |
+| Departures (202 rows) | 0.49 s | 0.59 s |
+| Trip with polyline | 0.17 s | 0.19 s |
+
+Node alone is ~59 MB of that. Both fit comfortably in a 512 MB instance, and a trip call is far inside the proxy's 12 s upstream timeout. The trade-off is `enrichStations`: it adds ~40–60 MB and a one-time ~6–9 s load (best done at startup, not on the first user request) in exchange for DB station data, including EVA numbers, on stops.
+
+Library to pin: `motis-fptf-client` is not published to npm; install from GitHub **pinned to a commit SHA**. Tested commit: `1d30b7375f002950a3ac625b22f87a7fb0a4cf16` (2026-10-07), ISC licence, Node ≥ 18.
+
+### Station ids are unstable, not just reshaped
+
+At one station the departures use 25 different platform-level stop ids, with feed prefixes that differ by row (`de-VBB_…` and `de-DELFI_…`), and the station id from `/locations` includes a dataset year (`…Reference-Data-2026_…`). An id is not a durable key; saved places should keep the station name and coordinates alongside it.
+
+---
+
+## Decisions
+
+- **In-process, not a second service** (memory check passed). If it had failed, the fallback would have been writing the translation directly against MOTIS's own API — not a second Render service, whose cold start would collide with the 12 s upstream timeout and fail the first request after every idle period.
+- **"SCHEDULED", muted, for no prediction**, plus a muted line under the board that real-time predictions aren't available from all operators. Internal representation is unchanged (null live time), so `getDepartureStatus`'s contract does not move.
+- **"Use my location" becomes "Nearest major station"**: a bundled list of major German stations and the existing `haversine`, no API call, since `nearby` is not implemented on Transitous.
+
+---
+
 ## Recommendation
 
 | Need | Source | Why |
