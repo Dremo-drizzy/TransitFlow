@@ -20,6 +20,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@motis-project/motis-fptf-client": "https://codeload.github.com/motis-project/motis-fptf-client/tar.gz/1d30b7375f002950a3ac625b22f87a7fb0a4cf16",
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "express-rate-limit": "^8.1.0"
