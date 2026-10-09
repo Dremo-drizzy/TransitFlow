@@ -2,7 +2,7 @@
 
 Reconnaissance for Phase 2 (see [`build-plan.md`](build-plan.md)). Nothing here changed application code. Everything below was observed on **2026-10-09**; fixtures are in `Backend/fixtures/`.
 
-**Status of this document:** Part B (journeys/trips) was tested and is complete. **Part A (the official DB Timetables API) has not been run** — `Backend/.env` with the DB Marketplace credentials did not exist when this was written, so nothing about that API below is verified. The section says so rather than repeating unconfirmed claims.
+**Status of this document:** Part B (journeys/trips) was tested and is complete. **Part A (the official DB Timetables API) has not been run** — `Backend/.env` with the DB Marketplace credentials did not exist when this was written, and was re-checked and still absent afterwards (no `Backend/.env`, and no misnamed `.env.txt` either), so nothing about that API below is verified. The section says so rather than repeating unconfirmed claims.
 
 ---
 
@@ -82,6 +82,30 @@ This repo is public and MIT-licensed and the app is non-commercial, so the condi
 **db-vendo-client** — its own readme says the DB APIs are "subject to haphazard blocking" and "very unreliable", recommends `motis-fptf-client` with Transitous instead, and states "Strictly speaking, permission is necessary to use this library with the DB APIs."
 
 **DB Timetables API** — registered, key-based, intended for programmatic use. Its terms have not been read as part of this recon.
+
+---
+
+## Migration risks
+
+Three findings above will drive Stage 1. Each is written down here as a risk with the number that proves it, so the fix can be checked against something.
+
+### 1. "No live data" is encoded differently — the ON TIME bug comes back
+
+The existing fix checks for a missing `when`. Transitous never sends a null `when`: for a departure with no realtime prediction it sets `when` equal to `plannedWhen` and `delay: null`. In the saved departures fixture, **128 of 204 departures** are in this state (`when === plannedWhen` in all 128, `when` null in none). Run through today's `getDepartureStatus`, every one of them would render as a green ON TIME, and the NO DATA branch would never fire.
+
+Whatever adapter normalises Transitous data has to turn "`delay == null`" into the app's "no prediction" state, and it needs a test that uses the real fixture (`Backend/fixtures/transitous-departures.json`) and asserts that all 128 come out as NO DATA, not ON TIME. `delay` is in seconds when present. The adapter has to be source-aware: the same field means different things on different sources.
+
+### 2. A single trip response is ~1 MB, almost all polyline
+
+The saved trip (`ICE 706`, München Hbf → Hamburg-Altona) is **1,018,479 bytes** compact, of which the polyline is **1,002,317 bytes** and **12,110 points**. That is far more geometry than a map draws at any normal zoom, and it is also the case the cache's entry-count bound (a documented Known Limitation) handles worst.
+
+The likely fix is downsampling the polyline in the proxy before it is cached and sent, which shrinks the payload for the cache and for every trip-page load. Baseline to measure against: **12,110 points / ~1.0 MB**. Whatever tolerance is chosen, vehicle-position interpolation (which walks the polyline between nearest vertices) has to be re-tested against the downsampled line.
+
+### 3. Stop IDs are feed-prefixed strings, not EVA numbers — saved commutes break
+
+Transitous ids look like `at-Railway-Current-Reference-Data-2026_de:11000:900003200:1:51`. Commutes saved in localStorage hold EVA numbers (e.g. `8011160`) in `from.id` / `to.id`, and Transitous answers those with HTTP 500 `unknown feed id ""`.
+
+Saved commutes also store the station **name** next to each id, so they can be re-resolved by name on load instead of being dropped. One caveat that is easy to miss: the validator added to `Commutes.jsx` only checks that `from.id`, `to.id` and `name` are truthy, so old EVA-numbered commutes currently **pass** validation and would be kept — then fail on first use. The same applies to bookmarked `/departures/:stopId` URLs and the Berlin Hbf default in `LiveDeparturesPreview`.
 
 ---
 
