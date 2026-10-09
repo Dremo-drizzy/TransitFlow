@@ -10,6 +10,11 @@ export default function CommuteCard({ commute, onDelete, onPlan, onDepartures })
   const createdAt = new Date(commute.createdAt);
   const createdAtText = isValid(createdAt) ? format(createdAt, 'dd/MM/yyyy') : '—';
 
+  // 'resolving' / 'unresolved' come from the station migration (see
+  // useCommuteMigration): until a saved station has been matched to the
+  // current data source, Plan/Departures would only fail.
+  const usable = commute.status === undefined || commute.status === 'ok';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -52,11 +57,20 @@ export default function CommuteCard({ commute, onDelete, onPlan, onDepartures })
             </div>
           </div>
 
+          {commute.status === 'resolving' && (
+            <p className="commute-station-note" role="status">Updating saved stations…</p>
+          )}
+          {commute.status === 'unresolved' && (
+            <p className="commute-station-note commute-station-note-warn">
+              Re-select station — a saved station couldn&apos;t be matched. Delete this commute and add it again.
+            </p>
+          )}
+
           <div className="d-grid gap-2">
-            <Button variant="primary" size="sm" onClick={() => onPlan(commute)}>
+            <Button variant="primary" size="sm" onClick={() => onPlan(commute)} disabled={!usable}>
               Plan Journey
             </Button>
-            <Button variant="outline-primary" size="sm" onClick={() => onDepartures(commute)}>
+            <Button variant="outline-primary" size="sm" onClick={() => onDepartures(commute)} disabled={!usable}>
               View Departures
             </Button>
           </div>

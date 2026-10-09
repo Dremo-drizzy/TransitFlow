@@ -7,12 +7,16 @@ export default function Footer() {
     <footer className="footer-custom mt-auto text-center">
       <Container fluid="lg">
         <small>
-          Powered by{' '}
-          <a href="https://transport.rest" target="_blank" rel="noopener noreferrer">
-            transport.rest
+          Data:{' '}
+          <a href="https://transitous.org/sources/" target="_blank" rel="noopener noreferrer">
+            Transitous
           </a>
-          {' · DB & partners · '}
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+          {' · © '}
+          <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
+            OpenStreetMap contributors
+          </a>
+          {' · '}
+          <a href="https://github.com/Dremo-drizzy/German-Api-project" target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
           {' · '}

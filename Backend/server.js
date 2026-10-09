@@ -3,16 +3,12 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import { pathToFileURL } from "node:url";
 
-import { UPSTREAM_ROUTES } from "./routes.js";
+import { ROUTES } from "./routes.js";
 import { TtlCache } from "./cache.js";
 
 const app = express();
 
 const PORT = process.env.PORT || 5000;
-const BASE_API = process.env.BASE_API || "https://v6.db.transport.rest";
-const USER_AGENT =
-  process.env.USER_AGENT || "TransitFlow/2.0 (+https://github.com/Dremo-drizzy/German-Api-project)";
-const UPSTREAM_TIMEOUT_MS = Number(process.env.UPSTREAM_TIMEOUT_MS || 12_000);
 
 /* ------------------------------------------------------------------ *
  * CORS — an allowlist, not a wide-open door.
@@ -54,67 +50,66 @@ const cache = new TtlCache({ maxEntries: 500 });
 /* ------------------------------------------------------------------ *
  * The proxy itself.
  *
- * Every upstream call goes through an explicit route definition in
- * routes.js: a fixed upstream path, an allowlist of query parameters and
- * a cache TTL. Anything not described there is a 404 — this server will
- * not forward arbitrary paths to the DB API on a stranger's behalf.
+ * Every call goes through an explicit route definition in routes.js: a
+ * fixed path, an allowlist of query parameters, validation, and a cache
+ * TTL. Anything not described there is a 404. The data comes from
+ * source.js (Transitous, via motis-fptf-client, run in-process) and is
+ * normalised before it is cached, so the cache only ever stores clean,
+ * downsampled responses.
  * ------------------------------------------------------------------ */
-for (const route of UPSTREAM_ROUTES) {
+for (const route of ROUTES) {
   app.get(route.path, async (req, res) => {
-    let upstreamUrl;
+    let params;
     try {
-      upstreamUrl = buildUpstreamUrl(route, req);
+      params = readParams(route, req);
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }
 
-    const cached = cache.get(upstreamUrl);
+    // Identical requests collapse into one: keyed on the route, the path
+    // parameters, and the allowlisted query parameters in a stable order.
+    const cacheKey = JSON.stringify([
+      route.path,
+      req.params,
+      Object.entries(params).sort(([a], [b]) => a.localeCompare(b)),
+    ]);
+
+    const cached = cache.get(cacheKey);
     if (cached) {
       res.set("X-Cache", "HIT");
       return res.status(cached.status).json(cached.body);
     }
 
     try {
-      const upstream = await fetch(upstreamUrl, {
-        headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-        signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
-      });
+      const body = await route.run({ params, pathParams: req.params });
 
-      const text = await upstream.text();
-      let body;
-      try {
-        body = text ? JSON.parse(text) : {};
-      } catch {
-        // The upstream occasionally answers with an HTML error page.
-        return res.status(502).json({
-          error: "Upstream returned a non-JSON response",
-          status: upstream.status,
-        });
-      }
-
-      // Only cache successful responses — never cache an error.
-      if (upstream.ok && route.ttlMs > 0) {
-        cache.set(upstreamUrl, { status: upstream.status, body }, route.ttlMs);
+      // Only successful responses reach this line — an error throws.
+      if (route.ttlMs > 0) {
+        cache.set(cacheKey, { status: 200, body }, route.ttlMs);
       }
 
       res.set("X-Cache", "MISS");
-      return res.status(upstream.status).json(body);
+      return res.json(body);
     } catch (err) {
-      const timedOut = err.name === "TimeoutError" || err.name === "AbortError";
-      console.error(`[proxy] ${route.path} failed:`, err.message);
-      return res.status(timedOut ? 504 : 502).json({
-        error: timedOut ? "Upstream request timed out" : "Upstream request failed",
+      // BadRequest (400) and SourceError (404/502/504) carry their own status.
+      const status = Number.isInteger(err?.status) ? err.status : 502;
+      if (status >= 500) console.error(`[proxy] ${route.path} failed:`, err?.message ?? err);
+      return res.status(status).json({
+        error: status === 502 && !err?.status ? "Upstream request failed" : err.message,
+        ...(err?.code ? { code: err.code } : {}),
       });
     }
   });
 }
 
-function buildUpstreamUrl(route, req) {
-  const path = route.upstream(req.params);
-  const params = new URLSearchParams();
+// Reads only the allowlisted query parameters, applies the route's defaults,
+// and rejects repeated or oversized values. Anything else the caller sent is
+// ignored — it never reaches route.run().
+function readParams(route, req) {
+  const params = {};
 
   for (const [key, value] of Object.entries(route.defaults || {})) {
-    params.set(key, String(value));
+    params[key] = String(value);
   }
 
   for (const key of route.query) {
@@ -126,11 +121,14 @@ function buildUpstreamUrl(route, req) {
     if (String(value).length > 200) {
       throw new Error(`Query parameter "${key}" is too long`);
     }
-    params.set(key, String(value));
+    params[key] = String(value);
   }
 
-  const qs = params.toString();
-  return `${BASE_API}${path}${qs ? `?${qs}` : ""}`;
+  for (const [key, value] of Object.entries(req.params)) {
+    if (String(value).length > 200) throw new Error(`Path parameter "${key}" is too long`);
+  }
+
+  return params;
 }
 
 /* ------------------------------------------------------------------ *
@@ -165,7 +163,7 @@ const isDirectRun = process.argv[1] && import.meta.url === pathToFileURL(process
 if (isDirectRun) {
   app.listen(PORT, () => {
     console.log(`TransitFlow proxy listening on :${PORT}`);
-    console.log(`  upstream : ${BASE_API}`);
+    console.log("  upstream : Transitous (motis-fptf-client, in-process)");
     console.log(`  origins  : ${ALLOWED_ORIGINS.join(", ")}`);
   });
 }

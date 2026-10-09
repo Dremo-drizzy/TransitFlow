@@ -19,7 +19,7 @@
 .departures-header-row,
 .departure-row {
   display: grid;
-  grid-template-columns: 3.5rem 4.5rem 1fr 2.5rem;
+  grid-template-columns: 3.5rem 4.5rem 1fr 4rem;
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 1.25rem;
@@ -74,6 +74,8 @@
   font-size: 0.8rem;
   color: var(--tf-text);
   text-align: right;
+  /* Bus stops come through as "Pos. 12", not just a number. */
+  white-space: nowrap;
 }
 
 .skeleton-time        { width: 2.2rem; }

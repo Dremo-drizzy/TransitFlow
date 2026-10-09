@@ -1,14 +1,16 @@
 import { useMemo, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { format } from 'date-fns';
 import { useNow } from '../hooks/useNow';
 import FlapTime from '../Components/FlapTime';
 import DepartureBoard from '../Components/DepartureBoard';
+import { useResolvedStation } from '../hooks/useResolvedStation';
+import { isLegacyStopId } from '../utils/stations';
 import '../css/Departures.css';
 
-// Chip label -> the boolean query param the DB API (and the proxy's
-// allowlist) actually accepts.
+// Chip label -> the boolean query param the proxy accepts (a product is
+// excluded when its param is sent as false).
 const PRODUCT_FILTERS = [
   { key: 'nationalExpress', label: 'ICE' },
   { key: 'national', label: 'IC/EC' },
@@ -23,9 +25,18 @@ const PRODUCT_FILTERS = [
 ];
 
 export default function Departures() {
-  const { stopId } = useParams();
+  const { stopId: idParam } = useParams();
   const [searchParams] = useSearchParams();
-  const stationName = searchParams.get('name') || stopId;
+  const nameParam = searchParams.get('name');
+
+  // An all-digits id is from the old data source (a bookmarked or shared
+  // link) and the current one rejects it. If the link carries a station
+  // name, look the station up by that; if not, there's nothing to go on.
+  const legacy = isLegacyStopId(idParam);
+  const resolved = useResolvedStation(nameParam ? { name: nameParam } : null, legacy);
+  const stopId = legacy ? resolved.data?.id : idParam;
+  const lookupFailed = legacy && (!nameParam || resolved.isError || (resolved.isSuccess && !resolved.data));
+  const stationName = nameParam || resolved.data?.name || 'Departures';
 
   const now = useNow(1000);
   const [activeFilters, setActiveFilters] = useState(() => new Set());
@@ -76,7 +87,23 @@ export default function Departures() {
         ))}
       </div>
 
-      <DepartureBoard stopId={stopId} filters={filters} />
+      {stopId ? (
+        <DepartureBoard stopId={stopId} filters={filters} />
+      ) : (
+        <div className="departures-lookup" role="status">
+          {lookupFailed ? (
+            <>
+              <p className="departures-lookup-text">STATION NOT FOUND</p>
+              <p className="departures-lookup-hint">
+                This link uses a station id from before the data source changed, and no station name came with it.{' '}
+                <Link to="/">Back home</Link>
+              </p>
+            </>
+          ) : (
+            <p className="departures-lookup-text">LOOKING UP STATION…</p>
+          )}
+        </div>
+      )}
     </Container>
   );
 }

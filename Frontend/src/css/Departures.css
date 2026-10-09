@@ -52,3 +52,24 @@
 @media (max-width: 480px) {
   .departures-station-name { font-size: 1.3rem; }
 }
+
+.departures-lookup {
+  border: 1px solid var(--tf-edge);
+  background: var(--tf-housing);
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.departures-lookup-text {
+  font-family: var(--tf-font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: var(--tf-muted);
+  margin: 0 0 0.5rem;
+}
+
+.departures-lookup-hint {
+  font-size: 0.8rem;
+  color: var(--tf-muted);
+  margin: 0;
+}

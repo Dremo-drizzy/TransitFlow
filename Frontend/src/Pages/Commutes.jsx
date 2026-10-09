@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { loadFromLocalStorage, saveToLocalStorage } from '../utils/transportUtils';
+import { stripStatus } from '../utils/stations';
+import { useCommuteMigration } from '../hooks/useCommuteMigration';
 import CommuteCard from '../Components/CommuteCard';
 import AddCommuteModal from '../Components/AddCommuteModal';
 import '../css/Commutes.css';
@@ -15,7 +17,17 @@ const isValidCommute = (c) => Boolean(c?.from?.id && c?.to?.id && c?.name);
 
 export default function Commutes() {
   const navigate = useNavigate();
-  const [commutes, setCommutes] = useState(() => loadFromLocalStorage('commutes', [], isValidCommute));
+  const [stored, setStored] = useState(() => loadFromLocalStorage('commutes', [], isValidCommute));
+
+  // Commutes saved under the old data source hold station ids the current
+  // one rejects — they pass isValidCommute, since they look fine. Every such
+  // station is looked up by name, and what resolves is written back so the
+  // lookup only ever happens once.
+  const { commutes, persistable } = useCommuteMigration(stored);
+  const persistJson = persistable ? JSON.stringify(persistable) : null;
+  useEffect(() => {
+    if (persistJson) saveToLocalStorage('commutes', JSON.parse(persistJson));
+  }, [persistJson]);
   const [showModal, setShowModal] = useState(false);
 
   const handleAdd = ({ name, from, to }) => {
@@ -26,15 +38,15 @@ export default function Commutes() {
       to,
       createdAt: new Date().toISOString(),
     };
-    const updated = [...commutes, newCommute];
-    setCommutes(updated);
+    const updated = [...stripStatus(commutes), newCommute];
+    setStored(updated);
     saveToLocalStorage('commutes', updated);
     setShowModal(false);
   };
 
   const handleDelete = (id) => {
-    const updated = commutes.filter((c) => c.id !== id);
-    setCommutes(updated);
+    const updated = stripStatus(commutes).filter((c) => c.id !== id);
+    setStored(updated);
     saveToLocalStorage('commutes', updated);
   };
 

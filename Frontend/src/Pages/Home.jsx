@@ -16,8 +16,8 @@ export default function Home() {
       <Container fluid="lg">
         <Hero
           eyebrow="Live Transit Updates"
-          subtitle="Real-time departures, smart journey planning, and saved commutes — all in one place."
-          chips={['Live', 'DB Network', 'Real-time']}
+          subtitle="Live departures where operators provide them, journey planning across Germany, and saved commutes — all in one place."
+          chips={['Live', 'Germany-wide', 'Open data']}
         >
           Your city,<br />
           <span>on schedule.</span>

@@ -1,42 +1,51 @@
 # TransitFlow
 
-TransitFlow is a live departures, journey-planning, and saved-commutes app for the German rail network, built on Deutsche Bahn's open transit API.
+TransitFlow is a live departures, journey-planning, and saved-commutes app for German public transport, built on [Transitous](https://transitous.org) open transit data.
 
 **Live demo:** not deployed yet — see [Roadmap](#roadmap).
 
 ## Features
 
-- **Live departures board** (`/departures/:stopId`) — a split-flap display where only the digits that actually changed flip, live platform changes pulse amber, and cancellations show struck-through with the reason distinguished from a merely delayed train.
-- **Journey planning** — search connections across the full DB network, with a shared, fully keyboard- and screen-reader-accessible station autocomplete.
+- **Live departures board** (`/departures/:stopId`) — a split-flap display where only the digits that actually changed flip, live platform changes pulse amber, and cancellations show struck-through, distinct from a merely delayed train. Departures with no real-time prediction (most buses and trams) read SCHEDULED rather than a false on-time.
+- **Journey planning** — search connections across Germany, with a shared, fully keyboard- and screen-reader-accessible station autocomplete.
 - **Saved commutes** — one-tap access to a frequent route's journey plan or live departures board.
 - **Live trip map** (`/trip/:tripId`) — the route on a dark map with the vehicle's position animated along it in real time (following the actual track geometry, not a straight line between stops), next to a full stopover timeline that dims passed stops and highlights the segment currently being travelled.
 
 ## Screenshots
 
-**Departures board** — every state a real board would show: on time, a live delay, a platform change, and a cancellation, all in one screenshot.
+Both are real Transitous data captured at 1440px wide, not mocked fixtures (captured just after midnight, German time).
 
-![Departures board showing five states: on time, delayed, a platform change, and a cancellation](docs/images/departures-board.jpg)
+**Departures board** — Kassel-Wilhelmshöhe, with the mix a real board has: on time, a real delay, and SCHEDULED for departures that have no real-time prediction. The line under the board says why.
 
-**Live trip map** — an ICE mid-route, its marker following the polyline between two stopovers, with the stopover timeline showing the passed, current, and upcoming stops.
+![Departures board for Kassel-Wilhelmshöhe: on-time, delayed and scheduled departures, a footnote about real-time coverage, and the Transitous and OpenStreetMap footer](docs/images/departures-board.png)
 
-![Trip map showing a vehicle marker following the route polyline, next to a stopover timeline](docs/images/trip-map.jpg)
+**Live trip map** — ICE 702 from München to Hamburg-Altona, running 63 minutes late. The marker sits on the route between Ludwigslust and Büchen, passed stops are dimmed, and the next ones are bright. (The grey map background and "API key required" watermark are the CARTO tile issue described under Known limitations.)
+
+![Trip page for ICE 702: a route on a map with the vehicle marker near Büchen, and a stopover timeline from München Hbf to Hamburg-Altona with delays](docs/images/trip-map.png)
 
 ## Stack
 
 - **Frontend:** React 19 + Vite, [`@tanstack/react-query`](https://tanstack.com/query) for all server state, `react-bootstrap` for UI, [`react-leaflet`](https://react-leaflet.js.org/) for the trip map (lazy-loaded, its own bundle chunk, off the home page entirely).
-- **Backend:** Express, acting as a proxy in front of the upstream transit API.
+- **Backend:** Express, acting as a proxy in front of Transitous, which it reaches in-process through [`motis-fptf-client`](https://github.com/motis-project/motis-fptf-client) (pinned to a commit; it isn't published to npm). An adapter layer normalises every response before it is cached.
 - **Testing:** Vitest + Testing Library.
 - **CI:** GitHub Actions (lint, test, build on every push and PR).
 
 ## Architecture
 
-The frontend never calls the transit API directly — every request goes through a small Express proxy in `Backend/`. That indirection isn't incidental; it's there for three concrete reasons.
+The frontend never calls the transit data source directly — every request goes through a small Express proxy in `Backend/`. That indirection isn't incidental; it does four concrete jobs.
 
-First, **CORS**. The upstream API ([v6.db.transport.rest](https://v6.db.transport.rest), run by transport.rest) isn't necessarily configured to accept requests from an arbitrary browser origin, and baking that assumption into the frontend is fragile. A server-to-server call sidesteps the question entirely.
+**It keeps the User-Agent honest.** Transitous's usage policy requires every client to identify itself with a name, a version and a way to contact its author, and browsers won't let JavaScript set that header on `fetch`, so it can only be sent from a server we control. The same policy asks for light, user-driven traffic: this app only ever requests data because a person asked for it, and never polls on a timer.
 
-Second, **the User-Agent header**. transport.rest's own docs ask clients to identify themselves with a descriptive User-Agent so they can reach out if a client is misbehaving or if something changes upstream. Browsers refuse to let JavaScript set that header on `fetch` requests — it's on the forbidden header list — so a real, honest User-Agent can only be sent from a server we control.
+**It shares one cache.** On a free-tier deployment every visitor shares one outbound IP, so five people looking at the same station's departures within the cache TTL should cost one upstream request, not five. `Backend/routes.js` declares each allowlisted route's inputs, validation and TTL; the cache key is the route, its path parameters and its allowlisted query parameters. That file is also the security boundary: a parameter that isn't listed there never reaches the data source, so the proxy can't be used as an open relay.
 
-Third, and most important operationally: **the API rate-limits per client IP**. On a free-tier deployment, every visitor to the app shares one outbound IP, so without a cache sitting in front of the upstream API, a moderately popular page could trip the rate limit for everyone using the app, not just the one user who triggered it. `Backend/routes.js` caches each allowlisted route's response by its upstream URL with a per-route TTL, so five people looking at the same station's departures within that window cost one upstream request, not five — that's the difference between a client-side inconvenience and a shared outage. That same file is also the CORS/allowlist boundary: each route declares its exact upstream path template and which query parameters it forwards, so the proxy can't be used as an open relay to arbitrary upstream endpoints the way the original wildcard `/api/*` route could be.
+**It normalises, and does so before caching.** `Backend/adapters/transitous.js` turns Transitous's responses into the shape the frontend reads, and the cache only ever holds the normalised result. Three things in the raw data would otherwise be wrong on screen, each found by running real responses through the app:
+- *"No prediction" is encoded as a null `delay` with `when` equal to the planned time.* Left alone, 128 of 204 departures in the saved Berlin Hbf sample would show as confidently on time. The adapter converts it to a null live time, so they read SCHEDULED. A test runs that real sample end to end.
+- *A trip's route is ~1 MB, almost all of it map points.* A long-distance trip carries about 12,000 points. The adapter downsamples the polyline (Ramer–Douglas–Peucker, 30 m tolerance, always keeping the vertex nearest each stop): 12,110 points and 1,018,479 bytes became 616 points and 65,966 bytes (94% smaller), with no original point more than 30 m from the simplified line.
+- *A trip's `stopovers` leave out its origin and destination.* Without them the vehicle would wait at the first intermediate stop. On one real trip the first three intermediate stops were cancelled, so the vehicle would have waited at Nürnberg for a train that starts in München. The adapter adds both endpoints.
+
+**It isolates the dependency.** `motis-fptf-client` runs inside this server — not as a second service — so there is one deployment and one cold start. A second free-tier service waking up behind this proxy's upstream timeout would fail the first request after every idle period. Measured in-process: ~137 MB resident memory (about 96 MB without station enrichment, which is off), and ~0.2 s for a trip call.
+
+Station ids are the other thing the proxy can't paper over: Transitous ids are long, feed-prefixed, and not durable, so the frontend looks stations up by name instead of trusting a saved id. See [`docs/data-sources.md`](docs/data-sources.md) for the evidence behind all of this, and why Transitous was chosen over the alternatives (partly on its terms of use).
 
 ## Local setup
 
@@ -73,7 +82,8 @@ The Vite dev server proxies `/api` to `http://localhost:5000`, so with both halv
 - **Environment variables** (see `Backend/.env.example`):
   - **`ALLOWED_ORIGINS`** — comma-separated list of browser origins allowed to call the proxy. Must include the deployed frontend's origin, or the backend's CORS policy rejects every request from it — the frontend loads, but every API call fails as a CORS error rather than a 404, which is a different failure mode worth recognizing if it comes up.
   - `PORT` — Render sets this automatically; the app defaults to `5000` if it's unset.
-  - `BASE_API`, `USER_AGENT`, `RATE_LIMIT_PER_MINUTE`, `UPSTREAM_TIMEOUT_MS` — all optional, sensible defaults baked in; only set these to change the upstream API, the identifying User-Agent, the per-IP rate budget, or the upstream timeout.
+  - `USER_AGENT`, `RATE_LIMIT_PER_MINUTE`, `UPSTREAM_TIMEOUT_MS` — all optional, with sensible defaults. If you fork this project, change `USER_AGENT` to identify yourself: Transitous's policy requires a name, version and contact.
+  - The build must be able to fetch `motis-fptf-client` from `codeload.github.com` (it's installed from a commit-pinned tarball with an integrity hash, not from npm). Render's build environment can.
 
 ## Roadmap
 
@@ -87,7 +97,8 @@ This was a staged rebuild of an earlier fetch-wrapper version of this project in
 - **Stage 4** — restyled every remaining component and collapsed three duplicated station pickers into one shared, accessible `StationAutocomplete`.
 - **Stage 5** — the live departures board: filterable, live-polling, with the platform-change pulse and full loading/empty/error/rate-limited states.
 - **Stage 6** — the live trip map: real-time vehicle position that follows the actual route polyline (falling back to a straight line when it can't), next to a full stopover timeline.
-- **Stage 8** — this ship pass: accessibility fixes, performance work, and this README.
+- **Stage 8** — the ship pass: accessibility fixes, performance work, and this README.
+- **Phase 2, stage 1** — replaced the dead upstream with Transitous (see [`docs/data-sources.md`](docs/data-sources.md)): the proxy now runs `motis-fptf-client` in-process behind a normalising adapter; saved commutes and old links re-resolve stations by name; "Use my location" became "Nearest major station".
 
 **Cut:**
 - **Stage 7** (nearby radar) — an optional second map surface, dropped to prioritize shipping over an additional visualization. See `docs/build-plan.md` for what it would have been.
@@ -96,12 +107,16 @@ This was a staged rebuild of an earlier fetch-wrapper version of this project in
 
 - **The map's dark tiles currently show a CARTO watermark.** The free `{s}.basemaps.cartocdn.com` tile endpoint this app uses now renders an "API key required" overlay across the basemap — a change on CARTO's end since this stage of the project was planned, not a bug here. The route line, stop markers, and vehicle position all still render correctly on top of it; only the background map tiles themselves are degraded. Fixing this means either registering a CARTO API key or switching tile providers.
 - **Not deployed yet.** No live URL, and no Lighthouse run against one — see the Roadmap above.
+- **The DB Timetables API isn't used yet.** The application is registered but not subscribed to the API, so every data call returns 403. It's intended for any delay logging, since Transitous's terms rule out continuous polling.
 - **No end-to-end or visual regression tests.** Coverage is unit/component-level (Vitest + Testing Library) for the pure logic (formatting, delay math, vehicle-position interpolation) and component behavior; nothing drives a real browser in CI.
 - **The map itself has no bespoke screen-reader treatment.** The adjacent stopover timeline is the deliberate text equivalent (same data, fully operable), rather than trying to make the Leaflet widget itself meaningfully narratable.
-- **The backend's in-memory cache is bounded by entry count, not bytes.** A trip with a long, detailed polyline costs the same one cache slot as a small departures response — on a small instance, enough large trip payloads cached at once could pressure memory in a way an entry-count limit alone won't catch.
+- **The backend's in-memory cache is bounded by entry count, not bytes.** Downsampling the polyline made a long trip about 66 KB instead of ~1 MB, so this is far less likely to bite — but the bound is still entries, not memory.
 - **A rate-limited (429) request is retried without honoring `Retry-After`.** The backoff is exponential with jitter, but it doesn't read the header the upstream API may send saying exactly how long to wait, so a retry can still land before the API is ready to answer it.
+- **Most buses and trams have no real-time prediction.** In the saved Berlin Hbf sample all 114 bus and tram departures lacked one, against 14 of 90 rail ones (so 84% of rail had a prediction) — one station at one moment, a hint rather than a measured rate. They show their scheduled time, labelled SCHEDULED.
+- **"Nearest major station", not "nearest stop".** Transitous has no nearby-stops lookup, so the button picks the closest of about fifty bundled major stations by straight-line distance, and says so. The coordinates are approximate (within a few hundred metres).
+- **Saved commutes whose station can't be matched by name** stay visible, flagged "re-select station", and must be deleted and re-added — there's no edit flow yet. Old `/plan` links that carry old-style station ids aren't migrated.
+- **The vehicle marker glides between positions with a 1-second CSS transition, which also applies when the map is zoomed or panned** (and once on load, as the map fits the route), so for a moment the marker can lag behind the route line it sits on. Stage 6 accepted this; it should be limited to tick-driven updates.
 - **The vehicle's position follows the route polyline approximately, not exactly.** It works by finding the polyline vertex nearest each stop and walking the track between them — on a route that loops back through the same geographic area (some regional and tram lines do), the nearest-point match can pick the wrong pass through that area, putting the marker on a visually plausible but wrong segment.
-- **The station autocomplete also returns addresses and POIs, not just stops.** Only stops carry the fields (an id journeys/departures can use) that the rest of the app expects — selecting an address or POI result doesn't error, but doesn't behave correctly downstream either.
 
 ## Engineering notes
 

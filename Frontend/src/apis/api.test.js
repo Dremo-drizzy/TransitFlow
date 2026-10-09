@@ -158,6 +158,15 @@ describe('getDepartures', () => {
     expect(url.searchParams.get('duration')).toBe('60');
   });
 
+  it('URL-encodes the stop id, which is a long feed-prefixed string with colons', async () => {
+    globalThis.fetch.mockResolvedValueOnce(jsonResponse({ departures: [] }));
+
+    await getDepartures('at-Railway_de:11000:900003200:1:51/x');
+
+    const [calledUrl] = globalThis.fetch.mock.calls[0];
+    expect(calledUrl).toContain('/stops/at-Railway_de%3A11000%3A900003200%3A1%3A51%2Fx/departures');
+  });
+
   it('does not send any product filter params by default', async () => {
     globalThis.fetch.mockResolvedValueOnce(jsonResponse({ departures: [] }));
 
