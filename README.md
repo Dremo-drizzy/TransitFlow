@@ -13,13 +13,15 @@ TransitFlow is a live departures, journey-planning, and saved-commutes app for G
 
 ## Screenshots
 
-**Departures board** — every state a real board would show: on time, a live delay, a platform change, and a cancellation, all in one screenshot.
+Both are real Transitous data captured at 1440px wide, not mocked fixtures (captured just after midnight, German time).
 
-![Departures board showing five states: on time, delayed, a platform change, and a cancellation](docs/images/departures-board.jpg)
+**Departures board** — Kassel-Wilhelmshöhe, with the mix a real board has: on time, a real delay, and SCHEDULED for departures that have no real-time prediction. The line under the board says why.
 
-**Live trip map** — an ICE mid-route, its marker following the polyline between two stopovers, with the stopover timeline showing the passed, current, and upcoming stops.
+![Departures board for Kassel-Wilhelmshöhe: on-time, delayed and scheduled departures, a footnote about real-time coverage, and the Transitous and OpenStreetMap footer](docs/images/departures-board.png)
 
-![Trip map showing a vehicle marker following the route polyline, next to a stopover timeline](docs/images/trip-map.jpg)
+**Live trip map** — ICE 702 from München to Hamburg-Altona, running 63 minutes late. The marker sits on the route between Ludwigslust and Büchen, passed stops are dimmed, and the next ones are bright. (The grey map background and "API key required" watermark are the CARTO tile issue described under Known limitations.)
+
+![Trip page for ICE 702: a route on a map with the vehicle marker near Büchen, and a stopover timeline from München Hbf to Hamburg-Altona with delays](docs/images/trip-map.png)
 
 ## Stack
 
