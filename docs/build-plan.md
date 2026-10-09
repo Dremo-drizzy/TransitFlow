@@ -660,6 +660,12 @@ Rough sizes: Stages 0 and 2 are small. Stages 1, 3, 4 and 5 are medium. Stage 6 
 
 ---
 
+## Phase 2 — Replacing the upstream
+
+Stages 0–8 above were built against `v6.db.transport.rest`, which wrapped Deutsche Bahn's old HAFAS endpoint. DB moved bahn.de and DB Navigator to a new platform and shut the old HAFAS API off, so that upstream now answers 503 and its own documentation links to an issue titled "DB HAFAS API is currently not available". Phase 2 replaces it, split by what each part needs: the official DB Timetables API (registered, rate-limited, built for continuous polling) for live departures and any delay logging, and Transitous via `motis-fptf-client` for user-driven journeys and trips, which keeps the FPTF response shape the frontend already consumes. The sources were chosen partly on terms of use, not just technical fit; what was tested, what each endpoint returns, and the reasoning are recorded in [`docs/data-sources.md`](data-sources.md).
+
+---
+
 ## Appendix A — Design tokens
 
 ```css
