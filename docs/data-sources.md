@@ -2,7 +2,7 @@
 
 Reconnaissance for Phase 2 (see [`build-plan.md`](build-plan.md)). Nothing here changed application code. Everything below was observed on **2026-10-09**; fixtures are in `Backend/fixtures/`.
 
-**Status of this document:** Part B (journeys/trips) was tested and is complete. **Part A (the official DB Timetables API) has not been run** — `Backend/.env` with the DB Marketplace credentials did not exist when this was written, and was re-checked and still absent afterwards (no `Backend/.env`, and no misnamed `.env.txt` either), so nothing about that API below is verified. The section says so rather than repeating unconfirmed claims.
+**Status of this document:** Part B (journeys/trips) was tested and is complete. **Part A (the official DB Timetables API) is partly done:** the base URL and header names are confirmed, but every data endpoint returns 403 "Not registered to plan" until the application is subscribed to the Timetables API, so no response format has been observed yet. See Part A.
 
 ---
 
@@ -12,19 +12,23 @@ Reconnaissance for Phase 2 (see [`build-plan.md`](build-plan.md)). Nothing here 
 
 ---
 
-## Part A — DB Timetables API (NOT YET TESTED)
+## Part A — DB Timetables API (reachable, but BLOCKED on a plan subscription)
 
-Unverified, carried over from the task description and **not confirmed against the live API**:
+Tested on 2026-10-09 with the credentials from `Backend/.env` (read by a script outside the repo; never printed).
 
-- Base URL: `https://apis.deutschebahn.com/db-api-marketplace/apis/timetables/v1`
-- Auth headers: `DB-Client-Id`, `DB-Api-Key`
-- Rate limit: believed to be 60 requests/minute — not confirmed.
+**Confirmed:**
 
-Not done, and needed before the delay-logging stage is planned:
+- **Base URL is right:** `https://apis.deutschebahn.com/db-api-marketplace/apis/timetables/v1`. The gateway resolves it: a wrong API name returns 404 "API not found for requested URI", and a wrong path under `timetables/v1` returns 404 "No resources match requested URI".
+- **Header names are right:** `DB-Client-Id` and `DB-Api-Key`. With them the credentials are accepted; with the two values swapped, or with no credentials at all, the response is 401 "Invalid client id or secret".
+- **Errors come back as XML** (`<errorResponse>` with `httpCode`, `httpMessage`, `moreInformation`), content type `application/xml`.
 
-- confirm base URL and header names (and what a 401/404 looks like)
-- save `station-search.xml`, `plan-sample.xml`, `changes-full.xml`, `changes-recent.xml`
-- document plan vs. fchg structure, the single-letter attributes (`pt`, `ct`, `pp`, `cp`, …), how a trip is matched to its change, how cancellation and "no live data" appear, and the `YYMMddHHmm` local-time format
+**The blocker:** all four endpoints — `/station/Berlin%20Hbf`, `/plan/8011160/{YYMMDD}/{HH}`, `/fchg/8011160`, `/rchg/8011160` — return **403 "Not registered to plan"**. Authentication succeeded; the application is simply not subscribed to the Timetables API. On the DB API Marketplace that is done per application (subscribe the application to the Timetables API / pick its plan), and some APIs need approval first. This is an account step, not a code or credentials problem.
+
+**Not done, because there is no data to look at yet:**
+
+- no XML fixtures exist (`station-search.xml`, `plan-sample.xml`, `changes-full.xml`, `changes-recent.xml`)
+- the plan/fchg structure, the meaning of the single-letter attributes, how a trip is matched to its change, how a cancellation and a "no live data" trip each look, and the `YYMMddHHmm` time format are **not yet verified** — nothing about them is recorded here on purpose, since an unverified encoding of "no live data" is exactly what caused the false-ON-TIME problem on the Transitous side
+- the rate limit: no rate-limit headers were present on the 401/403/404 responses, so the 60 requests/minute figure is still unconfirmed
 
 ---
 
