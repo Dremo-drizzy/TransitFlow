@@ -1,3 +1,5 @@
+import { pickStation, coordsOf } from '../utils/stations';
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const REQUEST_TIMEOUT_MS = 10000;
@@ -77,21 +79,19 @@ export const searchLocations = async (query) => {
     return await fetchFromApi(url);
 }
 
-export const getNearbyStops = async (lat, lon, distance = 1000) => {
-    const params = new URLSearchParams({ latitude: lat.toString(), longitude: lon.toString(), distance: distance.toString(), results: '20' });
-    const url = `${BASE_URL}/locations/nearby?${params}`;
-    return await fetchFromApi(url);
-}
-
-export const getStopDetails = async (stopId) => {
-  if (!stopId) return null;
-  const url = `${BASE_URL}/stops/${stopId}`;
-  return await fetchFromApi(url);
+// Looks a place up by name (and coordinates, if known) and returns the
+// station the search most plausibly means, or null. Used wherever an id was
+// saved under the old data source and has to be re-derived — see
+// utils/stations.js for why ids are not trusted across sources.
+export const resolveStation = async (place) => {
+  if (!place?.name) return null;
+  const results = await searchLocations(place.name);
+  return pickStation(results, { name: place.name, coords: coordsOf(place) });
 };
 
-// Boolean product-type filters the proxy allowlists and forwards upstream.
-// Omitted entirely means "show everything"; the DB API only excludes a
-// product when its param is explicitly sent as false.
+// Boolean product-type filters the proxy allowlists. Omitted entirely means
+// "show everything"; a product is only excluded when its param is explicitly
+// sent as false (the proxy applies that filter to the departures it returns).
 const PRODUCT_FILTER_KEYS = [
   'nationalExpress', 'national', 'regionalExpress', 'regional',
   'suburban', 'subway', 'tram', 'bus', 'ferry', 'taxi',
@@ -108,7 +108,7 @@ export const getDepartures = async (stopId, options = {}) => {
   for (const key of PRODUCT_FILTER_KEYS) {
     if (options[key] === false) params.append(key, 'false');
   }
-  const url = `${BASE_URL}/stops/${stopId}/departures?${params}`;
+  const url = `${BASE_URL}/stops/${encodeURIComponent(stopId)}/departures?${params}`;
   return await fetchFromApi(url);
 };
 

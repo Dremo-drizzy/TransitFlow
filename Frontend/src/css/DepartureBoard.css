@@ -120,3 +120,13 @@ a.db-data-row:focus-visible {
 
   .db-platform { justify-self: end; }
 }
+
+/* Under the board: most buses and trams have no real-time prediction, so a
+ * scheduled-only row is normal, and this says why. */
+.db-footnote {
+  margin: 0.75rem 0 0;
+  font-family: var(--tf-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--tf-muted);
+}

@@ -14,7 +14,7 @@ export function haversine(a, b) {
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(Math.min(1, h)));
 }
 
-// The DB API's polyline coordinates are GeoJSON [longitude, latitude].
+// The trip polyline's coordinates are GeoJSON [longitude, latitude].
 // Leaflet (and everything else here) wants {lat, lon}.
 export function toLatLng([lon, lat]) {
   return { lat, lon };

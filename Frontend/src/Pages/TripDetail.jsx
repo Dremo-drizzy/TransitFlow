@@ -53,11 +53,8 @@ export default function TripDetail() {
   const [selectedStop, setSelectedStop] = useState(null);
 
   const { data, isLoading, error, refetch } = useTripDetails(tripId);
-  // The REST wrapper's response shape for a single trip isn't documented
-  // with a full example (unlike /stops/:id, which confirms an unwrapped
-  // root object) — this falls back to an unwrapped root if there's no
-  // `trip` field, so either shape works without needing live access to verify.
-  const trip = data?.trip ?? data;
+  // The proxy answers with { trip, realtimeDataUpdatedAt }.
+  const trip = data?.trip;
 
   const stopovers = useMemo(() => trip?.stopovers || [], [trip]);
 

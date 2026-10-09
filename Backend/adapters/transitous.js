@@ -98,11 +98,62 @@ const stopCoordinates = (stopovers) =>
     .filter((loc) => typeof loc?.longitude === 'number' && typeof loc?.latitude === 'number')
     .map((loc) => [loc.longitude, loc.latitude]);
 
+// On this source `stopovers` holds only the stops in between: the trip's
+// origin and destination are carried separately (trip.origin / trip.destination,
+// with the trip-level departure and arrival). The vehicle-position maths
+// treats the first stopover as where the trip starts and the last as where
+// it ends, so without the endpoints the vehicle would wait at the first
+// intermediate stop, never travel the first or last leg, and the timeline
+// would be missing its first and last rows. They are rebuilt here as ordinary
+// stopovers — origin with only a departure, destination with only an arrival.
+function withEndpoints(stopovers, trip, { departure, arrival }) {
+  const first = stopovers[0]?.stop;
+  const last = stopovers[stopovers.length - 1]?.stop;
+
+  const origin =
+    trip.origin && trip.origin.id !== first?.id
+      ? [{
+          stop: trip.origin,
+          arrival: null,
+          plannedArrival: null,
+          arrivalDelay: null,
+          departure,
+          plannedDeparture: trip.plannedDeparture,
+          departureDelay: trip.departureDelay,
+          departurePlatform: trip.departurePlatform,
+          plannedDeparturePlatform: trip.plannedDeparturePlatform,
+          cancelled: false,
+          remarks: [],
+        }]
+      : [];
+
+  const destination =
+    trip.destination && trip.destination.id !== last?.id
+      ? [{
+          stop: trip.destination,
+          arrival,
+          plannedArrival: trip.plannedArrival,
+          arrivalDelay: trip.arrivalDelay,
+          arrivalPlatform: trip.arrivalPlatform,
+          plannedArrivalPlatform: trip.plannedArrivalPlatform,
+          departure: null,
+          plannedDeparture: null,
+          departureDelay: null,
+          cancelled: false,
+          remarks: [],
+        }]
+      : [];
+
+  return [...origin, ...stopovers, ...destination];
+}
+
 export function normalizeTrip(body, { toleranceM = 30 } = {}) {
   const trip = body?.trip;
   if (!trip) return body;
 
-  const stopovers = (trip.stopovers ?? []).map(normalizeStopover);
+  const departure = hasPrediction(trip.departureDelay) ? trip.departure : null;
+  const arrival = hasPrediction(trip.arrivalDelay) ? trip.arrival : null;
+  const stopovers = withEndpoints((trip.stopovers ?? []).map(normalizeStopover), trip, { departure, arrival });
 
   // Simplified here, before the response is cached or sent: the raw polyline
   // is ~1 MB for a long-distance trip, nearly all of it invisible on a map.
@@ -114,8 +165,8 @@ export function normalizeTrip(body, { toleranceM = 30 } = {}) {
     ...body,
     trip: {
       ...trip,
-      arrival: hasPrediction(trip.arrivalDelay) ? trip.arrival : null,
-      departure: hasPrediction(trip.departureDelay) ? trip.departure : null,
+      arrival,
+      departure,
       stopovers,
       polyline,
     },

@@ -75,7 +75,7 @@ export default function PlanJourney() {
         <div className="plan-page-header">
           <h2 className='fs-1'>Find Your Route</h2>
           <p className="text-muted">
-            Search connections across the entire DB network.
+            Search connections across Germany.
           </p>
         </div>
 

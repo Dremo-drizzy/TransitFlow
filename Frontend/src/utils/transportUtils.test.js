@@ -8,6 +8,7 @@ import {
   toDatetimeLocalValue,
   fromDatetimeLocalValue,
   getDepartureStatus,
+  shortPlatform,
 } from './transportUtils';
 
 describe('formatTime', () => {
@@ -202,16 +203,36 @@ describe('getDepartureStatus', () => {
     expect(status).toEqual({ text: '+9 MIN', tone: 'red', cancelled: false });
   });
 
-  it('returns NO DATA/muted when there is no realtime prediction and it is not cancelled', () => {
+  it('returns SCHEDULED/muted when there is no realtime prediction and it is not cancelled', () => {
     // actualTime: null with cancelled: false is a real, distinct case from
     // both CANCELLED and ON TIME — getDelayMinutes would otherwise read the
     // missing value as "0 minutes late" and render a false ON TIME.
     const status = getDepartureStatus('2024-01-15T14:00:00.000Z', null, false);
-    expect(status).toEqual({ text: 'NO DATA', tone: 'muted', cancelled: false });
+    expect(status).toEqual({ text: 'SCHEDULED', tone: 'muted', cancelled: false });
   });
 
-  it('returns NO DATA/muted when actualTime is missing even without a plannedTime', () => {
+  it('returns SCHEDULED/muted when actualTime is missing even without a plannedTime', () => {
     const status = getDepartureStatus(null, null, false);
-    expect(status).toEqual({ text: 'NO DATA', tone: 'muted', cancelled: false });
+    expect(status).toEqual({ text: 'SCHEDULED', tone: 'muted', cancelled: false });
+  });
+});
+
+describe('shortPlatform', () => {
+  it.each([
+    ['3', '3'],
+    ['11', '11'],
+    ['5a', '5a'],
+    ['Pos. 12', '12'],
+    ['Pos. 5', '5'],
+    ['2 (U5)', '2'],
+    ['12a', '12'],
+  ])('shows %j as %j', (input, expected) => {
+    expect(shortPlatform(input)).toBe(expected);
+  });
+
+  it('returns an empty string when there is no number', () => {
+    expect(shortPlatform(null)).toBe('');
+    expect(shortPlatform(undefined)).toBe('');
+    expect(shortPlatform('Gleis')).toBe('');
   });
 });

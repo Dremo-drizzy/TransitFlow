@@ -2,7 +2,7 @@ import { memo, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { useDepartures } from '../hooks/useDepartures';
-import { formatTime, getDepartureStatus } from '../utils/transportUtils';
+import { formatTime, getDepartureStatus, shortPlatform } from '../utils/transportUtils';
 import FlapTime from './FlapTime';
 import SplitFlap from './SplitFlap';
 import '../css/DepartureBoard.css';
@@ -43,7 +43,7 @@ function DepartureRow({ dep }) {
       <div className="db-cell db-destination" role="cell">{dep.direction}</div>
       <div className="db-cell db-platform" role="cell">
         <SplitFlap
-          value={dep.platform || '-'}
+          value={shortPlatform(dep.platform) || '-'}
           length={2}
           align="end"
           size="md"
@@ -95,6 +95,7 @@ function DepartureBoard({ stopId, filters = {} }) {
   const isRateLimited = error?.status === 429;
 
   return (
+    <>
     <div className="departure-board" role="table" aria-label="Departures">
       <div className="visually-hidden" aria-live="polite">{announcement}</div>
 
@@ -131,11 +132,15 @@ function DepartureBoard({ stopId, filters = {} }) {
       ) : (
         <div className="db-body" role="rowgroup">
           {departures.map((dep) => (
-            <DepartureRow dep={dep} key={dep.tripId || dep.when} />
+            <DepartureRow dep={dep} key={dep.tripId || dep.plannedWhen} />
           ))}
         </div>
       )}
     </div>
+    {departures.length > 0 && !isLoading && !error && (
+      <p className="db-footnote">Real-time predictions aren&apos;t available from all operators.</p>
+    )}
+    </>
   );
 }
 

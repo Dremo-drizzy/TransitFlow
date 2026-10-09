@@ -123,16 +123,16 @@ describe('normalizeTrip — no-prediction rule', () => {
     expect(before[1].departure).toBe(before[1].plannedDeparture);
 
     const out = normalizeTrip(busTrip).trip;
-    expect(out.stopovers).toHaveLength(before.length);
+    expect(out.stopovers).toHaveLength(before.length + 2); // + origin and destination
     expect(out.stopovers.every((s) => s.departure === null && s.arrival === null)).toBe(true);
-    expect(out.stopovers.every((s, i) => s.plannedDeparture === before[i].plannedDeparture)).toBe(true);
+    expect(out.stopovers.slice(1, -1).every((s, i) => s.plannedDeparture === before[i].plannedDeparture)).toBe(true);
     expect(out.departure).toBeNull();
     expect(out.arrival).toBeNull();
   });
 
   it('an S-Bahn trip with predictions keeps its live times, including a real delay of 0', () => {
     const before = sbahnTrip.trip.stopovers;
-    const out = normalizeTrip(sbahnTrip).trip.stopovers;
+    const out = normalizeTrip(sbahnTrip).trip.stopovers.slice(1, -1); // without the added endpoints
     expect(before.some((s) => s.departureDelay === 0)).toBe(true);
     expect(before.some((s) => s.departureDelay === 60)).toBe(true);
     out.forEach((s, i) => {
@@ -151,6 +151,68 @@ describe('normalizeTrip — no-prediction rule', () => {
 
   it('passes a body with no trip through untouched', () => {
     expect(normalizeTrip({ error: 'x' })).toEqual({ error: 'x' });
+  });
+});
+
+describe('normalizeTrip — origin and destination', () => {
+  // On this source, trip.stopovers holds only the stops in between.
+  it('the real trips really do leave the endpoints out of stopovers', () => {
+    for (const { trip } of [iceTrip, sbahnTrip, busTrip]) {
+      expect(trip.stopovers[0].stop.id).not.toBe(trip.origin.id);
+      expect(trip.stopovers[trip.stopovers.length - 1].stop.id).not.toBe(trip.destination.id);
+    }
+  });
+
+  it('adds the origin first, with only a departure, taken from the trip-level fields', () => {
+    const { trip } = iceTrip;
+    const out = normalizeTrip(iceTrip).trip.stopovers;
+    expect(out).toHaveLength(trip.stopovers.length + 2);
+
+    const origin = out[0];
+    expect(origin.stop.id).toBe(trip.origin.id);
+    expect(origin.stop.name).toBe('München Hbf');
+    expect(origin.stop.location.latitude).toBeTypeOf('number');
+    expect(origin.plannedDeparture).toBe(trip.plannedDeparture);
+    expect(origin.departureDelay).toBe(trip.departureDelay);
+    expect(origin.plannedArrival).toBeNull();
+    expect(origin.arrival).toBeNull();
+  });
+
+  it('adds the destination last, with only an arrival', () => {
+    const { trip } = iceTrip;
+    const out = normalizeTrip(iceTrip).trip.stopovers;
+
+    const destination = out[out.length - 1];
+    expect(destination.stop.id).toBe(trip.destination.id);
+    expect(destination.stop.name).toBe('Hamburg-Altona');
+    expect(destination.plannedArrival).toBe(trip.plannedArrival);
+    expect(destination.arrivalDelay).toBe(trip.arrivalDelay);
+    expect(destination.plannedDeparture).toBeNull();
+    expect(destination.departure).toBeNull();
+  });
+
+  it('leaves the real intermediate stops in order between them', () => {
+    const names = (s) => s.map((x) => x.stop.name);
+    const out = normalizeTrip(iceTrip).trip.stopovers;
+    expect(names(out).slice(1, -1)).toEqual(names(iceTrip.trip.stopovers));
+  });
+
+  it('does not add an endpoint that is already the first or last stopover', () => {
+    const origin = { id: 'o', name: 'Origin', location: { latitude: 1, longitude: 1 } };
+    const destination = { id: 'd', name: 'Destination', location: { latitude: 2, longitude: 2 } };
+    const middle = { id: 'm', name: 'Middle', location: { latitude: 1.5, longitude: 1.5 } };
+    const stop = (s) => ({ stop: s, plannedArrival: 'a', plannedDeparture: 'b', arrivalDelay: 0, departureDelay: 0 });
+    const complete = {
+      trip: { origin, destination, stopovers: [stop(origin), stop(middle), stop(destination)], departureDelay: 0, arrivalDelay: 0 },
+    };
+    expect(normalizeTrip(complete).trip.stopovers).toHaveLength(3);
+  });
+
+  it('gives the endpoints the same no-prediction treatment as the rest: null live times on a bus trip', () => {
+    const out = normalizeTrip(busTrip).trip.stopovers;
+    expect(out[0].departure).toBeNull();
+    expect(out[0].plannedDeparture).toBe(busTrip.trip.plannedDeparture);
+    expect(out[out.length - 1].arrival).toBeNull();
   });
 });
 

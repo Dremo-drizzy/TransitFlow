@@ -38,3 +38,14 @@
   background: var(--tf-amber);
   margin-left: 2.5px;
 }
+
+.commute-station-note {
+  font-family: var(--tf-font-mono);
+  font-size: 0.72rem;
+  color: var(--tf-muted);
+  margin-bottom: 0.75rem;
+}
+
+.commute-station-note-warn {
+  color: var(--tf-amber);
+}

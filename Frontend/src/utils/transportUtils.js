@@ -43,6 +43,15 @@ export const getDelayBadgeVariant = (delayMinutes) => {
   return 'danger';
 };
 
+// The platform board has two flaps. Rail platforms are already short ("3",
+// "11", "5a"), but bus stops arrive as "Pos. 12" and U-Bahn platforms as
+// "2 (U5)" — cutting those to their last two characters gives "5)". Show the
+// first platform number instead.
+export const shortPlatform = (platform) => {
+  const match = String(platform ?? '').match(/\d+[A-Za-z]?/);
+  return match ? match[0].slice(0, 2) : '';
+};
+
 // Convert seconds to a human-readable duration — e.g. "2h 18m"
 export const formatDuration = (seconds) => {
   if (!seconds || typeof seconds !== 'number' || Number.isNaN(seconds)) return '';
@@ -51,7 +60,7 @@ export const formatDuration = (seconds) => {
   return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 };
 
-// The DB API sets cancelled: true rather than leaving `when` null and
+// The API sets cancelled: true rather than leaving `when` null and
 // nothing else — but a cancelled departure/leg DOES have `when: null`,
 // which getDelayMinutes reads as "no data, delay 0", so cancellation has
 // to be checked before any delay math or it silently renders as on time.
@@ -61,12 +70,14 @@ export const getDepartureStatus = (plannedTime, actualTime, cancelled) => {
   if (cancelled) {
     return { text: 'CANCELLED', tone: 'red', cancelled: true };
   }
-  // A departure with no realtime prediction yet (actualTime missing, but
-  // not cancelled) has no delay to report — getDelayMinutes would read the
+  // A departure with no real-time prediction (actualTime missing, but not
+  // cancelled) has no delay to report — getDelayMinutes would read the
   // missing value as "0 minutes late" and render a false ON TIME. Check
   // for this before any delay math, same reasoning as the cancelled check.
+  // It reads SCHEDULED, not NO DATA: the planned time is known, it's only
+  // the prediction that's absent — and for buses and trams that is the norm.
   if (!actualTime) {
-    return { text: 'NO DATA', tone: 'muted', cancelled: false };
+    return { text: 'SCHEDULED', tone: 'muted', cancelled: false };
   }
   const delay = getDelayMinutes(plannedTime, actualTime);
   const variant = getDelayBadgeVariant(delay);
