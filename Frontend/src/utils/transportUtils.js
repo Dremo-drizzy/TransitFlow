@@ -1,10 +1,20 @@
 import { format, parseISO, differenceInMinutes, isValid } from 'date-fns';
+import { tz, TZDate } from '@date-fns/tz';
 
-// Format an ISO date string to HH:mm — e.g. "14:32"
-export const formatTime = (dateString) => {
-  if (!dateString) return '--:--';
+// Every time the app shows is German wall-clock time, whoever is looking.
+// The departures are German trains; a München departure at 17:53 must read
+// 17:53 in Halifax too, not 12:53. date-fns formats in the runtime's own zone
+// unless told otherwise, so every format/parse that produces something a
+// person reads goes through `inGermany`.
+export const GERMAN_TIMEZONE = 'Europe/Berlin';
+const inGermany = { in: tz(GERMAN_TIMEZONE) };
+
+// Format an ISO date string (or a Date) to HH:mm in German time — e.g. "14:32"
+export const formatTime = (value) => {
+  if (!value) return '--:--';
   try {
-    return format(parseISO(dateString), 'HH:mm');
+    const date = value instanceof Date ? value : parseISO(value);
+    return format(date, 'HH:mm', inGermany);
   } catch {
     return '--:--';
   }
@@ -88,28 +98,41 @@ export const getDepartureStatus = (plannedTime, actualTime, cancelled) => {
   };
 };
 
-// Convert an ISO datetime string to the local wall-clock value
-// <input type="datetime-local"> expects ("YYYY-MM-DDTHH:mm"). An ISO string
-// is UTC (or carries its own offset); slicing it directly displays UTC time,
-// which is off by the viewer's UTC offset.
+// <input type="datetime-local"> holds a bare wall-clock value with no zone
+// ("YYYY-MM-DDTHH:mm"). In this app that wall clock is German time, the same
+// as every time displayed beside it — a picker that meant the viewer's own
+// zone would put 08:00 Halifax next to a board showing 13:00 Berlin.
+const DATETIME_LOCAL = "yyyy-MM-dd'T'HH:mm";
+// Read by hand rather than with date-fns' parse(): parse() drags the whole
+// format-parser table into the bundle (+25 kB) for one fixed shape.
+const DATETIME_LOCAL_VALUE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
+
+// ISO instant -> the German wall-clock value the input expects. An ISO string
+// is UTC (or carries its own offset); slicing it directly displays UTC time.
 export const toDatetimeLocalValue = (isoString) => {
   if (!isoString) return '';
   try {
     const date = parseISO(isoString);
     if (!isValid(date)) return '';
-    return format(date, "yyyy-MM-dd'T'HH:mm");
+    return format(date, DATETIME_LOCAL, inGermany);
   } catch {
     return '';
   }
 };
 
-// Convert a <input type="datetime-local"> value (local wall-clock time, no
-// timezone info) back to a UTC ISO string for the API.
+// German wall-clock input value -> UTC ISO string for the API. Resolved
+// against Europe/Berlin's offset on that date (CET or CEST), not the runtime's.
 export const fromDatetimeLocalValue = (localValue) => {
-  if (!localValue) return null;
-  const date = new Date(localValue);
-  if (!isValid(date)) return null;
-  return date.toISOString();
+  const match = DATETIME_LOCAL_VALUE.exec(localValue ?? '');
+  if (!match) return null;
+  const [year, month, day, hour, minute] = match.slice(1).map(Number);
+  const zoned = new TZDate(year, month - 1, day, hour, minute, GERMAN_TIMEZONE);
+  // A zoned date silently rolls an impossible day (31 February) into the next
+  // month; refuse it instead, the way an invalid date was refused before.
+  if (!isValid(zoned) || zoned.getMonth() !== month - 1 || zoned.getDate() !== day) return null;
+  // `zoned` writes the Berlin offset from toISOString() ("…+02:00"); the API
+  // and the rest of the app carry UTC ("…Z").
+  return new Date(zoned.getTime()).toISOString();
 };
 
 // Save any value to localStorage under a key

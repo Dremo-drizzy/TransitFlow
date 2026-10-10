@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
-import { format } from 'date-fns';
 import { useNow } from '../hooks/useNow';
+import { formatTime } from '../utils/transportUtils';
 import FlapTime from '../Components/FlapTime';
 import DepartureBoard from '../Components/DepartureBoard';
 import { useResolvedStation } from '../hooks/useResolvedStation';
@@ -70,7 +70,7 @@ export default function Departures() {
     <Container fluid="lg" className="departures-page py-4">
       <div className="departures-header">
         <h1 className="departures-station-name">{stationName}</h1>
-        <FlapTime value={format(now, 'HH:mm')} size="lg" />
+        <FlapTime value={formatTime(now)} size="lg" />
       </div>
 
       <div className="departures-filters" role="group" aria-label="Filter by transport type">

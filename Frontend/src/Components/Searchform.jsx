@@ -45,7 +45,7 @@ export default function SearchForm({
           </Col>
 
           <Col xs={12} md={6}>
-            <Form.Label>Departure</Form.Label>
+            <Form.Label>Departure (German time)</Form.Label>
             <Form.Control
               type="datetime-local"
               value={toDatetimeLocalValue(departure)}
