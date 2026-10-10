@@ -6,6 +6,7 @@ export default function Footer() {
   return (
     <footer className="footer-custom mt-auto text-center">
       <Container fluid="lg">
+        <small className="d-block">All times are German time (Europe/Berlin)</small>
         <small>
           Data:{' '}
           <a href="https://transitous.org/sources/" target="_blank" rel="noopener noreferrer">

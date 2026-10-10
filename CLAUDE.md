@@ -116,6 +116,13 @@ All three must pass.
   re-resolved by name.
 - A trip's `stopovers` list only the stops in between; the backend adapter adds
   the origin and destination so the timeline and vehicle position work.
+- **Every displayed time is Europe/Berlin, not the viewer's zone.** Format and
+  parse through `formatTime` / `toDatetimeLocalValue` / `fromDatetimeLocalValue`
+  in `transportUtils.js`; a bare date-fns `format(date, ...)` renders in the
+  runtime's zone and shows a München 17:53 departure as 12:53 in Halifax. The
+  journey picker's wall-clock value is German time too. Tests for this pin a
+  non-Berlin `process.env.TZ`, because they would pass vacuously on a machine in
+  Germany. Instants (delay maths, vehicle position) are zone-independent.
 - `transportUtils.test.js` has a handful of tests marked `it.fails()` for
   known null/malformed-input bugs (e.g. `formatDelay(undefined)` produces
   `"+undefined min"`, `getDelayBadgeVariant(undefined)` returns `"danger"`).

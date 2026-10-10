@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   formatTime,
   formatDuration,
@@ -24,11 +24,95 @@ describe('formatTime', () => {
     expect(formatTime('not-a-date')).toBe('--:--');
   });
 
-  it('formats a valid ISO string to HH:mm in local time', () => {
-    const d = new Date(2024, 0, 15, 14, 32);
-    const expected =
-      String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-    expect(formatTime(d.toISOString())).toBe(expected);
+});
+
+// Every displayed time is German wall-clock time, whatever zone the machine
+// (or the viewer) is in. These tests deliberately run with the process zone
+// pinned somewhere that is NOT Berlin: on a machine that happens to be in
+// Germany a naive local-time implementation would pass, and fail everywhere
+// else. Expected values are written out by hand, never derived from `Date`
+// getters, which would just echo the runtime zone back.
+describe('German time display', () => {
+  const originalTZ = process.env.TZ;
+  const NON_BERLIN_ZONES = [
+    'America/Halifax', // the reviewer's zone: UTC-4 winter, UTC-3 summer
+    'UTC',
+    'Asia/Tokyo', // UTC+9, no DST
+    'America/Los_Angeles',
+    'Pacific/Kiritimati', // UTC+14: the local calendar day differs from Berlin's
+  ];
+
+  afterEach(() => {
+    if (originalTZ === undefined) delete process.env.TZ;
+    else process.env.TZ = originalTZ;
+  });
+
+  it('the zone pin really changes what the runtime thinks the local time is', () => {
+    // Guard against the suite passing vacuously because TZ was ignored:
+    // 12:00 UTC is 08:00 in Halifax in January, and 12:00 in UTC.
+    process.env.TZ = 'America/Halifax';
+    expect(new Date('2024-01-15T12:00:00.000Z').getHours()).toBe(8);
+    process.env.TZ = 'UTC';
+    expect(new Date('2024-01-15T12:00:00.000Z').getHours()).toBe(12);
+  });
+
+  describe.each(NON_BERLIN_ZONES)('with the machine in %s', (zone) => {
+    beforeEach(() => {
+      process.env.TZ = zone;
+    });
+
+    it('shows winter time as CET (UTC+1)', () => {
+      expect(formatTime('2024-01-15T16:53:00.000Z')).toBe('17:53');
+    });
+
+    it('shows summer time as CEST (UTC+2)', () => {
+      expect(formatTime('2024-07-15T15:53:00.000Z')).toBe('17:53');
+    });
+
+    it('honours an offset already carried in the ISO string', () => {
+      // The same instant as 16:53Z, written the way the API writes it.
+      expect(formatTime('2024-01-15T17:53:00+01:00')).toBe('17:53');
+      expect(formatTime('2024-07-15T17:53:00+02:00')).toBe('17:53');
+    });
+
+    it('formats a Date (the page clock) in German time too', () => {
+      expect(formatTime(new Date('2024-01-15T16:53:00.000Z'))).toBe('17:53');
+    });
+
+    it('switches offset at the end-of-March DST change (2024-03-31 01:00Z)', () => {
+      expect(formatTime('2024-03-31T00:59:00.000Z')).toBe('01:59'); // CET
+      expect(formatTime('2024-03-31T01:00:00.000Z')).toBe('03:00'); // CEST
+    });
+
+    it('switches offset at the end-of-October DST change (2024-10-27 01:00Z)', () => {
+      expect(formatTime('2024-10-27T00:59:00.000Z')).toBe('02:59'); // CEST
+      expect(formatTime('2024-10-27T01:00:00.000Z')).toBe('02:00'); // CET
+    });
+
+    it('a late-evening departure keeps its German clock time, not the viewer\'s', () => {
+      expect(formatTime('2024-01-15T22:58:00.000Z')).toBe('23:58');
+      expect(formatTime('2024-01-15T23:30:00.000Z')).toBe('00:30');
+    });
+
+    it('turns an ISO instant into the German wall-clock value for the picker', () => {
+      expect(toDatetimeLocalValue('2024-01-15T14:32:00.000Z')).toBe('2024-01-15T15:32');
+      expect(toDatetimeLocalValue('2024-07-15T14:32:00.000Z')).toBe('2024-07-15T16:32');
+    });
+
+    it('rolls the picker date over at German midnight, not the viewer\'s', () => {
+      expect(toDatetimeLocalValue('2024-01-15T23:30:00.000Z')).toBe('2024-01-16T00:30');
+    });
+
+    it('reads a picker value as German wall-clock time', () => {
+      expect(fromDatetimeLocalValue('2024-01-15T15:32')).toBe('2024-01-15T14:32:00.000Z');
+      expect(fromDatetimeLocalValue('2024-07-15T16:32')).toBe('2024-07-15T14:32:00.000Z');
+    });
+
+    it('round-trips through both picker conversions', () => {
+      for (const original of ['2024-06-01T18:00:00.000Z', '2024-01-15T14:32:00.000Z']) {
+        expect(fromDatetimeLocalValue(toDatetimeLocalValue(original))).toBe(original);
+      }
+    });
   });
 });
 
@@ -133,24 +217,9 @@ describe('getDelayBadgeVariant', () => {
   });
 });
 
-describe('toDatetimeLocalValue / fromDatetimeLocalValue', () => {
-  const originalTZ = process.env.TZ;
-
-  beforeAll(() => {
-    // Pin a non-UTC zone so a naive implementation that treats ISO strings
-    // as already-local (e.g. departure.slice(0, 16)) would fail this test.
-    // New York is UTC-5 in January (EST, before DST starts in March).
-    process.env.TZ = 'America/New_York';
-  });
-
-  afterAll(() => {
-    process.env.TZ = originalTZ;
-  });
-
-  it('converts a UTC ISO string to local wall-clock time for the input value', () => {
-    expect(toDatetimeLocalValue('2024-01-15T14:32:00.000Z')).toBe('2024-01-15T09:32');
-  });
-
+// The valid conversions are covered per-zone under "German time display";
+// this block is the bad-input handling.
+describe('toDatetimeLocalValue / fromDatetimeLocalValue — invalid input', () => {
   it('returns "" for a malformed ISO string', () => {
     expect(toDatetimeLocalValue('not-a-date')).toBe('');
   });
@@ -160,18 +229,13 @@ describe('toDatetimeLocalValue / fromDatetimeLocalValue', () => {
     expect(toDatetimeLocalValue(undefined)).toBe('');
   });
 
-  it('converts a local wall-clock input value back to the correct UTC instant', () => {
-    expect(fromDatetimeLocalValue('2024-01-15T09:32')).toBe('2024-01-15T14:32:00.000Z');
-  });
-
-  it('round-trips through both conversions', () => {
-    const original = '2024-06-01T18:00:00.000Z';
-    const roundTripped = fromDatetimeLocalValue(toDatetimeLocalValue(original));
-    expect(roundTripped).toBe(original);
-  });
-
   it('returns null for a malformed local value', () => {
     expect(fromDatetimeLocalValue('not-a-date')).toBeNull();
+  });
+
+  it('returns null for an impossible calendar date instead of rolling it over', () => {
+    expect(fromDatetimeLocalValue('2024-02-31T10:00')).toBeNull();
+    expect(fromDatetimeLocalValue('2024-13-01T10:00')).toBeNull();
   });
 
   it('returns null for an empty local value', () => {
