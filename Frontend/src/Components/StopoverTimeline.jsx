@@ -1,4 +1,5 @@
 import { formatTime, getDepartureStatus } from '../utils/transportUtils';
+import { nodeState, railActive } from '../utils/geo';
 import '../css/StopoverTimeline.css';
 
 function stopoverStatus(stopover) {
@@ -12,24 +13,6 @@ function stopCoord(stopover) {
   return location ? { lat: location.latitude, lon: location.longitude } : null;
 }
 
-// Where a non-cancelled stop sits relative to the vehicle's current
-// position, driven entirely by the same `vehicle` object TripMap renders
-// from — so the timeline and the map never disagree about what's current.
-function nodeState(mode, currentIndex, index) {
-  if (mode === 'done') return 'passed';
-  if (mode === 'origin') return index === 0 ? 'current' : 'upcoming';
-  if (currentIndex < 0) return 'upcoming';
-  if (mode === 'at_stop') {
-    if (index < currentIndex) return 'passed';
-    if (index === currentIndex) return 'current';
-    return 'upcoming';
-  }
-  if (mode === 'en_route') {
-    return index <= currentIndex ? 'passed' : 'upcoming';
-  }
-  return 'upcoming';
-}
-
 /**
  * A vertical rail beside the map: one node per stop, arrival/departure
  * times, platform and delay. Passed stops dim, the segment currently being
@@ -38,33 +21,13 @@ function nodeState(mode, currentIndex, index) {
  */
 export default function StopoverTimeline({ stopovers, vehicle, onSelectStop }) {
   const list = stopovers || [];
-  const nonCancelledNames = list.filter((s) => !s.cancelled).map((s) => s.stop?.name);
-
-  let mode = null;
-  let currentIndex = -1;
-  if (vehicle?.status === 'scheduled') {
-    mode = 'origin';
-    currentIndex = 0;
-  } else if (vehicle?.status === 'arrived') {
-    mode = 'done';
-    currentIndex = nonCancelledNames.length - 1;
-  } else if (vehicle?.status === 'at_stop') {
-    mode = 'at_stop';
-    currentIndex = nonCancelledNames.indexOf(vehicle.stopName);
-  } else if (vehicle?.status === 'en_route') {
-    mode = 'en_route';
-    currentIndex = nonCancelledNames.indexOf(vehicle.fromStop);
-  }
-
-  let seenIndex = -1;
 
   return (
     <ol className="stopover-timeline">
       {list.map((stopover, i) => {
         const cancelled = !!stopover.cancelled;
-        const index = cancelled ? null : ++seenIndex;
-        const state = cancelled ? 'cancelled' : nodeState(mode, currentIndex, index);
-        const segmentActive = mode === 'en_route' && index === currentIndex;
+        const state = cancelled ? 'cancelled' : nodeState(vehicle, i);
+        const segmentActive = railActive(vehicle, i);
 
         const status = stopoverStatus(stopover);
         const platform = stopover.platform ?? stopover.plannedPlatform;
@@ -72,8 +35,9 @@ export default function StopoverTimeline({ stopovers, vehicle, onSelectStop }) {
           stopover.plannedPlatform != null && stopover.platform != null && stopover.plannedPlatform !== stopover.platform;
         const coord = stopCoord(stopover);
 
+        // Position first: a loop line lists the same stop id many times.
         return (
-          <li className={`stopover-node stopover-node-${state}`} key={stopover.stop?.id ?? i}>
+          <li className={`stopover-node stopover-node-${state}`} key={`${i}-${stopover.stop?.id ?? ''}`}>
             <div className="stopover-node-rail-col">
               <button
                 type="button"
