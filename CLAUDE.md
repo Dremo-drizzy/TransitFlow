@@ -23,7 +23,11 @@ cached. Why that layer exists, what was tested, and the terms of use are in
 The previous upstream (v6.db.transport.rest) no longer works.
 
 Transitous requires a User-Agent with a contact and light, user-driven
-request volume. Nothing here may poll it on a timer.
+request volume. Only a live view a person has open may refresh on a timer
+(departures board 30 s, trip page 60 s), always with
+`refetchIntervalInBackground: false`; the server never polls on its own, and
+journey searches (`/plan`, the request type Transitous counts) run only when
+the user presses Search.
 
 ## Folder layout
 

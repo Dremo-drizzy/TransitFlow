@@ -9,10 +9,6 @@ import TripMap from '../Components/TripMap';
 import StopoverTimeline from '../Components/StopoverTimeline';
 import '../css/TripDetail.css';
 
-function findStopover(stopovers, name) {
-  return (stopovers || []).find((s) => !s.cancelled && s.stop?.name === name);
-}
-
 function statusLine(vehicle, stopovers, trip) {
   if (!vehicle) return '';
   if (vehicle.status === 'scheduled') {
@@ -22,14 +18,16 @@ function statusLine(vehicle, stopovers, trip) {
   if (vehicle.status === 'arrived') {
     return `Arrived at ${trip?.destination?.name || 'destination'}`;
   }
+  // By position, not name: on a loop line the name matches the first lap, an
+  // hour behind, and the delay shown would be that stop's.
   if (vehicle.status === 'at_stop') {
-    const stop = findStopover(stopovers, vehicle.stopName);
+    const stop = stopovers?.[vehicle.stopIndex];
     const delay = stop ? getDelayMinutes(stop.plannedArrival, stop.arrival) : 0;
     const delayText = delay > 0 ? ` · ${formatDelay(delay)}` : '';
     return `At ${vehicle.stopName}${delayText}`;
   }
   if (vehicle.status === 'en_route') {
-    const stop = findStopover(stopovers, vehicle.fromStop);
+    const stop = stopovers?.[vehicle.fromIndex];
     const delay = stop ? getDelayMinutes(stop.plannedDeparture, stop.departure) : 0;
     const delayText = delay > 0 ? ` · ${formatDelay(delay)}` : '';
     return `Departed ${vehicle.fromStop}${delayText} · next stop ${vehicle.toStop}`;

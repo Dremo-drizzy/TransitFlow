@@ -1,8 +1,18 @@
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { formatTime, formatDuration, getDepartureStatus } from '../utils/transportUtils';
+import { formatTime, formatDuration, getDepartureStatus, displayTime, countChanges } from '../utils/transportUtils';
 import FlapTime from './FlapTime';
 import '../css/JourneyCard.css';
+
+// The planned time, struck through, beside a real time that differs from it.
+function PlannedTime({ value }) {
+  return (
+    <span className="journey-planned-time">
+      <span className="visually-hidden">planned </span>
+      {formatTime(value)}
+    </span>
+  );
+}
 
 export default function JourneyCard({ journey, index = 0 }) {
   const legs = journey?.legs || [];
@@ -10,6 +20,12 @@ export default function JourneyCard({ journey, index = 0 }) {
 
   const firstLeg = legs[0];
   const lastLeg  = legs[legs.length - 1];
+  // Real times when known, the same pair the backend measures the duration
+  // from — planned times here beside a live-time duration once printed
+  // "15:12 → 15:10 · 6m", arriving before it left.
+  const start = displayTime(firstLeg?.plannedDeparture, firstLeg?.departure, firstLeg?.cancelled);
+  const end = displayTime(lastLeg?.plannedArrival, lastLeg?.arrival, lastLeg?.cancelled);
+  const changes = countChanges(legs);
 
   return (
     <Card className="journey-card" style={{ animationDelay: `${index * 0.07}s` }}>
@@ -19,14 +35,16 @@ export default function JourneyCard({ journey, index = 0 }) {
             {firstLeg?.origin?.name} → {lastLeg?.destination?.name}
           </div>
           <div className="journey-times">
-            <FlapTime value={formatTime(firstLeg?.plannedDeparture)} size="sm" />
+            <FlapTime value={formatTime(start.time)} size="sm" />
+            {start.changed && <PlannedTime value={start.planned} />}
             <span className="journey-times-arrow">→</span>
-            <FlapTime value={formatTime(lastLeg?.plannedArrival)} size="sm" />
+            <FlapTime value={formatTime(end.time)} size="sm" />
+            {end.changed && <PlannedTime value={end.planned} />}
           </div>
         </div>
         <div className="journey-duration-pill">
           {formatDuration(journey.duration)}
-          {legs.length > 1 && ` · ${legs.length - 1} change${legs.length > 2 ? 's' : ''}`}
+          {changes > 0 && ` · ${changes} change${changes > 1 ? 's' : ''}`}
         </div>
       </Card.Header>
 
@@ -57,6 +75,8 @@ export default function JourneyCard({ journey, index = 0 }) {
           }
 
           const status = getDepartureStatus(leg.plannedDeparture, leg.departure, leg.cancelled);
+          const legStart = displayTime(leg.plannedDeparture, leg.departure, leg.cancelled);
+          const legEnd = displayTime(leg.plannedArrival, leg.arrival, leg.cancelled);
           const content = (
             <>
               <div className="leg-product-pill">
@@ -70,12 +90,13 @@ export default function JourneyCard({ journey, index = 0 }) {
               <div className="leg-time-status">
                 <div className="leg-times-row">
                   <FlapTime
-                    value={formatTime(leg.plannedDeparture)}
+                    value={formatTime(legStart.time)}
                     size="sm"
                     tone={status.cancelled ? 'red' : 'amber'}
                     cancelled={status.cancelled}
                   />
-                  <span className="leg-arrival-time">→ {formatTime(leg.plannedArrival)}</span>
+                  {legStart.changed && <PlannedTime value={legStart.planned} />}
+                  <span className="leg-arrival-time">→ {formatTime(legEnd.time)}</span>
                 </div>
                 <div className={`leg-status leg-status-${status.tone}`}>{status.text}</div>
               </div>

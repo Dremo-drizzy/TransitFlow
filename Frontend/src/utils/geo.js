@@ -112,31 +112,43 @@ function interpolate(fromCoord, toCoord, t, polylinePath) {
 // Given a trip's stopovers, its route polyline (already flipped to
 // {lat, lon} via toLatLng — pass [] or null if there is none), and the
 // current time, returns where the vehicle is and what it's doing:
-//   { status: 'scheduled', position }              — before the first departure
-//   { status: 'at_stop', stopName, position }       — stopped at a station
-//   { status: 'en_route', fromStop, toStop, position, fraction }
-//   { status: 'arrived', position }                 — after the final arrival
+//   { status: 'scheduled', stopIndex, position }              — before the first departure
+//   { status: 'at_stop', stopName, stopIndex, position }       — stopped at a station
+//   { status: 'en_route', fromStop, toStop, fromIndex, toIndex, position, fraction }
+//   { status: 'arrived', stopIndex, position }                 — after the final arrival
 // Cancelled stopovers are skipped, since the vehicle never actually calls there.
+// The *Index fields are positions in the `stopovers` array passed in. Callers
+// must use them, not the names: a loop line visits a stop many times (one
+// Berlin S41 trip is 207 stops, 8 laps of the ring), and looking a stop up by
+// name finds the first lap — an hour behind where the train is.
 export function vehiclePosition(stopovers, polylinePath, now) {
   // A stopover with no location can't be positioned and can't anchor an
   // interpolation to/from it either — skip it same as a cancelled one.
-  const stops = (stopovers || []).filter((s) => !s.cancelled && stopCoord(s) != null);
-  if (stops.length === 0) return { status: 'scheduled', position: null };
+  const indexOf = new Map();
+  const stops = [];
+  (stopovers || []).forEach((s, i) => {
+    if (!s.cancelled && stopCoord(s) != null) {
+      indexOf.set(s, i);
+      stops.push(s);
+    }
+  });
+  if (stops.length === 0) return { status: 'scheduled', stopIndex: -1, position: null };
 
   const first = stops[0];
-  if (stops.length === 1) return { status: 'scheduled', position: stopCoord(first) };
+  const firstIndex = indexOf.get(first);
+  if (stops.length === 1) return { status: 'scheduled', stopIndex: firstIndex, position: stopCoord(first) };
 
   const last = stops[stops.length - 1];
   const nowMs = toMs(now) ?? new Date(now).getTime();
 
   const firstDepartureMs = toMs(departureTime(first));
   if (firstDepartureMs != null && nowMs < firstDepartureMs) {
-    return { status: 'scheduled', position: stopCoord(first) };
+    return { status: 'scheduled', stopIndex: firstIndex, position: stopCoord(first) };
   }
 
   const lastArrivalMs = toMs(arrivalTime(last));
   if (lastArrivalMs != null && nowMs >= lastArrivalMs) {
-    return { status: 'arrived', position: stopCoord(last) };
+    return { status: 'arrived', stopIndex: indexOf.get(last), position: stopCoord(last) };
   }
 
   for (let i = 0; i < stops.length - 1; i++) {
@@ -150,7 +162,12 @@ export function vehiclePosition(stopovers, polylinePath, now) {
       const arriveCurrentMs = toMs(arrivalTime(current));
       const departCurrentMs = toMs(departureTime(current));
       if (arriveCurrentMs != null && departCurrentMs != null && nowMs >= arriveCurrentMs && nowMs < departCurrentMs) {
-        return { status: 'at_stop', stopName: current.stop.name, position: stopCoord(current) };
+        return {
+          status: 'at_stop',
+          stopName: current.stop.name,
+          stopIndex: indexOf.get(current),
+          position: stopCoord(current),
+        };
       }
     }
 
@@ -160,11 +177,44 @@ export function vehiclePosition(stopovers, polylinePath, now) {
       const t = arriveNextMs === departMs ? 1 : (nowMs - departMs) / (arriveNextMs - departMs);
       const fraction = Math.min(1, Math.max(0, t));
       const position = interpolate(stopCoord(current), stopCoord(next), fraction, polylinePath);
-      return { status: 'en_route', fromStop: current.stop.name, toStop: next.stop.name, position, fraction };
+      return {
+        status: 'en_route',
+        fromStop: current.stop.name,
+        toStop: next.stop.name,
+        fromIndex: indexOf.get(current),
+        toIndex: indexOf.get(next),
+        position,
+        fraction,
+      };
     }
   }
 
   // Timestamps didn't line up cleanly against any segment (a gap in the
   // data) — park at the origin rather than returning nothing.
-  return { status: 'scheduled', position: stopCoord(first) };
+  return { status: 'scheduled', stopIndex: firstIndex, position: stopCoord(first) };
 }
+
+// Where a stop sits relative to the vehicle, by its position in the list.
+// Driven entirely by the same `vehicle` object TripMap renders from — so the
+// timeline and the map never disagree. Positions, never names: a loop line
+// passes the same stop many times, and a name match picks the first lap.
+export function nodeState(vehicle, index) {
+  switch (vehicle?.status) {
+    case 'arrived':
+      return 'passed';
+    case 'scheduled':
+      return index === vehicle.stopIndex ? 'current' : 'upcoming';
+    case 'at_stop':
+      if (index < vehicle.stopIndex) return 'passed';
+      return index === vehicle.stopIndex ? 'current' : 'upcoming';
+    case 'en_route':
+      return index <= vehicle.fromIndex ? 'passed' : 'upcoming';
+    default:
+      return 'upcoming';
+  }
+}
+
+// The rail below stop `index` is the one being travelled when the vehicle is
+// between `fromIndex` and `toIndex` (cancelled stops in between included).
+export const railActive = (vehicle, index) =>
+  vehicle?.status === 'en_route' && index >= vehicle.fromIndex && index < vehicle.toIndex;

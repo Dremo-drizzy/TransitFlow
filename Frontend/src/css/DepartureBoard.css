@@ -84,6 +84,41 @@ a.db-data-row:focus-visible {
   text-overflow: ellipsis;
 }
 
+/* Two lines: the destination, and (only for a nearby stop that isn't the
+ * station itself) where to board. Each line truncates on its own. */
+.db-data-row .db-destination {
+  display: flex;
+  flex-direction: column;
+}
+
+.db-destination-name,
+.db-from-stop {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.db-from-stop {
+  font-family: var(--tf-font-mono);
+  font-size: 0.68rem;
+  color: var(--tf-muted);
+}
+
+/* The real time leads (it is what the row is sorted by); the planned time sits
+ * under it, struck through, only when the two differ. */
+.db-data-row .db-time {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+}
+
+.db-planned-time {
+  font-family: var(--tf-font-mono);
+  font-size: 0.68rem;
+  color: var(--tf-muted);
+  text-decoration: line-through;
+}
+
 .db-data-row .db-delay {
   font-family: var(--tf-font-mono);
   font-size: 0.7rem;
