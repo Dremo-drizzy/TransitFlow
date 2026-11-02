@@ -2,7 +2,7 @@
 
 TransitFlow is a live departures, journey-planning, and saved-commutes app for German public transport, built on [Transitous](https://transitous.org) open transit data.
 
-**Live demo:** not deployed yet — see [Roadmap](#roadmap).
+**Live demo:** <https://german-api-project-frontend.onrender.com> — the backend is on Render's free tier, so the first request after an idle spell can take about 20 seconds while it wakes up.
 
 ## Features
 
@@ -71,10 +71,17 @@ The Vite dev server proxies `/api` to `http://localhost:5000`, so with both halv
 
 ## Deployment
 
-**Frontend (Vercel):**
-- **Root Directory** must be set to `Frontend` — the app lives in a subdirectory, not the repo root, and Vercel won't find it otherwise.
+**Frontend (Render static site, auto-deploys from `main`):**
+- **Root Directory** must be set to `Frontend` — the app lives in a subdirectory, not the repo root. Build with `npm install && npm run build` and publish `dist`.
+- **An SPA rewrite rule must be set in the Render dashboard — it is not a file in this repo.** The app uses `BrowserRouter`, and a static host has no file at `/about`, `/commutes` or `/departures/…`, so without the rule loading any of those directly (a shared link, or a refresh) returns a plain `Not Found`; only `/` works. The rule is a dashboard setting, which means nothing in the code shows that it exists, and it is lost if the service is recreated:
+
+  | Source | Destination | Action |
+  |---|---|---|
+  | `/*` | `/index.html` | **Rewrite** |
+
+  It must be **Rewrite**, not Redirect — a redirect would send every URL to the home page and drop the path. To check it, load `/about` directly in a fresh tab: it should show the About page, not `Not Found`.
 - **`VITE_API_BASE_URL`** must be set as an environment variable, to the deployed backend's `/api` URL (e.g. `https://your-backend.onrender.com/api`). If it's left unset, `api.js` falls back to `/api`, which on a deployed frontend resolves against the frontend's own origin — there's no backend there. The build succeeds and the app loads fine; it's only once a user tries to search for a station or load departures that every single request 404s. That gap between "looks deployed" and "actually works" is exactly the kind of thing worth setting explicitly rather than trusting the fallback.
-- `Frontend/vercel.json` adds an SPA fallback rewrite (`/(.*)` → `/index.html`). The app uses `BrowserRouter`, so without this, Vercel has no static file at `/plan` or `/commutes` to serve — loading either route directly, or just refreshing on one, 404s. Only `/` would work.
+- `Frontend/vercel.json` holds the same rewrite for **Vercel**, which reads it. **Render ignores this file** — it does nothing for the current deployment. It's kept so the app can move to Vercel without rediscovering the problem; the Render rule above is the one that matters today.
 
 **Backend (Render):**
 - **Root Directory:** `Backend`.
@@ -106,7 +113,7 @@ This was a staged rebuild of an earlier fetch-wrapper version of this project in
 ## Known limitations
 
 - **The map's dark tiles currently show a CARTO watermark.** The free `{s}.basemaps.cartocdn.com` tile endpoint this app uses now renders an "API key required" overlay across the basemap — a change on CARTO's end since this stage of the project was planned, not a bug here. The route line, stop markers, and vehicle position all still render correctly on top of it; only the background map tiles themselves are degraded. Fixing this means either registering a CARTO API key or switching tile providers.
-- **Not deployed yet.** No live URL, and no Lighthouse run against one — see the Roadmap above.
+- **No Lighthouse run against the live site yet.** The deployed URL hasn't been audited for accessibility or performance.
 - **The DB Timetables API isn't used yet.** The application is registered but not subscribed to the API, so every data call returns 403. It's intended for any delay logging, since Transitous's terms rule out continuous polling.
 - **No end-to-end or visual regression tests.** Coverage is unit/component-level (Vitest + Testing Library) for the pure logic (formatting, delay math, vehicle-position interpolation) and component behavior; nothing drives a real browser in CI.
 - **The map itself has no bespoke screen-reader treatment.** The adjacent stopover timeline is the deliberate text equivalent (same data, fully operable), rather than trying to make the Leaflet widget itself meaningfully narratable.
