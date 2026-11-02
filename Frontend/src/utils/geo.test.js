@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { haversine, toLatLng, pointAlongPath, nearestPointIndex, vehiclePosition } from './geo';
+import { haversine, toLatLng, pointAlongPath, nearestPointIndex, vehiclePosition, nodeState, railActive } from './geo';
 
 describe('haversine', () => {
   it('returns 0 for identical points', () => {
@@ -214,5 +214,60 @@ describe('vehiclePosition', () => {
     expect(result.status).toBe('en_route');
     expect(result.fromStop).toBe('Wolfsburg Hbf');
     expect(result.toStop).toBe('Hannover Hbf');
+  });
+});
+
+describe('vehiclePosition on a loop line', () => {
+  // A ring like Berlin's S41: the trip passes the same stops lap after lap
+  // (one real S41 trip lists 207 stops, 8 laps). A name lookup finds lap 1.
+  const at = (name, lat, lon) => ({ id: name, name, location: { latitude: lat, longitude: lon } });
+  const A = at('Wedding', 52.542, 13.366);
+  const B = at('Gesundbrunnen', 52.548, 13.388);
+  const C = at('Schönhauser Allee', 52.549, 13.414);
+  const stop = (s, arr, dep) => ({
+    stop: s,
+    arrival: arr, plannedArrival: arr, arrivalDelay: 0,
+    departure: dep, plannedDeparture: dep, departureDelay: 0,
+  });
+  const loop = [
+    stop(A, null, '2026-11-02T13:00:00Z'),
+    stop(B, '2026-11-02T13:02:00Z', '2026-11-02T13:03:00Z'),
+    stop(C, '2026-11-02T13:05:00Z', '2026-11-02T13:06:00Z'),
+    // lap 2
+    stop(A, '2026-11-02T14:00:00Z', '2026-11-02T14:01:00Z'),
+    stop(B, '2026-11-02T14:03:00Z', '2026-11-02T14:04:00Z'),
+    stop(C, '2026-11-02T14:06:00Z', null),
+  ];
+
+  it('reports the stop of the current lap, not the first one', () => {
+    const v = vehiclePosition(loop, null, '2026-11-02T14:02:00Z');
+    expect(v.status).toBe('en_route');
+    expect(v.fromStop).toBe('Wedding');
+    expect(v.fromIndex).toBe(3);
+    expect(v.toIndex).toBe(4);
+  });
+
+  it('reports the stop index while waiting at a stop', () => {
+    const v = vehiclePosition(loop, null, '2026-11-02T14:03:30Z');
+    expect(v.status).toBe('at_stop');
+    expect(v.stopIndex).toBe(4);
+  });
+
+  it('marks lap one passed and lights only the current segment', () => {
+    const v = vehiclePosition(loop, null, '2026-11-02T14:02:00Z');
+    expect(loop.map((_, i) => nodeState(v, i))).toEqual(
+      ['passed', 'passed', 'passed', 'passed', 'upcoming', 'upcoming']
+    );
+    expect(loop.map((_, i) => railActive(v, i))).toEqual([false, false, false, true, false, false]);
+  });
+
+  it('indexes into the original list when a stop is cancelled', () => {
+    const withCancelled = [loop[0], { ...loop[1], cancelled: true }, ...loop.slice(2)];
+    const v = vehiclePosition(withCancelled, null, '2026-11-02T13:04:00Z');
+    expect(v.status).toBe('en_route');
+    expect(v.fromIndex).toBe(0);
+    expect(v.toIndex).toBe(2);
+    // The rail across the cancelled stop is lit too.
+    expect(withCancelled.map((_, i) => railActive(v, i))).toEqual([true, true, false, false, false, false]);
   });
 });
