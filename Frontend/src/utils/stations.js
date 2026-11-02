@@ -28,6 +28,17 @@ export function normalizeStationName(name) {
     .trim();
 }
 
+// A station's board also lists the bus and tram stops around it (Berlin Hbf
+// includes "Lehrter Str./Invalidenstr.", München Hbf "Hauptbahnhof Nord"), and
+// a bus can call at two of them — the same trip twice, minutes apart. Returns
+// the stop's name when it isn't the station itself, so the row can say where
+// to board; null when it is the station, or there's nothing to compare.
+export function otherStopName(departure, stationName) {
+  const stop = departure?.stop?.name;
+  if (!stop || !stationName) return null;
+  return normalizeStationName(stop) === normalizeStationName(stationName) ? null : stop;
+}
+
 // Station objects come in two shapes: {location: {latitude, longitude}} from
 // the API, and flat {latitude, longitude} from the bundled list.
 export function coordsOf(place) {
