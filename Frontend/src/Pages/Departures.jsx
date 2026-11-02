@@ -2,27 +2,12 @@ import { useMemo, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import { useNow } from '../hooks/useNow';
-import { formatTime } from '../utils/transportUtils';
+import { formatTime, PRODUCT_FILTERS, productFilterParams } from '../utils/transportUtils';
 import FlapTime from '../Components/FlapTime';
 import DepartureBoard from '../Components/DepartureBoard';
 import { useResolvedStation } from '../hooks/useResolvedStation';
 import { isLegacyStopId } from '../utils/stations';
 import '../css/Departures.css';
-
-// Chip label -> the boolean query param the proxy accepts (a product is
-// excluded when its param is sent as false).
-const PRODUCT_FILTERS = [
-  { key: 'nationalExpress', label: 'ICE' },
-  { key: 'national', label: 'IC/EC' },
-  { key: 'regionalExpress', label: 'RE' },
-  { key: 'regional', label: 'RB' },
-  { key: 'suburban', label: 'S' },
-  { key: 'subway', label: 'U' },
-  { key: 'tram', label: 'Tram' },
-  { key: 'bus', label: 'Bus' },
-  { key: 'ferry', label: 'Ferry' },
-  { key: 'taxi', label: 'Taxi' },
-];
 
 export default function Departures() {
   const { stopId: idParam } = useParams();
@@ -56,15 +41,7 @@ export default function Departures() {
   // Memoized so the ticking clock's re-render every second doesn't hand
   // DepartureBoard a new object identity it has no way to tell apart from
   // an actual filter change — that would defeat the memoization below.
-  const filters = useMemo(() => {
-    const next = {};
-    if (activeFilters.size > 0) {
-      for (const { key } of PRODUCT_FILTERS) {
-        if (!activeFilters.has(key)) next[key] = false;
-      }
-    }
-    return next;
-  }, [activeFilters]);
+  const filters = useMemo(() => productFilterParams(activeFilters), [activeFilters]);
 
   return (
     <Container fluid="lg" className="departures-page py-4">
@@ -74,13 +51,13 @@ export default function Departures() {
       </div>
 
       <div className="departures-filters" role="group" aria-label="Filter by transport type">
-        {PRODUCT_FILTERS.map(({ key, label }) => (
+        {PRODUCT_FILTERS.map(({ id, label }) => (
           <button
-            key={key}
+            key={id}
             type="button"
-            className={`filter-chip${activeFilters.has(key) ? ' filter-chip-active' : ''}`}
-            aria-pressed={activeFilters.has(key)}
-            onClick={() => toggleFilter(key)}
+            className={`filter-chip${activeFilters.has(id) ? ' filter-chip-active' : ''}`}
+            aria-pressed={activeFilters.has(id)}
+            onClick={() => toggleFilter(id)}
           >
             {label}
           </button>
@@ -88,7 +65,7 @@ export default function Departures() {
       </div>
 
       {stopId ? (
-        <DepartureBoard stopId={stopId} filters={filters} />
+        <DepartureBoard stopId={stopId} filters={filters} stationName={stationName} />
       ) : (
         <div className="departures-lookup" role="status">
           {lookupFailed ? (

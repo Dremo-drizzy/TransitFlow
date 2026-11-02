@@ -44,6 +44,64 @@ export const formatDelay = (delayMinutes) => {
   return `+${delayMinutes} min`;
 };
 
+// Which time a board or card should print. Live data is sorted by when a
+// vehicle actually leaves, so printing only the planned time put a bus 94 min
+// late at "13:37" between 15:10 rows, with its real time shown nowhere. The
+// real time leads; `changed` says the planned time differs (to show it struck
+// through beside it). A cancelled or unpredicted departure keeps its planned
+// time — there is no other.
+export const displayTime = (planned, live, cancelled = false) => {
+  const hasLive = !cancelled && !!live;
+  const time = hasLive ? live : planned;
+  return {
+    time,
+    planned,
+    changed: hasLive && !!planned && formatTime(live) !== formatTime(planned),
+  };
+};
+
+// A React key for a departure row. The same trip can appear more than once on
+// a station's board (one row per nearby stop it calls at), so tripId alone is
+// not unique — and duplicate keys made React leave orphaned rows behind when
+// the list changed, e.g. under "no departures" after a filter chip.
+export const departureKey = (dep) =>
+  `${dep?.tripId ?? ''}|${dep?.stop?.id ?? ''}|${dep?.plannedWhen ?? ''}`;
+
+// Chip -> the product params it covers (the proxy excludes a product when its
+// param is sent as false). RE and RB share one chip: Transitous files both as
+// `regional` (RE3, RE8, RB10 alike — nothing at Berlin Hbf is
+// `regionalExpress`), so a separate RE chip matched nothing at all, and RB
+// quietly showed RE trains too.
+export const PRODUCT_FILTERS = [
+  { id: 'ice', label: 'ICE', keys: ['nationalExpress'] },
+  { id: 'ic', label: 'IC/EC', keys: ['national'] },
+  { id: 'regional', label: 'RE/RB', keys: ['regionalExpress', 'regional'] },
+  { id: 's', label: 'S', keys: ['suburban'] },
+  { id: 'u', label: 'U', keys: ['subway'] },
+  { id: 'tram', label: 'Tram', keys: ['tram'] },
+  { id: 'bus', label: 'Bus', keys: ['bus'] },
+  { id: 'ferry', label: 'Ferry', keys: ['ferry'] },
+  { id: 'taxi', label: 'Taxi', keys: ['taxi'] },
+];
+
+// No chip active means no filtering. An active selection means "only these":
+// every product of every chip NOT selected is sent as false.
+export function productFilterParams(activeIds) {
+  const params = {};
+  if (activeIds.size === 0) return params;
+  for (const chip of PRODUCT_FILTERS) {
+    if (activeIds.has(chip.id)) continue;
+    for (const key of chip.keys) params[key] = false;
+  }
+  return params;
+}
+
+// Changes in a journey: riding legs minus one. Walking legs are not changes —
+// counting them (often a walk within one station, "Erfurt Hbf → Erfurt Hbf")
+// turned a single change into "2 changes" or "3 changes".
+export const countChanges = (legs) =>
+  Math.max(0, (legs ?? []).filter((leg) => !leg?.walking).length - 1);
+
 // Delay severity, expressed as a Bootstrap-style variant name: on time is
 // 'success', 1-5 min late is 'warning', over 5 min is 'danger'.
 export const getDelayBadgeVariant = (delayMinutes) => {

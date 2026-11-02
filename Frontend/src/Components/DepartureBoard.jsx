@@ -2,7 +2,8 @@ import { memo, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { useDepartures } from '../hooks/useDepartures';
-import { formatTime, getDepartureStatus, shortPlatform } from '../utils/transportUtils';
+import { formatTime, getDepartureStatus, shortPlatform, displayTime, departureKey } from '../utils/transportUtils';
+import { otherStopName } from '../utils/stations';
 import FlapTime from './FlapTime';
 import SplitFlap from './SplitFlap';
 import '../css/DepartureBoard.css';
@@ -22,8 +23,10 @@ function SkeletonRow() {
   );
 }
 
-function DepartureRow({ dep }) {
+function DepartureRow({ dep, stationName }) {
   const status = getDepartureStatus(dep.plannedWhen, dep.when, dep.cancelled);
+  const shown = displayTime(dep.plannedWhen, dep.when, dep.cancelled);
+  const fromStop = otherStopName(dep, stationName);
   const platformChanged =
     dep.plannedPlatform != null && dep.platform != null && dep.plannedPlatform !== dep.platform;
 
@@ -31,16 +34,25 @@ function DepartureRow({ dep }) {
     <>
       <div className="db-cell db-time" role="cell">
         <FlapTime
-          value={formatTime(dep.plannedWhen)}
+          value={formatTime(shown.time)}
           size="md"
           tone={status.cancelled ? 'red' : 'amber'}
           cancelled={status.cancelled}
         />
+        {shown.changed && (
+          <span className="db-planned-time">
+            <span className="visually-hidden">planned </span>
+            {formatTime(shown.planned)}
+          </span>
+        )}
       </div>
       <div className="db-cell db-line" role="cell">
         <span className="db-line-pill">{dep.line?.name || dep.tripId}</span>
       </div>
-      <div className="db-cell db-destination" role="cell">{dep.direction}</div>
+      <div className="db-cell db-destination" role="cell">
+        <span className="db-destination-name">{dep.direction}</span>
+        {fromStop && <span className="db-from-stop">from {fromStop}</span>}
+      </div>
       <div className="db-cell db-platform" role="cell">
         <SplitFlap
           value={shortPlatform(dep.platform) || '-'}
@@ -77,7 +89,7 @@ function DepartureRow({ dep }) {
 // Departures.jsx re-renders once a second for its own header clock —
 // without this, that tick cascaded down and re-rendered every single row
 // along with it, even though none of their data had actually changed.
-function DepartureBoard({ stopId, filters = {} }) {
+function DepartureBoard({ stopId, filters = {}, stationName }) {
   const { data, isLoading, error, refetch, dataUpdatedAt } = useDepartures(stopId, {
     duration: 60,
     ...filters,
@@ -132,7 +144,7 @@ function DepartureBoard({ stopId, filters = {} }) {
       ) : (
         <div className="db-body" role="rowgroup">
           {departures.map((dep) => (
-            <DepartureRow dep={dep} key={dep.tripId || dep.plannedWhen} />
+            <DepartureRow dep={dep} stationName={stationName} key={departureKey(dep)} />
           ))}
         </div>
       )}
