@@ -43,11 +43,25 @@ export class SourceError extends Error {
   }
 }
 
+// Node's fetch rejects with a TypeError("fetch failed") when Transitous can't
+// be reached at all (DNS, refused connection, TLS); the real reason is in
+// `cause`. It has to be told apart from the client's own argument-check
+// TypeErrors before those are mapped to 400 below.
+const isNetworkFailure = (err) =>
+  err instanceof TypeError && (err.message === 'fetch failed' || err.cause !== undefined);
+
 // The client rejects with plain `{ error: "…" }` objects taken from the
 // Transitous response body (not Error instances), and with real Errors for
 // network failures and argument validation. Collapse both into a SourceError.
-function toSourceError(err) {
+export function toSourceError(err) {
   if (err instanceof SourceError) return err;
+  // Checked before the 400 below: an outage answered as 400 told the frontend
+  // the request was wrong — so it never retried — and, being under 500, was
+  // never logged either.
+  if (isNetworkFailure(err)) {
+    console.error('[source] Transitous unreachable:', err.cause?.code || err.cause?.message || err.message);
+    return new SourceError(502, 'Upstream request failed');
+  }
   if (err instanceof TypeError) return new SourceError(400, err.message);
 
   const text = typeof err?.error === 'string' ? err.error : '';
