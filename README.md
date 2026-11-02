@@ -34,7 +34,7 @@ Both are real Transitous data captured at 1440px wide, not mocked fixtures (capt
 
 The frontend never calls the transit data source directly — every request goes through a small Express proxy in `Backend/`. That indirection isn't incidental; it does four concrete jobs.
 
-**It keeps the User-Agent honest.** Transitous's usage policy requires every client to identify itself with a name, a version and a way to contact its author, and browsers won't let JavaScript set that header on `fetch`, so it can only be sent from a server we control. The same policy asks for light, user-driven traffic: this app only ever requests data because a person asked for it, and never polls on a timer.
+**It keeps the User-Agent honest.** Transitous's usage policy requires every client to identify itself with a name, a version and a way to contact its author, and browsers won't let JavaScript set that header on `fetch`, so it can only be sent from a server we control. The same policy asks for light, user-driven traffic: every request starts from a person using the app. The two live views refresh while someone is looking at them — the departures board every 30 s, a trip page every 60 s — and stop in a background tab; the server itself never polls.
 
 **It shares one cache.** On a free-tier deployment every visitor shares one outbound IP, so five people looking at the same station's departures within the cache TTL should cost one upstream request, not five. `Backend/routes.js` declares each allowlisted route's inputs, validation and TTL; the cache key is the route, its path parameters and its allowlisted query parameters. That file is also the security boundary: a parameter that isn't listed there never reaches the data source, so the proxy can't be used as an open relay.
 
