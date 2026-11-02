@@ -1,8 +1,8 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { useDepartures } from '../hooks/useDepartures';
-import { formatTime, getDepartureStatus, shortPlatform, displayTime, departureKey } from '../utils/transportUtils';
+import { formatTime, getDepartureStatus, shortPlatform, displayTime, departureKey, sortByShownTime } from '../utils/transportUtils';
 import { otherStopName } from '../utils/stations';
 import FlapTime from './FlapTime';
 import SplitFlap from './SplitFlap';
@@ -94,7 +94,7 @@ function DepartureBoard({ stopId, filters = {}, stationName }) {
     duration: 60,
     ...filters,
   });
-  const departures = data?.departures || [];
+  const departures = useMemo(() => sortByShownTime(data?.departures), [data]);
 
   const [announcement, setAnnouncement] = useState('');
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { displayTime, departureKey, productFilterParams, formatTime, countChanges } from './transportUtils';
+import { displayTime, departureKey, productFilterParams, formatTime, countChanges, sortByShownTime } from './transportUtils';
 import { otherStopName } from './stations';
 
 // Times are written in UTC; formatTime shows them in Europe/Berlin (CET in
@@ -102,5 +102,25 @@ describe('countChanges', () => {
   it('is 0 for no legs', () => {
     expect(countChanges([])).toBe(0);
     expect(countChanges(undefined)).toBe(0);
+  });
+});
+
+describe('sortByShownTime', () => {
+  it('orders rows by the time they show', () => {
+    // Berlin Hbf, live: an M41 ending at the station came after a 17:13 S3.
+    const s3 = { tripId: 's3', plannedWhen: '2026-11-02T16:13:00Z', when: '2026-11-02T16:13:00Z' };
+    const m41 = { tripId: 'm41', plannedWhen: '2026-11-02T16:06:00Z', when: null };
+    const late = { tripId: 'ice', plannedWhen: '2026-11-02T15:50:00Z', when: '2026-11-02T16:10:00Z' };
+    expect(sortByShownTime([s3, m41, late]).map((d) => d.tripId)).toEqual(['m41', 'ice', 's3']);
+  });
+
+  it('keeps the original order for equal times', () => {
+    const a = { tripId: 'a', plannedWhen: '2026-11-02T16:00:00Z' };
+    const b = { tripId: 'b', plannedWhen: '2026-11-02T16:00:00Z' };
+    expect(sortByShownTime([b, a]).map((d) => d.tripId)).toEqual(['b', 'a']);
+  });
+
+  it('handles a missing list', () => {
+    expect(sortByShownTime(undefined)).toEqual([]);
   });
 });

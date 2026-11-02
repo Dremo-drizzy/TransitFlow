@@ -3,7 +3,7 @@ import { Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useDepartures } from '../hooks/useDepartures';
 import { useResolvedStation } from '../hooks/useResolvedStation';
-import { getUserLocation, formatTime, displayTime, departureKey } from '../utils/transportUtils';
+import { getUserLocation, formatTime, displayTime, departureKey, sortByShownTime } from '../utils/transportUtils';
 import { nearestStation } from '../utils/stations';
 import { MAJOR_STATIONS } from '../data/majorStations';
 import '../css/LiveDeparturesPreview.css';
@@ -32,7 +32,7 @@ export default function LiveDeparturesPreview() {
   // A preview, not the board: a large interchange has well over a hundred
   // departures an hour, so only the next few are shown (the full board is one
   // click away).
-  const departures = (data?.departures || []).slice(0, PREVIEW_ROWS);
+  const departures = sortByShownTime(data?.departures).slice(0, PREVIEW_ROWS);
 
   // "Nearest major station", not "nearest stop": the stations are a bundled
   // list of the ~50 largest, found by straight-line distance in the browser.

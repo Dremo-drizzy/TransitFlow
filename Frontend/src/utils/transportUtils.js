@@ -60,6 +60,16 @@ export const displayTime = (planned, live, cancelled = false) => {
   };
 };
 
+// Departures in the order of the time each row shows. Transitous mostly sorts
+// by real time already, but not always (at Berlin Hbf, M41 buses ending at the
+// station came after buses leaving minutes later), and a board reads wrong
+// the moment one row is out of place. Stable: equal times keep their order.
+export const sortByShownTime = (departures) =>
+  [...(departures ?? [])]
+    .map((dep, i) => ({ dep, i, t: Date.parse(displayTime(dep.plannedWhen, dep.when, dep.cancelled).time) }))
+    .sort((a, b) => (Number.isNaN(a.t) || Number.isNaN(b.t) ? 0 : a.t - b.t) || a.i - b.i)
+    .map(({ dep }) => dep);
+
 // A React key for a departure row. The same trip can appear more than once on
 // a station's board (one row per nearby stop it calls at), so tripId alone is
 // not unique — and duplicate keys made React leave orphaned rows behind when
