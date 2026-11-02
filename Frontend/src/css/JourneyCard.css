@@ -120,3 +120,12 @@
     margin-left: auto;
   }
 }
+
+/* The planned time, struck through, beside a real time that differs from it. */
+.journey-planned-time {
+  font-family: var(--tf-font-mono);
+  font-size: 0.68rem;
+  color: var(--tf-muted);
+  text-decoration: line-through;
+  align-self: center;
+}

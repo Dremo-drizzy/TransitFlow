@@ -3,7 +3,7 @@ import { Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useDepartures } from '../hooks/useDepartures';
 import { useResolvedStation } from '../hooks/useResolvedStation';
-import { getUserLocation, formatTime } from '../utils/transportUtils';
+import { getUserLocation, formatTime, displayTime, departureKey } from '../utils/transportUtils';
 import { nearestStation } from '../utils/stations';
 import { MAJOR_STATIONS } from '../data/majorStations';
 import '../css/LiveDeparturesPreview.css';
@@ -117,8 +117,9 @@ export default function LiveDeparturesPreview() {
         </Card.Body>
       ) : (
         departures.map((dep) => (
-          <div className="departure-row" key={dep.tripId || dep.plannedWhen}>
-            <div className="departure-time">{formatTime(dep.plannedWhen)}</div>
+          <div className="departure-row" key={departureKey(dep)}>
+            {/* The real time when there is one — the list is sorted by it. */}
+            <div className="departure-time">{formatTime(displayTime(dep.plannedWhen, dep.when, dep.cancelled).time)}</div>
             <div className="departure-line">
               {dep.line?.name || dep.tripId}
             </div>
