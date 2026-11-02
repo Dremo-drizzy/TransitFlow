@@ -27,19 +27,20 @@ export default function PlanJourney() {
   const [fromQuery, setFromQuery] = useState(() => selectedFrom?.name || '');
   const [toQuery,   setToQuery]   = useState(() => selectedTo?.name || '');
   const [departure, setDeparture] = useState(() => new Date().toISOString());
-  const [searchTriggered, setSearchTriggered] = useState(() => (selectedFrom && selectedTo) ? 1 : 0);
+  const [searchTriggered, setSearchTriggered] = useState(0);
   const [validationError, setValidationError] = useState('');
 
-  const params = {
-    // Gate strictly on a selected station's id — falling back to raw typed
-    // text meant every keystroke (once both boxes had text) sent a
-    // half-typed ?from=be&to=mu upstream and 400'd.
-    from: selectedFrom?.id,
-    to:   selectedTo?.id,
-    departure,
-  };
+  // What the last search asked for. The query is keyed on this, not on the
+  // live form: keyed on the form, picking the second station searched at once
+  // and every step of the date picker fired another search (5 steps, 6
+  // searches) — each one a Transitous /plan request, which their usage policy
+  // asks apps to keep light. Arriving with both stations in the URL (Quick
+  // Search, a commute) still searches straight away.
+  const [submitted, setSubmitted] = useState(() =>
+    selectedFrom && selectedTo ? { from: selectedFrom.id, to: selectedTo.id, departure } : {}
+  );
 
-  const { data, isLoading, error } = useJourneys(params, searchTriggered);
+  const { data, isLoading, error } = useJourneys(submitted, searchTriggered);
 
   const handleSearch = () => {
     // Typing a full station name isn't the same as selecting it from the
@@ -50,8 +51,10 @@ export default function PlanJourney() {
       return;
     }
     setValidationError('');
-    // Bumping searchTriggered already changes the query key and refetches —
-    // calling refetch() too was firing the request twice per click.
+    setSubmitted({ from: selectedFrom.id, to: selectedTo.id, departure });
+    // Bumping searchTriggered changes the query key, so pressing Search again
+    // with the same inputs still fetches fresh results — calling refetch()
+    // too was firing the request twice per click.
     setSearchTriggered((n) => n + 1);
   };
 
