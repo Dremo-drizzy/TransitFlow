@@ -13,7 +13,7 @@ TransitFlow is a live departures, journey-planning, and saved-commutes app for G
 
 ## Screenshots
 
-Both are real Transitous data captured at 1440px wide, not mocked fixtures (captured just after midnight, German time).
+Both are real Transitous data, not mocked fixtures.
 
 **Departures board** — Kassel-Wilhelmshöhe, with the mix a real board has: on time, a real delay, and SCHEDULED for departures that have no real-time prediction. The line under the board says why.
 
