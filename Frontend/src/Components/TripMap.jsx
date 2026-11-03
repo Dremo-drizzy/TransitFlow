@@ -3,11 +3,12 @@ import { MapContainer, TileLayer, Polyline, Marker, useMap } from 'react-leaflet
 import L from 'leaflet';
 import '../css/TripMap.css';
 
-const TILE_URL = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-// Required by CARTO's terms of use, not optional.
+// Standard OpenStreetMap raster tiles: no API key, and attribution is required by
+// the OSM tile usage policy. They are light by default; TripMap.css darkens only
+// the tile layer so the route, markers and controls keep their own colours.
+const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const TILE_ATTRIBUTION =
-  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
-  '&copy; <a href="https://carto.com/attributions">CARTO</a>';
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 // Leaflet's SVG renderer sets a path's stroke as a plain XML attribute, not
 // a style property — a CSS custom property in pathOptions.color would never
@@ -94,7 +95,7 @@ export default function TripMap({ stopovers, polyline, lineName, vehicle, select
   return (
     <div className="trip-map">
       <MapContainer center={[origin.lat, origin.lon]} zoom={9} scrollWheelZoom={false}>
-        <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} />
+        <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} maxZoom={19} />
         <FitBounds bounds={bounds} />
         <PanToStop stop={selectedStop} />
 
