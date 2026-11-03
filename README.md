@@ -19,9 +19,9 @@ Both are real Transitous data captured at 1440px wide, not mocked fixtures (capt
 
 ![Departures board for Kassel-Wilhelmshöhe: on-time, delayed and scheduled departures, a footnote about real-time coverage, and the Transitous and OpenStreetMap footer](docs/images/departures-board.png)
 
-**Live trip map** — ICE 702 from München to Hamburg-Altona, running 63 minutes late. The marker sits on the route between Ludwigslust and Büchen, passed stops are dimmed, and the next ones are bright.
+**Live trip map** — the M41 bus across Berlin to S+U Berlin Hauptbahnhof, running 11 minutes late. The route is drawn on a dark map from OpenStreetMap tiles, the marker shows where the bus is, and the stopover timeline beside it shows each stop with its delay.
 
-![Trip page for ICE 702: a route on a map with the vehicle marker near Büchen, and a stopover timeline from München Hbf to Hamburg-Altona with delays](docs/images/trip-map.png)
+![Trip page for the M41 bus in Berlin: the route on a dark map with the vehicle marker, and a stopover timeline with delays](docs/images/trip-map.png)
 
 ## Stack
 
