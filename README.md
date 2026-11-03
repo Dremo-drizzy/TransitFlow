@@ -19,7 +19,7 @@ Both are real Transitous data captured at 1440px wide, not mocked fixtures (capt
 
 ![Departures board for Kassel-Wilhelmshöhe: on-time, delayed and scheduled departures, a footnote about real-time coverage, and the Transitous and OpenStreetMap footer](docs/images/departures-board.png)
 
-**Live trip map** — ICE 702 from München to Hamburg-Altona, running 63 minutes late. The marker sits on the route between Ludwigslust and Büchen, passed stops are dimmed, and the next ones are bright. (The grey map background and "API key required" watermark are the CARTO tile issue described under Known limitations.)
+**Live trip map** — ICE 702 from München to Hamburg-Altona, running 63 minutes late. The marker sits on the route between Ludwigslust and Büchen, passed stops are dimmed, and the next ones are bright.
 
 ![Trip page for ICE 702: a route on a map with the vehicle marker near Büchen, and a stopover timeline from München Hbf to Hamburg-Altona with delays](docs/images/trip-map.png)
 
@@ -94,7 +94,7 @@ The Vite dev server proxies `/api` to `http://localhost:5000`, so with both halv
 
 ## Roadmap
 
-This was a staged rebuild of an earlier fetch-wrapper version of this project into something that reads as a product — a split-flap departure board UI and live map/trip tracking were the end goal. The full plan, stage by stage, with what each one changes and why, lives in [`docs/build-plan.md`](docs/build-plan.md).
+This was a staged rebuild of an earlier fetch-wrapper version of this project into something that reads as a product — a split-flap departure board UI and live map/trip tracking were the end goal. It was built in stages, one branch and one pull request each, so the history reads stage by stage.
 
 **Complete:**
 - **Stage 0** — repo hygiene: stopped tracking `node_modules` and committed zips, moved config out of source, added a Vitest test runner, and got CI green.
@@ -108,11 +108,10 @@ This was a staged rebuild of an earlier fetch-wrapper version of this project in
 - **Phase 2, stage 1** — replaced the dead upstream with Transitous (see [`docs/data-sources.md`](docs/data-sources.md)): the proxy now runs `motis-fptf-client` in-process behind a normalising adapter; saved commutes and old links re-resolve stations by name; "Use my location" became "Nearest major station".
 
 **Cut:**
-- **Stage 7** (nearby radar) — an optional second map surface, dropped to prioritize shipping over an additional visualization. See `docs/build-plan.md` for what it would have been.
+- **Stage 7** (nearby radar) — an optional second map surface, dropped to prioritize shipping over an additional visualization.
 
 ## Known limitations
 
-- **The map's dark tiles currently show a CARTO watermark.** The free `{s}.basemaps.cartocdn.com` tile endpoint this app uses now renders an "API key required" overlay across the basemap — a change on CARTO's end since this stage of the project was planned, not a bug here. The route line, stop markers, and vehicle position all still render correctly on top of it; only the background map tiles themselves are degraded. Fixing this means either registering a CARTO API key or switching tile providers.
 - **No Lighthouse run against the live site yet.** The deployed URL hasn't been audited for accessibility or performance.
 - **The DB Timetables API isn't used yet.** The application is registered but not subscribed to the API, so every data call returns 403. It's intended for any delay logging, since Transitous's terms rule out continuous polling.
 - **No end-to-end or visual regression tests.** Coverage is unit/component-level (Vitest + Testing Library) for the pure logic (formatting, delay math, vehicle-position interpolation) and component behavior; nothing drives a real browser in CI.
@@ -132,3 +131,5 @@ A couple of the Stage 1 fixes are worth calling out on their own, because they'r
 **The retry loop could return `undefined` instead of failing.** The original fetch wrapper retried on HTTP 429 (rate limited), but the loop had no `throw` waiting at the end of it — if every retry came back rate-limited, the `for` loop simply ran out of iterations and the function fell off the end, implicitly returning `undefined`. Every call site treated that as "no data" (`data?.departures || []`), so a rate-limited station and an empty station were indistinguishable in the UI. The fix makes the final attempt rethrow explicitly, with a trailing `throw lastError` after the loop that should be unreachable — a small, deliberate insurance policy against the function ever silently resolving to nothing again.
 
 **Every transit icon was wrong, silently.** `getProductIcon` was written assuming `line.product` was an object with `.type`/`.name` fields, and picked an icon by testing substrings like `t.includes('s')` for S-Bahn. In reality, the DB API sends `product` as a plain string (`"nationalExpress"`, `"suburban"`, `"bus"`, etc.), so `.type` and `.name` were always `undefined`, the substring being tested was always empty, and every single journey leg rendered the same fallback icon regardless of mode. It never threw, never showed up in a log — it just quietly looked wrong for every train, tram, and bus in the app. The Stage 1 fix replaced the substring guessing with an exact lookup keyed on the actual product id; `getProductIcon` was later deleted outright, once a recurring color-emoji-in-the-UI problem made the case for the line pill's own text (`ICE 691`, `S7`) carrying that information instead of an icon at all.
+
+Built with Claude Code as a pair programmer.
