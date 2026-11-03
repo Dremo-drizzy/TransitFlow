@@ -1,7 +1,6 @@
 ## Why
 
-<!-- What problem does this solve, and why now? Link the relevant stage in
-     docs/build-plan.md if this PR corresponds to one. -->
+<!-- What problem does this solve, and why now? -->
 
 ## Changes
 
@@ -9,7 +8,7 @@
 
 ## Verification
 
-<!-- Paste the actual output of the stage's verification command(s).
+<!-- Paste the actual output of the verification command(s).
      "It works" is not verification. -->
 
 ## Deliberately deferred

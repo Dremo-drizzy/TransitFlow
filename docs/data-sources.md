@@ -1,6 +1,6 @@
 # Data sources — what was actually tested
 
-Reconnaissance for Phase 2 (see [`build-plan.md`](build-plan.md)). Nothing here changed application code. Everything below was observed on **2026-10-09**; fixtures are in `Backend/fixtures/`.
+Research into which transit data source to use. Nothing here changed application code. Everything below was observed on **2026-10-09**; fixtures are in `Backend/fixtures/`.
 
 **Status of this document:** Part B (journeys/trips) was tested and is complete. **Part A (the official DB Timetables API) is partly done:** the base URL and header names are confirmed, but every data endpoint returns 403 "Not registered to plan" until the application is subscribed to the Timetables API, so no response format has been observed yet. See Part A.
 
